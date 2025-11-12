@@ -17,6 +17,8 @@ async function fetchTemplates() {
   return data as Template[];
 }
 
+const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
 export default function AvailabilityPage() {
   const { data, mutate } = useSWR('availability_templates', fetchTemplates);
   const [weekday, setWeekday] = useState(1);
@@ -46,34 +48,142 @@ export default function AvailabilityPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-semibold">Availability</h1>
-      <div className="border rounded p-4 space-y-3">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-          <select value={weekday} onChange={e=>setWeekday(parseInt(e.target.value))} className="border p-2 rounded col-span-2">
-            {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((d, i) => (
-              <option key={i} value={i}>{d}</option>
-            ))}
-          </select>
-          <input value={start} onChange={e=>setStart(e.target.value)} className="border p-2 rounded" type="time" />
-          <input value={end} onChange={e=>setEnd(e.target.value)} className="border p-2 rounded" type="time" />
-          <input value={slotMinutes} onChange={e=>setSlotMinutes(parseInt(e.target.value))} className="border p-2 rounded" type="number" min={30} step={15} />
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto animate-fade-in">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl sm:text-5xl font-bold mb-4">
+            <span className="gradient-text">Manage Availability</span>
+          </h1>
+          <p className="text-xl text-white/60 max-w-2xl mx-auto">
+            Set your weekly schedule templates and generate available time slots for clients to book.
+          </p>
         </div>
-        <div className="flex gap-2">
-          <button disabled={busy} onClick={addTemplate} className="px-3 py-2 bg-black text-white rounded">Add Template</button>
-          <button disabled={busy} onClick={generate} className="px-3 py-2 border rounded">Generate next 6 weeks</button>
+
+        {/* Add Template Form */}
+        <div className="card-premium mb-8">
+          <h2 className="text-2xl font-bold mb-6 text-white flex items-center space-x-2">
+            <span>➕</span>
+            <span>Add New Template</span>
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-white/80 mb-2">
+                Day of Week
+              </label>
+              <select
+                value={weekday}
+                onChange={(e) => setWeekday(parseInt(e.target.value))}
+                className="input-premium"
+              >
+                {WEEKDAYS.map((d, i) => (
+                  <option key={i} value={i}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-white/80 mb-2">
+                Start Time
+              </label>
+              <input
+                value={start}
+                onChange={(e) => setStart(e.target.value)}
+                className="input-premium"
+                type="time"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-white/80 mb-2">
+                End Time
+              </label>
+              <input
+                value={end}
+                onChange={(e) => setEnd(e.target.value)}
+                className="input-premium"
+                type="time"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-white/80 mb-2">
+                Slot Duration (min)
+              </label>
+              <input
+                value={slotMinutes}
+                onChange={(e) => setSlotMinutes(parseInt(e.target.value))}
+                className="input-premium"
+                type="number"
+                min={30}
+                step={15}
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button
+              disabled={busy}
+              onClick={addTemplate}
+              className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {busy ? 'Adding...' : 'Add Template'}
+            </button>
+            <button
+              disabled={busy}
+              onClick={generate}
+              className="btn-secondary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {busy ? 'Generating...' : 'Generate Next 6 Weeks'}
+            </button>
+          </div>
         </div>
-      </div>
-      <div className="space-y-2">
-        <h2 className="font-medium">Existing templates</h2>
-        <ul className="space-y-1">
-          {data?.map(t => (
-            <li key={t.id} className="border rounded p-2 text-sm flex justify-between">
-              <span>{['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][t.weekday]} {t.start_time} - {t.end_time} ({t.slot_minutes}m)</span>
-              <span>{t.active ? 'Active' : 'Inactive'}</span>
-            </li>
-          ))}
-        </ul>
+
+        {/* Existing Templates */}
+        <div className="card-premium">
+          <h2 className="text-2xl font-bold mb-6 text-white flex items-center space-x-2">
+            <span>📋</span>
+            <span>Existing Templates</span>
+          </h2>
+
+          {!data || data.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-5xl mb-4">📅</div>
+              <p className="text-white/60">No templates yet. Add one above to get started!</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {data.map((t) => (
+                <div
+                  key={t.id}
+                  className="p-4 rounded-xl bg-gradient-to-br from-white/5 to-white/0 border border-white/10 hover:border-indigo-500/50 transition-all duration-300 flex items-center justify-between"
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
+                      <span className="text-xl">
+                        {['📅', '📅', '📅', '📅', '📅', '📅', '📅'][t.weekday]}
+                      </span>
+                    </div>
+                    <div>
+                      <div className="font-semibold text-white">
+                        {WEEKDAYS[t.weekday]} • {t.start_time} - {t.end_time}
+                      </div>
+                      <div className="text-sm text-white/60">
+                        {t.slot_minutes} minute slots
+                      </div>
+                    </div>
+                  </div>
+                  <div className="px-3 py-1 rounded-lg bg-green-500/20 text-green-400 text-sm font-medium">
+                    {t.active ? 'Active' : 'Inactive'}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

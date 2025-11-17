@@ -9,6 +9,8 @@ alter table public.openings enable row level security;
 alter table public.bookings enable row level security;
 alter table public.lessons enable row level security;
 alter table public.lesson_notes enable row level security;
+alter table public.conversations enable row level security;
+alter table public.messages enable row level security;
 
 -- profiles
 drop policy if exists "read own profile" on public.profiles;
@@ -51,6 +53,43 @@ create policy "coach read own" on public.lessons for select using (coach_id = au
 -- notes
 drop policy if exists "coach manage notes" on public.lesson_notes;
 create policy "coach manage notes" on public.lesson_notes for all using (coach_id = auth.uid()) with check (coach_id = auth.uid());
+
+-- conversations
+drop policy if exists "coach read conversations" on public.conversations;
+drop policy if exists "client read conversations" on public.conversations;
+drop policy if exists "coach create conversations" on public.conversations;
+drop policy if exists "client create conversations" on public.conversations;
+create policy "coach read conversations" on public.conversations for select using (coach_id = auth.uid());
+create policy "client read conversations" on public.conversations for select using (client_id = auth.uid());
+create policy "coach create conversations" on public.conversations for insert with check (coach_id = auth.uid());
+create policy "client create conversations" on public.conversations for insert with check (client_id = auth.uid());
+
+-- messages
+drop policy if exists "read own messages" on public.messages;
+drop policy if exists "send messages" on public.messages;
+drop policy if exists "update read status" on public.messages;
+create policy "read own messages" on public.messages for select using (
+  exists (
+    select 1 from public.conversations c 
+    where c.id = messages.conversation_id 
+    and (c.coach_id = auth.uid() or c.client_id = auth.uid())
+  )
+);
+create policy "send messages" on public.messages for insert with check (
+  sender_id = auth.uid() and
+  exists (
+    select 1 from public.conversations c 
+    where c.id = messages.conversation_id 
+    and (c.coach_id = auth.uid() or c.client_id = auth.uid())
+  )
+);
+create policy "update read status" on public.messages for update using (
+  exists (
+    select 1 from public.conversations c 
+    where c.id = messages.conversation_id 
+    and (c.coach_id = auth.uid() or c.client_id = auth.uid())
+  )
+);
 
 
 

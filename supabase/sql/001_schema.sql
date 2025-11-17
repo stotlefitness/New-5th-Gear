@@ -116,6 +116,31 @@ create table if not exists public.lesson_notes (
 );
 create index if not exists lesson_notes_lesson_idx on public.lesson_notes(lesson_id);
 
+-- messages/conversations
+create table if not exists public.conversations (
+  id uuid primary key default gen_random_uuid(),
+  coach_id uuid not null references public.profiles(id) on delete cascade,
+  client_id uuid not null references public.profiles(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (coach_id, client_id),
+  check (coach_id <> client_id)
+);
+create index if not exists conversations_coach_idx on public.conversations(coach_id);
+create index if not exists conversations_client_idx on public.conversations(client_id);
+
+create table if not exists public.messages (
+  id uuid primary key default gen_random_uuid(),
+  conversation_id uuid not null references public.conversations(id) on delete cascade,
+  sender_id uuid not null references public.profiles(id) on delete cascade,
+  content text not null,
+  read_at timestamptz,
+  created_at timestamptz not null default now()
+);
+create index if not exists messages_conversation_idx on public.messages(conversation_id);
+create index if not exists messages_sender_idx on public.messages(sender_id);
+create index if not exists messages_created_idx on public.messages(created_at);
+
 -- single-coach config
 create table if not exists public.app_settings (
   key text primary key,

@@ -30,13 +30,13 @@ export default function LoginPage() {
         .eq("id", data.user.id)
         .single();
 
-      if (profile?.role === "coach") {
-        router.push("/availability");
-      } else {
-        router.push("/book");
+        if (profile?.role === "coach") {
+          router.push("/availability");
+        } else {
+          router.push("/book");
+        }
       }
     }
-  }
 
   async function onGoogle() {
     setLoading(true);
@@ -56,119 +56,101 @@ export default function LoginPage() {
             quality={90}
             className="object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black via-black/90 to-black/95" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(115,255,209,0.18),transparent_55%)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/95 to-black" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#122033_0%,rgba(0,0,0,0.7)_55%,#000_100%)]" />
         </div>
 
-        <div className="relative z-10 flex min-h-screen items-center px-4 py-10 sm:px-8">
-          <div className="mx-auto w-full max-w-[520px] space-y-10">
-            <div className="space-y-2 text-center">
+        <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-12 sm:px-6">
+          <div className="w-full max-w-[420px] rounded-[28px] border border-white/10 bg-black/75 px-7 py-9 shadow-[0_24px_80px_rgba(0,0,0,0.8)] backdrop-blur-2xl">
+            <div className="relative mb-9 flex items-center justify-center text-xs tracking-[0.35em] text-white/70">
               <Link
                 href="/"
-                className="text-[2rem] font-light uppercase tracking-[0.65em] text-white transition hover:text-white/75 sm:text-[2.3rem]"
+                className="absolute left-0 flex h-9 w-9 items-center justify-center rounded-full border border-white/35 text-lg text-white transition hover:border-white hover:text-white"
+                aria-label="Back"
               >
-                5TH GEAR
+                ←
               </Link>
-              <p className="text-[0.6rem] uppercase tracking-[0.55em] text-white/45">Performance Coalition</p>
+              5TH&nbsp;GEAR
             </div>
 
-            <div className="rounded-[32px] border border-white/12 bg-black/65 p-8 shadow-[0_30px_80px_rgba(0,0,0,0.65)] backdrop-blur-2xl sm:p-10">
-              <div className="mb-8 space-y-3 text-center">
-                <p className="text-[0.55rem] uppercase tracking-[0.6em] text-white/55">Account Access</p>
-                <h1 className="text-3xl font-light tracking-tight sm:text-[2.15rem]">Log in. Lock in.</h1>
-                <p className="text-sm text-white/70">
-                  Keep your sessions, workloads, and availability synced across every device.
+            <h1 className="mb-6 text-3xl font-semibold tracking-tight">Log in.</h1>
+
+            <form onSubmit={onSubmit} className="space-y-6">
+              <label className="block text-[0.65rem] uppercase tracking-[0.3em] text-white/55">
+                Email address
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="mt-2 w-full border-b border-white/30 bg-transparent pb-3 text-base text-white placeholder:text-white/40 focus:border-white focus:outline-none"
+                  placeholder="you@email.com"
+                  required
+                />
+              </label>
+
+              <label className="block text-[0.65rem] uppercase tracking-[0.3em] text-white/55">
+                Password
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="mt-2 w-full border-b border-white/30 bg-transparent pb-3 text-base text-white placeholder:text-white/40 focus:border-white focus:outline-none"
+                  placeholder="••••••••"
+                  required
+                />
+              </label>
+
+              <button
+                type="button"
+                className="text-[0.65rem] uppercase tracking-[0.3em] text-white/60 transition hover:text-white"
+              >
+                Forgot your password?
+              </button>
+
+              {error && (
+                <p className="rounded-2xl border border-rose-400/40 bg-rose-500/15 px-4 py-3 text-center text-sm text-rose-100">
+                  {error}
                 </p>
-              </div>
+              )}
 
-              <form onSubmit={onSubmit} className="space-y-6 text-left">
-                <label className="block text-[0.6rem] uppercase tracking-[0.45em] text-white/55">
-                  Email
-                  <input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="mt-2 w-full rounded-full border border-white/20 bg-white/5 px-5 py-3.5 text-sm text-white placeholder:text-white/40 transition focus:border-white focus:bg-white/10 focus:outline-none"
-                    placeholder="you@email.com"
-                    required
-                  />
-                </label>
-
-                <label className="block text-[0.6rem] uppercase tracking-[0.45em] text-white/55">
-                  Password
-                  <input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="mt-2 w-full rounded-full border border-white/20 bg-white/5 px-5 py-3.5 text-sm text-white placeholder:text-white/40 transition focus:border-white focus:bg-white/10 focus:outline-none"
-                    placeholder="••••••••"
-                    required
-                  />
-                </label>
-
-                {error && (
-                  <p className="rounded-2xl border border-rose-400/40 bg-rose-500/20 px-4 py-3 text-center text-sm text-rose-50">
-                    {error}
-                  </p>
+              <button
+                disabled={loading}
+                type="submit"
+                className="mt-3 w-full rounded-full bg-white px-6 py-3 text-base font-semibold tracking-wide text-black transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center gap-3 text-black/70">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-black/30 border-t-black" />
+                    Signing in
+                  </span>
+                ) : (
+                  "Log in"
                 )}
+              </button>
 
-                <button
-                  disabled={loading}
-                  type="submit"
-                  className="w-full rounded-full bg-white/95 px-6 py-3.5 text-sm font-semibold uppercase tracking-[0.3em] text-black transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {loading ? (
-                    <span className="flex items-center justify-center gap-3 text-black/70">
-                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-black/30 border-t-black" />
-                      Signing in
-                    </span>
-                  ) : (
-                    "Sign In"
-                  )}
-                </button>
+              <button
+                type="button"
+                onClick={onGoogle}
+                disabled={loading}
+                className="w-full rounded-full border border-white/40 px-6 py-3 text-base font-medium tracking-wide text-white transition hover:border-white disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Continue with Google
+              </button>
+            </form>
 
-                <div className="flex items-center gap-3 text-[0.5rem] uppercase tracking-[0.45em] text-white/35">
-                  <span className="h-px flex-1 bg-white/15" />
-                  or
-                  <span className="h-px flex-1 bg-white/15" />
-                </div>
-
-                <button
-                  type="button"
-                  onClick={onGoogle}
-                  disabled={loading}
-                  className="flex w-full items-center justify-center gap-3 rounded-full border border-white/25 px-6 py-3.5 text-sm font-medium uppercase tracking-[0.3em] text-white/90 transition hover:border-white hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
-                    <path
-                      fill="currentColor"
-                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                    />
-                    <path
-                      fill="currentColor"
-                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                    />
-                    <path
-                      fill="currentColor"
-                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                    />
-                    <path
-                      fill="currentColor"
-                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                    />
-                  </svg>
-                  Google
-                </button>
-              </form>
-
-              <p className="pt-8 text-center text-xs uppercase tracking-[0.35em] text-white/55">
-                Need an account?{" "}
-                <Link href="/signup" className="text-white hover:text-white/75">
-                  Create one
+            <div className="mt-8 text-sm text-white/75">
+              <p>
+                Have 5th Gear access but no login yet?{" "}
+                <Link href="/signup" className="font-medium text-white hover:text-white/80">
+                  Create account
                 </Link>
               </p>
+              <div className="mt-6 flex flex-col items-center gap-2 text-[0.65rem] uppercase tracking-[0.25em] text-white/60">
+                <button className="transition hover:text-white">Setup instructions</button>
+                <button className="transition hover:text-white">Can’t log in? Email support</button>
+              </div>
             </div>
           </div>
         </div>

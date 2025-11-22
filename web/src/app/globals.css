@@ -646,3 +646,188 @@ body {
     transform: rotate(360deg);
   }
 }
+
+/* ====== CLIENT SHELL / BACKGROUND ====== */
+
+.client-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(circle at top, #0f172a 0, #020617 45%, #020617 100%);
+  color: #fff;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ====== TOP NAV ====== */
+
+.client-nav {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  background: #000;
+}
+
+.client-nav-left {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.client-logo-main {
+  font-size: 18px;
+  letter-spacing: 0.6em;
+}
+
+.client-logo-sub {
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.85);
+}
+
+.client-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* pill nav buttons – same style as coach */
+
+.client-nav-pill {
+  border-radius: 999px;
+  padding: 4px 14px 6px;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  background: transparent;
+  color: rgba(226, 232, 240, 0.85);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.client-nav-pill:hover {
+  border-color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.client-nav-pill--active {
+  border-color: #ffffff;
+  background: #ffffff;
+  color: #020617;
+}
+
+.client-nav-pill--ghost {
+  border-style: dashed;
+}
+
+/* ====== MAIN LAYOUT ====== */
+
+.client-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 32px 48px;
+}
+
+.client-page-inner {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Header pattern */
+
+.client-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.client-header-label {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.8);
+  margin-bottom: 6px;
+}
+
+.client-header-title {
+  font-size: 32px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.client-header-subtitle {
+  font-size: 14px;
+  color: rgba(203, 213, 225, 0.9);
+}
+
+/* Glass card */
+
+.client-card {
+  border-radius: 28px;
+  background: linear-gradient(
+    135deg,
+    rgba(15, 23, 42, 0.82),
+    rgba(15, 23, 42, 0.9)
+  );
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  padding: 18px 24px;
+  color: #e5e7eb;
+}
+
+/* Buttons inside cards */
+
+.client-btn,
+.client-btn-outline {
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.client-btn {
+  background: #ffffff;
+  color: #020617;
+  border-color: #ffffff;
+}
+
+.client-btn:hover {
+  transform: translateY(-1px);
+}
+
+.client-btn-outline {
+  background: transparent;
+  color: #e5e7eb;
+  border-color: rgba(148, 163, 184, 0.8);
+}
+
+.client-btn-outline:hover {
+  border-color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* List rows */
+
+.client-list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 4px;
+  border-top: 1px solid rgba(51, 65, 85, 0.8);
+}
+
+.client-list-row:first-of-type {
+  border-top: none;
+}

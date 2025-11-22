@@ -1,4 +1,4 @@
-import Navigation from "@/components/Navigation";
+import ClientNavigation from "@/components/ClientNavigation";
 
 export default function ClientLayout({
   children,
@@ -6,14 +6,13 @@ export default function ClientLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
-      <Navigation />
-      <main className="flex items-center justify-center" style={{ height: 'calc(100vh - 64px)', marginTop: '64px' }}>
-        <div className="w-full max-w-3xl px-6 sm:px-8 lg:px-12">
-          {children}
-        </div>
+    <div className="client-shell">
+      <ClientNavigation />
+
+      <main className="client-main">
+        {children}
       </main>
-    </>
+    </div>
   );
 }
 

@@ -78,7 +78,7 @@ export default function AvailabilityPage() {
       <header className="text-center space-y-8 mb-8">
         <p className="text-xs uppercase tracking-[0.4em] text-white/40">Coach tools</p>
         <h1 className="text-4xl sm:text-5xl font-light tracking-tight text-white">Availability Console</h1>
-        <p className="text-sm sm:text-base text-white/60">Shape your week and generate the sessions athletes can book.</p>
+        <p className="text-sm sm:text-base text-white/60">Shape your week and generate the sessions clients can book.</p>
       </header>
 
       <section className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-2xl p-16 lg:p-20 space-y-12">

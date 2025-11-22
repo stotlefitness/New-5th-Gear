@@ -10,9 +10,13 @@ import CoachPageContainer from "@/components/CoachPageContainer";
 const supabase = getSupabaseBrowserClient();
 
 async function fetchLesson(id: string) {
-  const { data, error } = await supabase.from("lessons").select("id,start_at,end_at,client_id").eq("id", id).single();
+  const { data, error } = await supabase
+    .from("lessons")
+    .select("id,start_at,end_at,client_id,profiles:client_id(full_name,email)")
+    .eq("id", id)
+    .single();
   if (error) throw error;
-  return data as { id: string; start_at: string; end_at: string; client_id: string };
+  return data as { id: string; start_at: string; end_at: string; client_id: string; profiles: { full_name: string; email: string } | null };
 }
 
 async function fetchNotes(id: string) {
@@ -44,7 +48,14 @@ export default function LessonDetailPage() {
   async function addNote() {
     if (!content.trim()) return;
     setBusy(true);
-    const { error } = await supabase.from("lesson_notes").insert({ lesson_id: id, content });
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session?.user) {
+      setBusy(false);
+      return alert("Not authenticated");
+    }
+    const { error } = await supabase
+      .from("lesson_notes")
+      .insert({ lesson_id: id, coach_id: session.session.user.id, content });
     setBusy(false);
     if (error) return alert(error.message);
     setContent("");
@@ -83,7 +94,12 @@ export default function LessonDetailPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.4em] text-white/40">Client</p>
-            <span className="font-mono text-lg tracking-[0.3em] text-white">{lesson.client_id.slice(0, 8)}</span>
+            <span className="text-lg font-light text-white">
+              {lesson.profiles?.full_name || lesson.client_id.slice(0, 8)}
+            </span>
+            {lesson.profiles?.email && (
+              <p className="text-xs text-white/50 mt-1">{lesson.profiles.email}</p>
+            )}
           </div>
           <div className="text-right">
             <p className="text-xs uppercase tracking-[0.4em] text-white/40">Lesson id</p>

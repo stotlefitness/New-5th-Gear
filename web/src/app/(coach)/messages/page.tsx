@@ -269,7 +269,7 @@ export default function MessagesPage() {
         <p className="text-xs uppercase tracking-[0.4em] text-white/40">Coach tools</p>
         <h1 className="text-4xl sm:text-5xl font-light tracking-tight text-white">Messages</h1>
         <p className="text-sm sm:text-base text-white/60">
-          {isCoach ? "Direct athlete communication with saved threads." : "Chat with your coach"}
+          {isCoach ? "Direct client communication with saved threads." : "Chat with your coach"}
         </p>
       </header>
 

@@ -13,11 +13,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [resetMessage, setResetMessage] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setResetMessage(null);
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) {
@@ -40,9 +43,29 @@ export default function LoginPage() {
 
   async function onGoogle() {
     setLoading(true);
+    setError(null);
+    setResetMessage(null);
     const { error } = await supabase.auth.signInWithOAuth({ provider: "google" });
     setLoading(false);
     if (error) setError(error.message);
+  }
+
+  async function onForgotPassword() {
+    if (!email) {
+      setError("Enter your email address to receive a reset link.");
+      return;
+    }
+    setForgotLoading(true);
+    setError(null);
+    setResetMessage(null);
+    const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/reset-password` : undefined;
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+    setForgotLoading(false);
+    if (error) {
+      setError(error.message);
+    } else {
+      setResetMessage("Reset link sent. Check your email for instructions.");
+    }
   }
 
     return (
@@ -102,18 +125,25 @@ export default function LoginPage() {
                 />
               </label>
 
-              <button
-                type="button"
-                className="text-[0.65rem] uppercase tracking-[0.3em] text-white/60 transition hover:text-white"
-              >
-                Forgot your password?
-              </button>
+                <button
+                  type="button"
+                  onClick={onForgotPassword}
+                  disabled={forgotLoading}
+                  className="text-[0.65rem] uppercase tracking-[0.3em] text-white/60 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {forgotLoading ? "Sending..." : "Forgot your password?"}
+                </button>
 
               {error && (
                 <p className="rounded-2xl border border-rose-400/40 bg-rose-500/15 px-4 py-3 text-center text-sm text-rose-100">
                   {error}
                 </p>
               )}
+                {resetMessage && (
+                  <p className="rounded-2xl border border-emerald-400/40 bg-emerald-500/15 px-4 py-3 text-center text-sm text-emerald-100">
+                    {resetMessage}
+                  </p>
+                )}
 
               <button
                 disabled={loading}

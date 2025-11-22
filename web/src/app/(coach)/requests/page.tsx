@@ -11,7 +11,7 @@ type Booking = {
   status: string;
   client_id: string;
   opening_id: string;
-  openings: { start_at: string; end_at: string };
+  openings: { start_at: string; end_at: string } | { start_at: string; end_at: string }[];
 };
 
 const supabase = getSupabaseBrowserClient();
@@ -23,7 +23,11 @@ async function fetchPending() {
     .eq("status", "pending")
     .order("created_at");
   if (error) throw error;
-  return data as Booking[];
+  // Handle the case where openings might be an array
+  return (data || []).map((item: any) => ({
+    ...item,
+    openings: Array.isArray(item.openings) ? item.openings[0] : item.openings,
+  })) as Booking[];
 }
 
 function formatDate(date: Date): string {
@@ -67,8 +71,9 @@ export default function RequestsPage() {
       ) : (
         <div className="space-y-8">
           {data.map((booking) => {
-            const startDate = new Date(booking.openings.start_at);
-            const endDate = new Date(booking.openings.end_at);
+            const opening = Array.isArray(booking.openings) ? booking.openings[0] : booking.openings;
+            const startDate = new Date(opening.start_at);
+            const endDate = new Date(opening.end_at);
             const isBusy = busy === booking.id;
 
             return (

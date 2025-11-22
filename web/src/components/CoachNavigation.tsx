@@ -10,11 +10,11 @@ interface Profile {
 }
 
 const coachLinks = [
-  { href: "/coach/availability", label: "Availability" },
-  { href: "/coach/requests", label: "Requests" },
-  { href: "/coach/lessons", label: "Lessons" },
-  { href: "/coach/messages", label: "Messages" },
-  { href: "/coach/settings", label: "Settings" },
+  { href: "/availability", label: "Availability" },
+  { href: "/requests", label: "Requests" },
+  { href: "/lessons", label: "Lessons" },
+  { href: "/messages", label: "Messages" },
+  { href: "/settings", label: "Settings" },
 ];
 
 export default function CoachNavigation() {
@@ -55,7 +55,7 @@ export default function CoachNavigation() {
   return (
     <header className="coach-nav">
       <div className="coach-nav-left">
-        <Link href="/coach/availability" style={{ textDecoration: "none", color: "inherit" }}>
+        <Link href="/availability" style={{ textDecoration: "none", color: "inherit" }}>
           <span className="coach-logo-main">5TH</span>
           <span className="coach-logo-sub">Coach Console</span>
         </Link>

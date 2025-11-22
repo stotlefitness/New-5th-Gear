@@ -159,6 +159,14 @@ body {
   font-size: 13px;
   letter-spacing: 0.28em;
   text-transform: uppercase;
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.auth-logo:hover {
+  opacity: 0.8;
 }
 
 .icon-btn {

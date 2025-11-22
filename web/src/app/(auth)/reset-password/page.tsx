@@ -55,7 +55,7 @@ export default function ResetPasswordPage() {
           ←
         </button>
 
-        <div className="auth-logo">5TH GEAR</div>
+        <Link href="/" className="auth-logo">5TH GEAR</Link>
 
         <button className="icon-btn" aria-label="Menu">
           ☰

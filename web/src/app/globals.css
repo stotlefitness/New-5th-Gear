@@ -57,22 +57,6 @@ body {
   animation: fadeIn 0.6s ease-out;
 }
 
-/* Card styles */
-.card {
-  position: relative;
-  background: linear-gradient(to bottom right, rgba(17, 24, 39, 0.9), rgba(17, 24, 39, 0.4));
-  border: 1px solid rgba(31, 41, 55, 0.5);
-  border-radius: 1rem;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  transition: all 0.3s ease;
-  overflow: hidden;
-}
-
-.card:hover {
-  border-color: rgba(199, 62, 42, 0.3);
-  box-shadow: 0 25px 50px -12px rgba(199, 62, 42, 0.15);
-}
-
 /* Logo styles */
 .logo-number {
   font-weight: 100;
@@ -90,22 +74,6 @@ body {
   height: 0.3em;
   background: #8B2E1F;
   border-radius: 50%;
-}
-
-/* Button styles */
-.btn-primary {
-  background: #C73E2A;
-  color: white;
-  padding: 0.625rem 1.5rem;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  border: none;
-  cursor: pointer;
-}
-
-.btn-primary:hover {
-  background: #8B2E1F;
 }
 
 /* Label styles */
@@ -133,4 +101,201 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(199, 62, 42, 0.5);
+}
+
+/* WHOOP-style auth layout */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(circle at top, #111827 0, #020617 50%, #000 100%);
+  color: #fff;
+}
+
+.auth-nav {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  background: linear-gradient(
+    to bottom,
+    rgba(15, 23, 42, 0.96),
+    rgba(15, 23, 42, 0.8),
+    transparent
+  );
+  backdrop-filter: blur(18px);
+}
+
+.auth-logo {
+  font-size: 13px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: transparent;
+  color: #fff;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.icon-btn:hover {
+  border-color: #fff;
+}
+
+.auth-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px 32px;
+}
+
+.auth-panel {
+  width: 100%;
+  max-width: 420px;
+}
+
+.auth-title {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.field-label {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(248, 250, 252, 0.6);
+}
+
+.field-input {
+  margin-top: 4px;
+  padding: 8px 0;
+  border: none;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.7);
+  background: transparent;
+  color: #fff;
+  font-size: 15px;
+}
+
+.field-input::placeholder {
+  color: rgba(248, 250, 252, 0.35);
+}
+
+.field-input:focus {
+  outline: none;
+  border-bottom-color: #f9fafb;
+}
+
+.inline-link {
+  align-self: flex-end;
+  margin-top: 4px;
+  border: none;
+  background: none;
+  color: rgba(248, 250, 252, 0.72);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.inline-link.small {
+  align-self: center;
+  margin-top: 18px;
+  font-size: 11px;
+}
+
+.inline-link:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.btn-primary {
+  margin-top: 16px;
+  width: 100%;
+  padding: 11px 0;
+  border: none;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #020617;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary:not(:disabled):hover {
+  background: #f7f7f7;
+}
+
+.auth-secondary {
+  margin-top: 18px;
+  font-size: 13px;
+  color: rgba(226, 232, 240, 0.9);
+  text-align: center;
+}
+
+.inline-strong {
+  border: none;
+  background: none;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.inline-strong:focus-visible,
+.inline-link:focus-visible,
+.icon-btn:focus-visible,
+.btn-primary:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 2px;
+}
+
+.auth-message {
+  margin-top: 12px;
+  font-size: 13px;
+  text-align: center;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.auth-message.error {
+  color: #fca5a5;
+}
+
+.auth-message.success {
+  color: #a7f3d0;
+}
+
+@media (max-width: 480px) {
+  .auth-logo {
+    letter-spacing: 0.18em;
+  }
+
+  .auth-title {
+    font-size: 24px;
+  }
 }

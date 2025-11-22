@@ -28,7 +28,7 @@ export default function Home() {
           router.push("/availability");
           return;
         } else if (data?.role === "client") {
-          router.push("/book");
+          router.push("/schedule");
           return;
         }
       }

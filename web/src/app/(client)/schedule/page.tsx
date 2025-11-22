@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 export default function SchedulePage() {
   return (
     <div className="client-page-inner">
@@ -26,7 +28,9 @@ export default function SchedulePage() {
         </div>
         <div className="client-list-row">
           <span>None scheduled</span>
-          <button className="client-btn-outline">Request time</button>
+          <Link href="/book" className="client-btn-outline" style={{ textDecoration: "none" }}>
+            Request time
+          </Link>
         </div>
 
         {/* Upcoming */}

@@ -34,8 +34,8 @@ export default function SignupPage() {
         setLoading(false);
         return;
       }
-      // New signups are always clients, redirect to book page
-      router.push("/book");
+      // New signups are always clients, redirect to schedule page
+      router.push("/schedule");
     } else {
       setLoading(false);
     }

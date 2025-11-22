@@ -32,7 +32,7 @@ export default function LoginPage() {
       if (profile?.role === "coach") {
         router.push("/availability");
       } else {
-        router.push("/book");
+        router.push("/schedule");
       }
     }
   }

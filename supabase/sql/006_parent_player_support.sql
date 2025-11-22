@@ -33,9 +33,16 @@ begin
   from public.profiles
   where id = p_user_id;
   
+  -- If profile doesn't exist, return the user_id itself (fallback)
+  if not found then
+    return p_user_id;
+  end if;
+  
+  -- If parent account, return the linked player_id
   if v_account_type = 'parent' then
     return v_player_id;
   else
+    -- Player account or null account_type (defaults to player)
     return p_user_id;
   end if;
 end; $$;

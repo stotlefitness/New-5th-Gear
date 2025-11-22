@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import useSWR from "swr";
-import CoachPageContainer from "@/components/CoachPageContainer";
 
 const supabase = getSupabaseBrowserClient();
 
@@ -96,32 +95,34 @@ export default function CoachSettingsPage() {
 
   if (!profile) {
     return (
-      <CoachPageContainer>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="w-12 h-12 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+      <div className="coach-page-inner">
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 400 }}>
+          <div style={{ width: 48, height: 48, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
         </div>
-      </CoachPageContainer>
+      </div>
     );
   }
 
   return (
-    <CoachPageContainer>
-      <header className="text-center space-y-6">
-        <p className="text-xs uppercase tracking-[0.4em] text-white/40">Coach tools</p>
-        <h1 className="text-4xl sm:text-5xl font-light tracking-tight text-white">Settings</h1>
-        <p className="text-sm sm:text-base text-white/60">Manage your profile and preferences</p>
-      </header>
+    <div className="coach-page-inner">
+      <div className="coach-header">
+        <div className="coach-header-label">Coach tools</div>
+        <h1 className="coach-header-title">Settings</h1>
+        <p className="coach-header-subtitle">
+          Manage your profile and preferences
+        </p>
+      </div>
 
-      <section className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-2xl p-12 lg:p-16 space-y-8">
-        <div>
-          <h2 className="text-2xl font-light text-white mb-2">Profile Information</h2>
-          <p className="text-sm text-white/60">Update your personal details</p>
+      <section className="coach-card" style={{ maxWidth: 600, width: "100%" }}>
+        <div style={{ marginBottom: 24 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 400, marginBottom: 6 }}>Profile Information</h2>
+          <p style={{ fontSize: 13, opacity: 0.7 }}>Update your personal details</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           {/* Full Name */}
-          <div className="space-y-2">
-            <label htmlFor="fullName" className="block text-sm text-white/70 font-light">
+          <div>
+            <label htmlFor="fullName" style={{ display: "block", fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(148, 163, 184, 0.8)", marginBottom: 6 }}>
               Full Name
             </label>
             <input
@@ -130,14 +131,22 @@ export default function CoachSettingsPage() {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               required
-              className="w-full bg-white/5 border border-white/10 px-6 py-4 text-base text-white placeholder:text-white/40 focus:bg-white/10 focus:border-white/20 focus:outline-none transition-all"
+              style={{
+                width: "100%",
+                background: "rgba(15, 23, 42, 0.6)",
+                border: "1px solid rgba(148, 163, 184, 0.3)",
+                borderRadius: 8,
+                padding: "10px 14px",
+                color: "#fff",
+                fontSize: 14,
+              }}
               placeholder="John Doe"
             />
           </div>
 
           {/* Email */}
-          <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm text-white/70 font-light">
+          <div>
+            <label htmlFor="email" style={{ display: "block", fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(148, 163, 184, 0.8)", marginBottom: 6 }}>
               Email
             </label>
             <input
@@ -146,25 +155,41 @@ export default function CoachSettingsPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-white/5 border border-white/10 px-6 py-4 text-base text-white placeholder:text-white/40 focus:bg-white/10 focus:border-white/20 focus:outline-none transition-all"
+              style={{
+                width: "100%",
+                background: "rgba(15, 23, 42, 0.6)",
+                border: "1px solid rgba(148, 163, 184, 0.3)",
+                borderRadius: 8,
+                padding: "10px 14px",
+                color: "#fff",
+                fontSize: 14,
+              }}
               placeholder="you@example.com"
             />
-            <p className="text-xs text-white/50">Changing your email will require verification</p>
+            <p style={{ fontSize: 11, opacity: 0.6, marginTop: 4 }}>Changing your email will require verification</p>
           </div>
 
           {/* Time Zone */}
-          <div className="space-y-2">
-            <label htmlFor="timeZone" className="block text-sm text-white/70 font-light">
+          <div>
+            <label htmlFor="timeZone" style={{ display: "block", fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(148, 163, 184, 0.8)", marginBottom: 6 }}>
               Time Zone
             </label>
             <select
               id="timeZone"
               value={timeZone}
               onChange={(e) => setTimeZone(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 px-6 py-4 text-base text-white focus:bg-white/10 focus:border-white/20 focus:outline-none transition-all"
+              style={{
+                width: "100%",
+                background: "rgba(15, 23, 42, 0.6)",
+                border: "1px solid rgba(148, 163, 184, 0.3)",
+                borderRadius: 8,
+                padding: "10px 14px",
+                color: "#fff",
+                fontSize: 14,
+              }}
             >
               {timeZones.map((tz) => (
-                <option key={tz} value={tz} className="bg-black">
+                <option key={tz} value={tz} style={{ background: "#020617" }}>
                   {tz.replace("_", " ")}
                 </option>
               ))}
@@ -173,14 +198,14 @@ export default function CoachSettingsPage() {
 
           {/* Error Message */}
           {error && (
-            <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-200 text-sm rounded-xl">
+            <div style={{ padding: 12, background: "rgba(239, 68, 68, 0.1)", border: "1px solid rgba(239, 68, 68, 0.3)", borderRadius: 12, color: "rgba(254, 226, 226, 0.9)", fontSize: 13 }}>
               {error}
             </div>
           )}
 
           {/* Success Message */}
           {success && (
-            <div className="p-4 bg-green-500/10 border border-green-500/20 text-green-200 text-sm rounded-xl">
+            <div style={{ padding: 12, background: "rgba(34, 197, 94, 0.1)", border: "1px solid rgba(34, 197, 94, 0.3)", borderRadius: 12, color: "rgba(187, 247, 208, 0.9)", fontSize: 13 }}>
               Profile updated successfully!
             </div>
           )}
@@ -189,11 +214,12 @@ export default function CoachSettingsPage() {
           <button
             type="submit"
             disabled={saving}
-            className="w-full px-8 py-5 bg-white text-black hover:bg-white/95 transition-all font-normal text-base tracking-wide disabled:opacity-50 disabled:cursor-not-allowed rounded-xl"
+            className="coach-btn"
+            style={{ width: "100%", opacity: saving ? 0.6 : 1, cursor: saving ? "not-allowed" : "pointer" }}
           >
             {saving ? (
-              <span className="flex items-center justify-center gap-2">
-                <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin"></span>
+              <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                <span style={{ width: 14, height: 14, border: "2px solid rgba(2,6,23,0.3)", borderTopColor: "#020617", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
                 Saving...
               </span>
             ) : (
@@ -202,6 +228,6 @@ export default function CoachSettingsPage() {
           </button>
         </form>
       </section>
-    </CoachPageContainer>
+    </div>
   );
 }

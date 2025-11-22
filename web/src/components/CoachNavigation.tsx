@@ -10,11 +10,11 @@ interface Profile {
 }
 
 const coachLinks = [
-  { href: "/availability", label: "Availability" },
-  { href: "/requests", label: "Requests" },
-  { href: "/lessons", label: "Lessons" },
-  { href: "/messages", label: "Messages" },
-  { href: "/settings", label: "Settings" },
+  { href: "/coach/availability", label: "Availability" },
+  { href: "/coach/requests", label: "Requests" },
+  { href: "/coach/lessons", label: "Lessons" },
+  { href: "/coach/messages", label: "Messages" },
+  { href: "/coach/settings", label: "Settings" },
 ];
 
 export default function CoachNavigation() {
@@ -53,39 +53,35 @@ export default function CoachNavigation() {
   if (loading || profile?.role !== "coach") return null;
 
   return (
-    <nav className="fixed top-0 inset-x-0 z-50 border-b border-white/10 bg-black/40 backdrop-blur-2xl">
-      <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
-        <Link href="/availability" className="flex items-center gap-4">
-          <span className="text-3xl font-thin tracking-[0.4em] text-white/70">5TH</span>
-          <span className="text-sm uppercase tracking-[0.6em] text-white/40">Coach Console</span>
+    <header className="coach-nav">
+      <div className="coach-nav-left">
+        <Link href="/coach/availability" style={{ textDecoration: "none", color: "inherit" }}>
+          <span className="coach-logo-main">5TH</span>
+          <span className="coach-logo-sub">Coach Console</span>
         </Link>
-
-        <div className="flex items-center gap-2">
-          {coachLinks.map((link) => {
-            const active = pathname === link.href || pathname?.startsWith(`${link.href}/`);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`px-4 py-2 text-[0.6rem] uppercase tracking-[0.4em] transition-all duration-200 rounded-full ${
-                  active
-                    ? "bg-white text-black"
-                    : "bg-white/5 text-white/70 hover:bg-white/10"
-                }`}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-
-          <button
-            onClick={signOut}
-            className="px-4 py-2 text-[0.6rem] uppercase tracking-[0.4em] text-white/70 hover:text-white"
-          >
-            Logout
-          </button>
-        </div>
       </div>
-    </nav>
+
+      <nav className="coach-nav-right">
+        {coachLinks.map((link) => {
+          const active = pathname === link.href || pathname?.startsWith(`${link.href}/`);
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`coach-nav-pill ${active ? "coach-nav-pill--active" : ""}`}
+            >
+              {link.label}
+            </Link>
+          );
+        })}
+
+        <button
+          onClick={signOut}
+          className="coach-nav-pill coach-nav-pill--ghost"
+        >
+          Logout
+        </button>
+      </nav>
+    </header>
   );
 }

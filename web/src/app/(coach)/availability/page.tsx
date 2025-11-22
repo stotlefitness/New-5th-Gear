@@ -4,7 +4,6 @@ import useSWR from "swr";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { rpcGenerateOpenings } from "@/lib/rpc";
 import { useState } from "react";
-import CoachPageContainer from "@/components/CoachPageContainer";
 
 type Template = {
   id: string;
@@ -74,36 +73,45 @@ export default function AvailabilityPage() {
   }
 
   return (
-    <CoachPageContainer>
-      <header className="text-center space-y-8 mb-8">
-        <p className="text-xs uppercase tracking-[0.4em] text-white/40">Coach tools</p>
-        <h1 className="text-4xl sm:text-5xl font-light tracking-tight text-white">Availability Console</h1>
-        <p className="text-sm sm:text-base text-white/60">Shape your week and generate the sessions athletes can book.</p>
-      </header>
+    <div className="coach-page-inner">
+      <div className="coach-header">
+        <div className="coach-header-label">Coach tools</div>
+        <h1 className="coach-header-title">Availability Console</h1>
+        <p className="coach-header-subtitle">
+          Shape your week and generate the sessions athletes can book.
+        </p>
+      </div>
 
-      <section className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-2xl p-16 lg:p-20 space-y-12">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-white/50">Templates</p>
-            <h2 className="text-2xl font-light text-white">Recurring windows</h2>
-          </div>
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="px-5 py-2 rounded-full text-xs uppercase tracking-[0.3em] bg-white text-black hover:bg-white/90 transition-all"
-          >
+      <section className="coach-card" style={{ maxWidth: 720, width: "100%" }}>
+        {/* TEMPLATES HEADER ROW */}
+        <div className="coach-list-row">
+          <span style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase" }}>
+            Templates
+          </span>
+          <button className="coach-btn-outline" onClick={() => setShowForm(!showForm)}>
             {showForm ? "Close" : "Add template"}
           </button>
         </div>
 
         {showForm && (
-          <div className="space-y-6 border-t border-white/10 pt-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="space-y-2">
-                <label className="text-xs uppercase tracking-[0.3em] text-white/50">Day</label>
+          <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid rgba(51, 65, 85, 0.8)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12, marginBottom: 16 }}>
+              <div>
+                <label style={{ display: "block", fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(148, 163, 184, 0.8)", marginBottom: 6 }}>
+                  Day
+                </label>
                 <select
                   value={weekday}
                   onChange={(e) => setWeekday(parseInt(e.target.value))}
-                  className="w-full bg-white/5 border border-white/10 px-4 py-3 text-sm text-white focus:bg-white/10 focus:border-white/30 focus:outline-none"
+                  style={{
+                    width: "100%",
+                    background: "rgba(15, 23, 42, 0.6)",
+                    border: "1px solid rgba(148, 163, 184, 0.3)",
+                    borderRadius: 8,
+                    padding: "8px 12px",
+                    color: "#fff",
+                    fontSize: 13,
+                  }}
                 >
                   {weekdays.map((d, i) => (
                     <option key={i} value={i}>
@@ -113,32 +121,62 @@ export default function AvailabilityPage() {
                 </select>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs uppercase tracking-[0.3em] text-white/50">Start</label>
+              <div>
+                <label style={{ display: "block", fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(148, 163, 184, 0.8)", marginBottom: 6 }}>
+                  Start
+                </label>
                 <input
                   value={start}
                   onChange={(e) => setStart(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 px-4 py-3 text-sm text-white focus:bg-white/10 focus:border-white/30 focus:outline-none"
                   type="time"
+                  style={{
+                    width: "100%",
+                    background: "rgba(15, 23, 42, 0.6)",
+                    border: "1px solid rgba(148, 163, 184, 0.3)",
+                    borderRadius: 8,
+                    padding: "8px 12px",
+                    color: "#fff",
+                    fontSize: 13,
+                  }}
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs uppercase tracking-[0.3em] text-white/50">End</label>
+              <div>
+                <label style={{ display: "block", fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(148, 163, 184, 0.8)", marginBottom: 6 }}>
+                  End
+                </label>
                 <input
                   value={end}
                   onChange={(e) => setEnd(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 px-4 py-3 text-sm text-white focus:bg-white/10 focus:border-white/30 focus:outline-none"
                   type="time"
+                  style={{
+                    width: "100%",
+                    background: "rgba(15, 23, 42, 0.6)",
+                    border: "1px solid rgba(148, 163, 184, 0.3)",
+                    borderRadius: 8,
+                    padding: "8px 12px",
+                    color: "#fff",
+                    fontSize: 13,
+                  }}
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs uppercase tracking-[0.3em] text-white/50">Slot</label>
+              <div>
+                <label style={{ display: "block", fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(148, 163, 184, 0.8)", marginBottom: 6 }}>
+                  Slot
+                </label>
                 <select
                   value={slotMinutes}
                   onChange={(e) => setSlotMinutes(parseInt(e.target.value))}
-                  className="w-full bg-white/5 border border-white/10 px-4 py-3 text-sm text-white focus:bg-white/10 focus:border-white/30 focus:outline-none"
+                  style={{
+                    width: "100%",
+                    background: "rgba(15, 23, 42, 0.6)",
+                    border: "1px solid rgba(148, 163, 184, 0.3)",
+                    borderRadius: 8,
+                    padding: "8px 12px",
+                    color: "#fff",
+                    fontSize: 13,
+                  }}
                 >
                   {[30, 45, 60, 75, 90, 120].map((value) => (
                     <option key={value} value={value}>
@@ -149,76 +187,88 @@ export default function AvailabilityPage() {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div style={{ display: "flex", gap: 8 }}>
               <button
                 disabled={busy}
                 onClick={addTemplate}
-                className="px-5 py-3 rounded-full bg-white text-black text-xs uppercase tracking-[0.3em] hover:bg-white/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="coach-btn"
+                style={{ opacity: busy ? 0.6 : 1, cursor: busy ? "not-allowed" : "pointer" }}
               >
                 {busy ? "Adding..." : "Save template"}
               </button>
               <button
                 disabled={busy}
                 onClick={generate}
-                className="px-5 py-3 rounded-full border border-white/20 text-white/80 text-xs uppercase tracking-[0.3em] hover:bg-white/5 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="coach-btn-outline"
+                style={{ opacity: busy ? 0.6 : 1, cursor: busy ? "not-allowed" : "pointer" }}
               >
                 Generate next 6 weeks
               </button>
             </div>
           </div>
         )}
-      </section>
 
-      <section className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-2xl p-16 lg:p-20 space-y-12">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <h2 className="text-2xl font-light text-white">Active windows</h2>
-          <span className="text-xs uppercase tracking-[0.3em] text-white/40">{data?.length ?? 0} total</span>
+        {/* RECURRING WINDOWS */}
+        <div className="coach-list-row">
+          <span>Recurring windows</span>
+        </div>
+
+        {/* ACTIVE WINDOWS */}
+        <div className="coach-list-row">
+          <span>Active windows</span>
+          <span style={{ fontSize: 11, textTransform: "uppercase", opacity: 0.7 }}>
+            {data?.length ?? 0} total
+          </span>
         </div>
 
         {!data || data.length === 0 ? (
-          <div className="text-center py-10 text-white/60">
-            <p className="text-sm">No templates yet. Add your first window above.</p>
+          <div style={{ textAlign: "center", padding: "24px 0", color: "rgba(203, 213, 225, 0.6)", fontSize: 13 }}>
+            No templates yet. Add your first window above.
           </div>
         ) : (
-          <div className="space-y-6">
+          <div style={{ marginTop: 12 }}>
             {data.map((template) => (
               <div
                 key={template.id}
-                className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 rounded-2xl border border-white/15 bg-white/5 px-8 py-6"
+                className="coach-card"
+                style={{ marginTop: 12 }}
               >
-                <div className="flex items-center gap-4">
-                  <span
-                    className={`w-2 h-2 rounded-full ${template.active ? "bg-white" : "bg-white/30"}`}
-                  />
-                  <div>
-                    <p className="text-lg text-white font-light">
-                      {weekdays[template.weekday]} • {template.start_time}–{template.end_time}
-                    </p>
-                    <p className="text-xs uppercase tracking-[0.3em] text-white/40">{template.slot_minutes} minute slots</p>
+                <div className="coach-list-row">
+                  <span>
+                    {weekdays[template.weekday]} • {template.start_time} – {template.end_time}
+                  </span>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      onClick={() => toggleTemplate(template.id, template.active)}
+                      className={template.active ? "coach-btn" : "coach-btn-outline"}
+                    >
+                      {template.active ? "Active" : "Activate"}
+                    </button>
+                    <button
+                      onClick={() => deleteTemplate(template.id)}
+                      className="coach-btn-outline"
+                      style={{ borderColor: "rgba(239, 68, 68, 0.5)", color: "rgba(254, 226, 226, 0.9)" }}
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => toggleTemplate(template.id, template.active)}
-                    className={`px-4 py-2 rounded-full text-xs uppercase tracking-[0.3em] transition ${
-                      template.active ? "bg-white text-black" : "border border-white/20 text-white/70"
-                    }`}
-                  >
-                    {template.active ? "Active" : "Activate"}
-                  </button>
-                  <button
-                    onClick={() => deleteTemplate(template.id)}
-                    className="px-4 py-2 rounded-full text-xs uppercase tracking-[0.3em] text-red-200 border border-red-300/30 hover:bg-red-500/10 transition"
-                  >
-                    Delete
-                  </button>
+                <div
+                  style={{
+                    fontSize: 11,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.18em",
+                    opacity: 0.65,
+                    marginTop: 4,
+                  }}
+                >
+                  {template.slot_minutes} minute slots
                 </div>
               </div>
             ))}
           </div>
         )}
       </section>
-    </CoachPageContainer>
+    </div>
   );
 }

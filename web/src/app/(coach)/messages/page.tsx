@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import useSWR from "swr";
-import CoachPageContainer from "@/components/CoachPageContainer";
 
 const supabase = getSupabaseBrowserClient();
 
@@ -252,11 +251,11 @@ export default function MessagesPage() {
 
   if (loading) {
     return (
-      <CoachPageContainer>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="w-12 h-12 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+      <div className="coach-page-inner">
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 400 }}>
+          <div style={{ width: 48, height: 48, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
         </div>
-      </CoachPageContainer>
+      </div>
     );
   }
 
@@ -264,194 +263,295 @@ export default function MessagesPage() {
   const selectedClient = clients?.find((c) => c.id === selectedClientId);
 
   return (
-    <CoachPageContainer>
-      <header className="text-center space-y-6">
-        <p className="text-xs uppercase tracking-[0.4em] text-white/40">Coach tools</p>
-        <h1 className="text-4xl sm:text-5xl font-light tracking-tight text-white">Messages</h1>
-        <p className="text-sm sm:text-base text-white/60">
+    <div className="coach-page-inner">
+      <div className="coach-header">
+        <div className="coach-header-label">Coach tools</div>
+        <h1 className="coach-header-title">Messages</h1>
+        <p className="coach-header-subtitle">
           {isCoach ? "Direct athlete communication with saved threads." : "Chat with your coach"}
         </p>
-      </header>
-
-      <div className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-2xl p-8 lg:p-12">
-        {isCoach ? (
-          // Coach view with client selector
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[600px]">
-            {/* Client List */}
-            <div className="lg:col-span-1 border-r border-white/10 pr-6 overflow-y-auto">
-              <h2 className="text-sm uppercase tracking-[0.3em] text-white/50 mb-4">Select Client</h2>
-              {!clients || clients.length === 0 ? (
-                <p className="text-sm text-white/40">No clients found</p>
-              ) : (
-                <div className="space-y-2">
-                  {clients.map((client) => (
-                    <button
-                      key={client.id}
-                      onClick={() => handleSelectClient(client.id)}
-                      className={`w-full text-left p-4 rounded-xl border transition-all ${
-                        selectedClientId === client.id
-                          ? "border-white/30 bg-white/10"
-                          : "border-white/10 bg-white/5 hover:bg-white/10"
-                      }`}
-                    >
-                      <p className="text-white font-light">{client.full_name}</p>
-                      <p className="text-xs text-white/50 mt-1">{client.email}</p>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Chat Area */}
-            <div className="lg:col-span-2 flex flex-col">
-              {!selectedClient ? (
-                <div className="flex-1 flex items-center justify-center">
-                  <p className="text-white/40 text-sm">Select a client to start messaging</p>
-                </div>
-              ) : (
-                <>
-                  <div className="border-b border-white/10 pb-4 mb-4">
-                    <h3 className="text-lg font-light text-white">{selectedClient.full_name}</h3>
-                    <p className="text-xs text-white/50">{selectedClient.email}</p>
-                  </div>
-
-                  {/* Messages */}
-                  <div className="flex-1 overflow-y-auto space-y-4 mb-4">
-                    {!messages || messages.length === 0 ? (
-                      <p className="text-center text-white/40 text-sm py-8">No messages yet. Start the conversation!</p>
-                    ) : (
-                      messages.map((msg) => {
-                        const isOwn = msg.sender_id === user?.id;
-                        return (
-                          <div
-                            key={msg.id}
-                            className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
-                          >
-                            <div
-                              className={`max-w-[70%] rounded-2xl px-4 py-2 ${
-                                isOwn
-                                  ? "bg-white text-black"
-                                  : "bg-white/10 text-white"
-                              }`}
-                            >
-                              <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                              <p className="text-xs mt-1 opacity-60">
-                                {new Date(msg.created_at).toLocaleTimeString("en-US", {
-                                  hour: "numeric",
-                                  minute: "2-digit",
-                                })}
-                              </p>
-                            </div>
-                          </div>
-                        );
-                      })
-                    )}
-                  </div>
-
-                  {/* Message Input */}
-                  <div className="flex gap-3">
-                    <textarea
-                      value={messageContent}
-                      onChange={(e) => setMessageContent(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          sendMessage();
-                        }
-                      }}
-                      placeholder="Type a message..."
-                      rows={2}
-                      className="flex-1 bg-white/5 border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:bg-white/10 focus:border-white/30 focus:outline-none rounded-xl resize-none"
-                    />
-                    <button
-                      onClick={sendMessage}
-                      disabled={!messageContent.trim() || sending}
-                      className="px-6 py-3 rounded-xl bg-white text-black text-sm uppercase tracking-[0.3em] hover:bg-white/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Send
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        ) : (
-          // Client view - auto-opened with coach
-          <>
-            {!coach ? (
-              <div className="text-center py-12">
-                <p className="text-white/60">Unable to find your coach. Please contact support.</p>
-              </div>
-            ) : (
-              <div className="flex flex-col h-[600px]">
-                <div className="border-b border-white/10 pb-4 mb-4">
-                  <h3 className="text-lg font-light text-white">{coach.full_name}</h3>
-                  <p className="text-xs text-white/50">Your Coach</p>
-                </div>
-
-                {/* Messages */}
-                <div className="flex-1 overflow-y-auto space-y-4 mb-4">
-                  {!messages || messages.length === 0 ? (
-                    <div className="flex items-center justify-center h-full">
-                      <p className="text-center text-white/40 text-sm">No messages yet. Start the conversation!</p>
-                    </div>
-                  ) : (
-                    messages.map((msg) => {
-                      const isOwn = msg.sender_id === user?.id;
-                      return (
-                        <div
-                          key={msg.id}
-                          className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
-                        >
-                          <div
-                            className={`max-w-[70%] rounded-2xl px-4 py-2 ${
-                              isOwn
-                                ? "bg-white text-black"
-                                : "bg-white/10 text-white"
-                            }`}
-                          >
-                            <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                            <p className="text-xs mt-1 opacity-60">
-                              {new Date(msg.created_at).toLocaleTimeString("en-US", {
-                                hour: "numeric",
-                                minute: "2-digit",
-                              })}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-
-                {/* Message Input */}
-                <div className="flex gap-3">
-                  <textarea
-                    value={messageContent}
-                    onChange={(e) => setMessageContent(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        sendMessage();
-                      }
-                    }}
-                    placeholder="Type a message..."
-                    rows={2}
-                    className="flex-1 bg-white/5 border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:bg-white/10 focus:border-white/30 focus:outline-none rounded-xl resize-none"
-                  />
-                  <button
-                    onClick={sendMessage}
-                    disabled={!messageContent.trim() || sending}
-                    className="px-6 py-3 rounded-xl bg-white text-black text-sm uppercase tracking-[0.3em] hover:bg-white/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Send
-                  </button>
-                </div>
-              </div>
-            )}
-          </>
-        )}
       </div>
-    </CoachPageContainer>
+
+      <section
+        className="coach-card"
+        style={{
+          maxWidth: 1040,
+          width: "100%",
+          padding: 0,
+          overflow: "hidden",
+          height: 460,
+        }}
+      >
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "280px 1fr",
+            height: "100%",
+          }}
+        >
+          {isCoach ? (
+            <>
+              {/* Sidebar: clients */}
+              <div
+                style={{
+                  borderRight: "1px solid rgba(51,65,85,0.8)",
+                  padding: "18px 18px",
+                  overflowY: "auto",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 11,
+                    letterSpacing: "0.24em",
+                    textTransform: "uppercase",
+                    opacity: 0.7,
+                    marginBottom: 8,
+                  }}
+                >
+                  Select client
+                </div>
+                {!clients || clients.length === 0 ? (
+                  <div style={{ fontSize: 13, opacity: 0.7 }}>No clients found</div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {clients.map((client) => (
+                      <button
+                        key={client.id}
+                        onClick={() => handleSelectClient(client.id)}
+                        style={{
+                          width: "100%",
+                          textAlign: "left",
+                          padding: "12px",
+                          borderRadius: 12,
+                          border: selectedClientId === client.id
+                            ? "1px solid rgba(255,255,255,0.3)"
+                            : "1px solid rgba(148,163,184,0.2)",
+                          background: selectedClientId === client.id
+                            ? "rgba(255,255,255,0.1)"
+                            : "transparent",
+                          color: "#fff",
+                          cursor: "pointer",
+                          transition: "all 0.15s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          if (selectedClientId !== client.id) {
+                            e.currentTarget.style.background = "rgba(255,255,255,0.05)";
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (selectedClientId !== client.id) {
+                            e.currentTarget.style.background = "transparent";
+                          }
+                        }}
+                      >
+                        <div style={{ fontSize: 14, fontWeight: 300 }}>{client.full_name}</div>
+                        <div style={{ fontSize: 11, opacity: 0.6, marginTop: 4 }}>{client.email}</div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Thread area */}
+              <div
+                style={{
+                  padding: "18px 20px",
+                  display: "flex",
+                  flexDirection: "column",
+                  height: "100%",
+                }}
+              >
+                {!selectedClient ? (
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", fontSize: 14, opacity: 0.7 }}>
+                    Select a client to start messaging
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ borderBottom: "1px solid rgba(51,65,85,0.8)", paddingBottom: 12, marginBottom: 12 }}>
+                      <h3 style={{ fontSize: 16, fontWeight: 400, marginBottom: 4 }}>{selectedClient.full_name}</h3>
+                      <div style={{ fontSize: 11, opacity: 0.6 }}>{selectedClient.email}</div>
+                    </div>
+
+                    {/* Messages */}
+                    <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 12, marginBottom: 12 }}>
+                      {!messages || messages.length === 0 ? (
+                        <div style={{ textAlign: "center", padding: "24px 0", color: "rgba(203,213,225,0.6)", fontSize: 13 }}>
+                          No messages yet. Start the conversation!
+                        </div>
+                      ) : (
+                        messages.map((msg) => {
+                          const isOwn = msg.sender_id === user?.id;
+                          return (
+                            <div
+                              key={msg.id}
+                              style={{
+                                display: "flex",
+                                justifyContent: isOwn ? "flex-end" : "flex-start",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  maxWidth: "70%",
+                                  borderRadius: 16,
+                                  padding: "8px 12px",
+                                  background: isOwn ? "#ffffff" : "rgba(255,255,255,0.1)",
+                                  color: isOwn ? "#020617" : "#fff",
+                                }}
+                              >
+                                <div style={{ fontSize: 13, whiteSpace: "pre-wrap" }}>{msg.content}</div>
+                                <div style={{ fontSize: 10, marginTop: 4, opacity: 0.6 }}>
+                                  {new Date(msg.created_at).toLocaleTimeString("en-US", {
+                                    hour: "numeric",
+                                    minute: "2-digit",
+                                  })}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+
+                    {/* Message Input */}
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <textarea
+                        value={messageContent}
+                        onChange={(e) => setMessageContent(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            sendMessage();
+                          }
+                        }}
+                        placeholder="Type a message..."
+                        rows={2}
+                        style={{
+                          flex: 1,
+                          background: "rgba(15,23,42,0.6)",
+                          border: "1px solid rgba(148,163,184,0.3)",
+                          borderRadius: 12,
+                          padding: "10px 14px",
+                          color: "#fff",
+                          fontSize: 13,
+                          resize: "none",
+                        }}
+                      />
+                      <button
+                        onClick={sendMessage}
+                        disabled={!messageContent.trim() || sending}
+                        className="coach-btn"
+                        style={{ opacity: (!messageContent.trim() || sending) ? 0.6 : 1, cursor: (!messageContent.trim() || sending) ? "not-allowed" : "pointer" }}
+                      >
+                        Send
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Client view - simplified single column */}
+              <div
+                style={{
+                  padding: "18px 20px",
+                  display: "flex",
+                  flexDirection: "column",
+                  height: "100%",
+                  gridColumn: "1 / -1",
+                }}
+              >
+                {!coach ? (
+                  <div style={{ textAlign: "center", padding: "48px 0", color: "rgba(203,213,225,0.6)" }}>
+                    Unable to find your coach. Please contact support.
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ borderBottom: "1px solid rgba(51,65,85,0.8)", paddingBottom: 12, marginBottom: 12 }}>
+                      <h3 style={{ fontSize: 16, fontWeight: 400, marginBottom: 4 }}>{coach.full_name}</h3>
+                      <div style={{ fontSize: 11, opacity: 0.6 }}>Your Coach</div>
+                    </div>
+
+                    {/* Messages */}
+                    <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 12, marginBottom: 12 }}>
+                      {!messages || messages.length === 0 ? (
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", textAlign: "center", color: "rgba(203,213,225,0.6)", fontSize: 13 }}>
+                          No messages yet. Start the conversation!
+                        </div>
+                      ) : (
+                        messages.map((msg) => {
+                          const isOwn = msg.sender_id === user?.id;
+                          return (
+                            <div
+                              key={msg.id}
+                              style={{
+                                display: "flex",
+                                justifyContent: isOwn ? "flex-end" : "flex-start",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  maxWidth: "70%",
+                                  borderRadius: 16,
+                                  padding: "8px 12px",
+                                  background: isOwn ? "#ffffff" : "rgba(255,255,255,0.1)",
+                                  color: isOwn ? "#020617" : "#fff",
+                                }}
+                              >
+                                <div style={{ fontSize: 13, whiteSpace: "pre-wrap" }}>{msg.content}</div>
+                                <div style={{ fontSize: 10, marginTop: 4, opacity: 0.6 }}>
+                                  {new Date(msg.created_at).toLocaleTimeString("en-US", {
+                                    hour: "numeric",
+                                    minute: "2-digit",
+                                  })}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+
+                    {/* Message Input */}
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <textarea
+                        value={messageContent}
+                        onChange={(e) => setMessageContent(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            sendMessage();
+                          }
+                        }}
+                        placeholder="Type a message..."
+                        rows={2}
+                        style={{
+                          flex: 1,
+                          background: "rgba(15,23,42,0.6)",
+                          border: "1px solid rgba(148,163,184,0.3)",
+                          borderRadius: 12,
+                          padding: "10px 14px",
+                          color: "#fff",
+                          fontSize: 13,
+                          resize: "none",
+                        }}
+                      />
+                      <button
+                        onClick={sendMessage}
+                        disabled={!messageContent.trim() || sending}
+                        className="coach-btn"
+                        style={{ opacity: (!messageContent.trim() || sending) ? 0.6 : 1, cursor: (!messageContent.trim() || sending) ? "not-allowed" : "pointer" }}
+                      >
+                        Send
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      </section>
+    </div>
   );
 }

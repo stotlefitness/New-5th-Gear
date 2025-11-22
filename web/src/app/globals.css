@@ -455,3 +455,194 @@ body {
   padding-inline: 28px;
   padding-block: 10px;
 }
+
+/* ====== COACH SHELL / BACKGROUND ====== */
+
+.coach-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(circle at top, #0f172a 0, #020617 45%, #020617 100%);
+  color: #fff;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ====== TOP NAV ====== */
+
+.coach-nav {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  background: #000;
+}
+
+.coach-nav-left {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.coach-logo-main {
+  font-size: 18px;
+  letter-spacing: 0.6em;
+}
+
+.coach-logo-sub {
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.85);
+}
+
+.coach-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* pill nav buttons */
+
+.coach-nav-pill {
+  border-radius: 999px;
+  padding: 4px 14px 6px;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  background: transparent;
+  color: rgba(226, 232, 240, 0.85);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.coach-nav-pill:hover {
+  border-color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.coach-nav-pill--active {
+  border-color: #ffffff;
+  background: #ffffff;
+  color: #020617;
+}
+
+.coach-nav-pill--ghost {
+  border-style: dashed;
+}
+
+/* ====== MAIN LAYOUT ====== */
+
+.coach-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 32px 48px;
+}
+
+.coach-page-inner {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Header text pattern (Coach Tools / page title / subtitle) */
+
+.coach-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.coach-header-label {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.8);
+  margin-bottom: 6px;
+}
+
+.coach-header-title {
+  font-size: 32px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.coach-header-subtitle {
+  font-size: 14px;
+  color: rgba(203, 213, 225, 0.9);
+}
+
+/* Glass card container (used for all content sections) */
+
+.coach-card {
+  border-radius: 28px;
+  background: linear-gradient(
+    135deg,
+    rgba(15, 23, 42, 0.82),
+    rgba(15, 23, 42, 0.9)
+  );
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  padding: 18px 24px;
+  color: #e5e7eb;
+}
+
+/* buttons inside cards */
+
+.coach-btn,
+.coach-btn-outline {
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.coach-btn {
+  background: #ffffff;
+  color: #020617;
+  border-color: #ffffff;
+}
+
+.coach-btn:hover {
+  transform: translateY(-1px);
+}
+
+.coach-btn-outline {
+  background: transparent;
+  color: #e5e7eb;
+  border-color: rgba(148, 163, 184, 0.8);
+}
+
+.coach-btn-outline:hover {
+  border-color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* simple table-ish layout */
+
+.coach-list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 4px;
+  border-top: 1px solid rgba(51, 65, 85, 0.8);
+}
+
+.coach-list-row:first-of-type {
+  border-top: none;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

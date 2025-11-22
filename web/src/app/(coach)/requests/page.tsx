@@ -4,7 +4,6 @@ import useSWR from "swr";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { rpcDecideBooking } from "@/lib/rpc";
 import { useState } from "react";
-import CoachPageContainer from "@/components/CoachPageContainer";
 
 type Booking = {
   id: string;
@@ -51,71 +50,103 @@ export default function RequestsPage() {
   }
 
   return (
-    <CoachPageContainer>
-      <header className="text-center space-y-8 mb-8">
-        <p className="text-xs uppercase tracking-[0.4em] text-white/40">Coach tools</p>
-        <h1 className="text-4xl sm:text-5xl font-light tracking-tight text-white">Booking requests</h1>
-        <p className="text-sm sm:text-base text-white/60">Confirm, decline, and keep your schedule aligned.</p>
-      </header>
+    <div className="coach-page-inner">
+      <div className="coach-header">
+        <div className="coach-header-label">Coach tools</div>
+        <h1 className="coach-header-title">Booking requests</h1>
+        <p className="coach-header-subtitle">
+          Confirm, decline, and keep your schedule aligned.
+        </p>
+      </div>
 
       {!data || data.length === 0 ? (
-        <div className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-2xl p-16 lg:p-20 text-center space-y-4">
-          <p className="text-sm uppercase tracking-[0.4em] text-white/40">All clear</p>
-          <h2 className="text-2xl font-light text-white">No pending requests</h2>
-          <p className="text-white/60 text-sm">Athletes will appear here the moment they request time.</p>
-        </div>
+        <section
+          className="coach-card"
+          style={{ maxWidth: 600, width: "100%", textAlign: "center" }}
+        >
+          <div
+            style={{
+              fontSize: 11,
+              letterSpacing: "0.26em",
+              textTransform: "uppercase",
+              opacity: 0.7,
+              marginBottom: 8,
+            }}
+          >
+            All clear
+          </div>
+          <div style={{ fontSize: 18, marginBottom: 4 }}>No pending requests</div>
+          <div style={{ fontSize: 13, opacity: 0.7 }}>
+            Athletes will appear here the moment they request time.
+          </div>
+        </section>
       ) : (
-        <div className="space-y-8">
+        <div style={{ width: "100%", maxWidth: 720, display: "flex", flexDirection: "column", gap: 16 }}>
           {data.map((booking) => {
             const startDate = new Date(booking.openings.start_at);
             const endDate = new Date(booking.openings.end_at);
             const isBusy = busy === booking.id;
 
             return (
-              <div
+              <section
                 key={booking.id}
-                className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-2xl px-10 py-10 sm:px-12 sm:py-12"
+                className="coach-card"
               >
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                  <div className="space-y-3">
-                    <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.4em] text-white/50">
-                      <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  <div>
+                    <div
+                      style={{
+                        fontSize: 11,
+                        letterSpacing: "0.24em",
+                        textTransform: "uppercase",
+                        opacity: 0.7,
+                        marginBottom: 8,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                      }}
+                    >
+                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff" }} />
                       Pending
                     </div>
-                    <h3 className="text-2xl font-light text-white">{formatDate(startDate)}</h3>
-                    <p className="text-sm text-white/70 flex flex-wrap gap-2 items-center">
+                    <h3 style={{ fontSize: 20, fontWeight: 400, marginBottom: 6 }}>
+                      {formatDate(startDate)}
+                    </h3>
+                    <div style={{ fontSize: 13, opacity: 0.7, display: "flex", gap: 8, flexWrap: "wrap" }}>
                       <span>
                         {formatTime(startDate)} – {formatTime(endDate)}
                       </span>
-                      <span className="text-white/30">•</span>
-                      <span className="font-mono text-xs uppercase tracking-[0.4em] text-white/50">
+                      <span style={{ opacity: 0.3 }}>•</span>
+                      <span style={{ fontFamily: "monospace", fontSize: 11, letterSpacing: "0.2em", opacity: 0.6 }}>
                         {booking.client_id.slice(0, 8)}
                       </span>
-                    </p>
+                    </div>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row gap-3">
+                  <div style={{ display: "flex", gap: 8 }}>
                     <button
                       disabled={isBusy}
                       onClick={() => decide(booking.id, "decline")}
-                      className="px-6 py-3 rounded-full border border-white/15 text-white/80 text-xs uppercase tracking-[0.3em] hover:bg-white/5 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="coach-btn-outline"
+                      style={{ opacity: isBusy ? 0.6 : 1, cursor: isBusy ? "not-allowed" : "pointer" }}
                     >
                       {isBusy ? "Processing..." : "Decline"}
                     </button>
                     <button
                       disabled={isBusy}
                       onClick={() => decide(booking.id, "accept")}
-                      className="px-6 py-3 rounded-full bg-white text-black text-xs uppercase tracking-[0.3em] hover:bg-white/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="coach-btn"
+                      style={{ opacity: isBusy ? 0.6 : 1, cursor: isBusy ? "not-allowed" : "pointer" }}
                     >
                       {isBusy ? "Processing..." : "Accept request"}
                     </button>
                   </div>
                 </div>
-              </div>
+              </section>
             );
           })}
         </div>
       )}
-    </CoachPageContainer>
+    </div>
   );
 }

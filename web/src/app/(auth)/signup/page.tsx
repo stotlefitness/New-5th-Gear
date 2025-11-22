@@ -51,7 +51,7 @@ export default function SignupPage() {
 
   const labelStyles = "text-[11px] uppercase tracking-[0.35em] text-white/50";
   const inputStyles =
-    "w-full border-b border-white/25 bg-transparent pb-3 pt-1 text-lg text-white placeholder-white/30 focus:border-white focus:outline-none focus:ring-0 transition-colors";
+    "w-full border-b border-white/30 bg-transparent pb-3 pt-1 text-base text-white placeholder-white/40 focus:border-white focus:outline-none focus:ring-0 transition-colors";
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-black text-white">
@@ -63,32 +63,30 @@ export default function SignupPage() {
         quality={90}
         className="absolute inset-0 object-cover object-center opacity-30"
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/70 to-black/95" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/95 via-black/70 to-black/95" />
 
       <div className="relative z-10 flex min-h-screen flex-col">
-        <header className="flex items-center justify-between px-6 py-8">
+        <header className="flex items-center justify-between px-6 pt-10 text-white/70">
           <Link
             href="/"
-            className="flex items-center gap-2 text-sm font-light uppercase tracking-[0.3em] text-white/70 transition-colors hover:text-white"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white transition hover:border-white/40 hover:text-white"
+            aria-label="Back to home"
           >
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20">
-              <svg viewBox="0 0 20 20" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={1.5}>
-                <path d="M12 5L7 10l5 5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </span>
-            Back
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.5}>
+              <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </Link>
 
-          <span className="text-xs uppercase tracking-[0.6em] text-white/60">5TH GEAR</span>
-          <span className="w-16" aria-hidden />
+          <span className="text-sm uppercase tracking-[0.8em]">5TH GEAR</span>
+          <span className="w-10" aria-hidden />
         </header>
 
-        <main className="flex flex-1 flex-col items-center px-6 pb-12">
-          <div className="w-full max-w-md space-y-10 rounded-[36px] bg-black/40 p-10 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.55)]">
-            <div className="space-y-2 text-center">
-              <p className="text-xs uppercase tracking-[0.6em] text-white/40">Join the roster</p>
-              <h1 className="text-4xl font-light tracking-tight">Create account</h1>
-              <p className="text-sm text-white/60">Unlock personalized training plans and session requests.</p>
+        <main className="flex flex-1 flex-col justify-between px-6 pb-10 pt-6">
+          <div className="mx-auto w-full max-w-sm space-y-10">
+            <div className="space-y-3 text-center">
+              <p className="text-[11px] uppercase tracking-[0.45em] text-white/45">Join the roster</p>
+              <h1 className="text-4xl font-light tracking-[0.1em]">Create account</h1>
+              <p className="text-sm text-white/60">Unlock personalized training plans and request sessions fast.</p>
             </div>
 
             <form onSubmit={onSubmit} className="space-y-8">
@@ -138,7 +136,7 @@ export default function SignupPage() {
               </div>
 
               {error && (
-                <div className="rounded-2xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+                <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">
                   {error}
                 </div>
               )}
@@ -146,37 +144,40 @@ export default function SignupPage() {
               <button
                 disabled={loading}
                 type="submit"
-                className="w-full rounded-full bg-white/95 py-4 text-sm font-semibold uppercase tracking-[0.4em] text-black transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+                className="w-full rounded-full border border-white/60 py-4 text-sm font-semibold uppercase tracking-[0.45em] text-white transition-colors hover:border-white disabled:cursor-not-allowed disabled:opacity-30"
               >
                 {loading ? "Creating..." : "Create Account"}
               </button>
 
-              <p className="text-center text-[10px] uppercase tracking-[0.3em] text-white/40">
+              <p className="text-center text-[10px] uppercase tracking-[0.35em] text-white/45">
                 By continuing you agree to our coaching policies.
               </p>
             </form>
 
-            <div className="flex flex-col items-center gap-6">
-              <div className="text-[11px] uppercase tracking-[0.35em] text-white/35">Or continue with</div>
+            <div className="space-y-4 pt-4 text-center">
               <button
+                type="button"
                 onClick={onGoogle}
                 disabled={loading}
-                className="flex h-14 w-14 items-center justify-center rounded-full border border-white/30 text-lg font-semibold text-white transition hover:border-white disabled:cursor-not-allowed disabled:opacity-40"
-                aria-label="Sign up with Google"
+                className="w-full rounded-full border border-white/15 bg-white/5 py-3 text-[11px] uppercase tracking-[0.4em] text-white/70 transition hover:border-white/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
               >
-                G
+                Continue with Google
               </button>
+              <p className="text-xs uppercase tracking-[0.4em] text-white/60">Already have an account?</p>
+              <Link
+                href="/login"
+                className="block rounded-full border border-white/60 py-4 text-sm font-semibold uppercase tracking-[0.45em] text-white transition-colors hover:border-white"
+              >
+                Log In
+              </Link>
             </div>
+          </div>
 
-            <div className="space-y-3 text-center text-xs uppercase tracking-[0.35em] text-white/35">
-              <p>
-                Already have an account?{" "}
-                <Link href="/login" className="text-white hover:text-white/80 transition-colors">
-                  Sign in
-                </Link>
-              </p>
-              <p className="text-[10px]">Questions? support@5thgearpitching.com</p>
-            </div>
+          <div className="mx-auto w-full max-w-sm space-y-2 text-center text-[11px] uppercase tracking-[0.4em] text-white/55">
+            <p className="text-white/55">Setup Instructions</p>
+            <a href="mailto:support@5thgearpitching.com" className="transition-colors hover:text-white">
+              Questions? Email support
+            </a>
           </div>
         </main>
       </div>

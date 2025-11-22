@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import useSWR from "swr";
 import CoachPageContainer from "@/components/CoachPageContainer";
+import Navigation from "@/components/Navigation";
+import CoachNavigation from "@/components/CoachNavigation";
 
 const supabase = getSupabaseBrowserClient();
 
@@ -12,6 +14,7 @@ type Profile = {
   email: string;
   full_name: string;
   time_zone: string;
+  role: string;
 };
 
 async function fetchProfile(): Promise<Profile> {
@@ -20,7 +23,7 @@ async function fetchProfile(): Promise<Profile> {
   
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, email, full_name, time_zone")
+    .select("id, email, full_name, time_zone, role")
     .eq("id", session.session.user.id)
     .single();
   
@@ -28,8 +31,8 @@ async function fetchProfile(): Promise<Profile> {
   return data as Profile;
 }
 
-export default function CoachSettingsPage() {
-  const { data: profile, mutate } = useSWR("coach_profile", fetchProfile);
+export default function SettingsPage() {
+  const { data: profile, mutate } = useSWR("settings_profile", fetchProfile);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [timeZone, setTimeZone] = useState("America/Chicago");
@@ -96,23 +99,22 @@ export default function CoachSettingsPage() {
 
   if (!profile) {
     return (
-      <CoachPageContainer>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="w-12 h-12 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-        </div>
-      </CoachPageContainer>
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="w-12 h-12 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+      </div>
     );
   }
 
-  return (
-    <CoachPageContainer>
+  const isCoach = profile.role === "coach";
+  const content = (
+    <>
       <header className="text-center space-y-6">
-        <p className="text-xs uppercase tracking-[0.4em] text-white/40">Coach tools</p>
+        {isCoach && <p className="text-xs uppercase tracking-[0.4em] text-white/40">Coach tools</p>}
         <h1 className="text-4xl sm:text-5xl font-light tracking-tight text-white">Settings</h1>
         <p className="text-sm sm:text-base text-white/60">Manage your profile and preferences</p>
       </header>
 
-      <section className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-2xl p-12 lg:p-16 space-y-8">
+      <section className={`rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-2xl p-12 lg:p-16 space-y-8 ${!isCoach ? 'rounded-xl' : ''}`}>
         <div>
           <h2 className="text-2xl font-light text-white mb-2">Profile Information</h2>
           <p className="text-sm text-white/60">Update your personal details</p>
@@ -130,7 +132,7 @@ export default function CoachSettingsPage() {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               required
-              className="w-full bg-white/5 border border-white/10 px-6 py-4 text-base text-white placeholder:text-white/40 focus:bg-white/10 focus:border-white/20 focus:outline-none transition-all"
+              className="w-full bg-white/5 border border-white/10 px-6 py-4 text-base text-white placeholder:text-white/40 focus:bg-white/10 focus:border-white/20 focus:outline-none transition-all rounded-xl"
               placeholder="John Doe"
             />
           </div>
@@ -146,7 +148,7 @@ export default function CoachSettingsPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-white/5 border border-white/10 px-6 py-4 text-base text-white placeholder:text-white/40 focus:bg-white/10 focus:border-white/20 focus:outline-none transition-all"
+              className="w-full bg-white/5 border border-white/10 px-6 py-4 text-base text-white placeholder:text-white/40 focus:bg-white/10 focus:border-white/20 focus:outline-none transition-all rounded-xl"
               placeholder="you@example.com"
             />
             <p className="text-xs text-white/50">Changing your email will require verification</p>
@@ -161,7 +163,7 @@ export default function CoachSettingsPage() {
               id="timeZone"
               value={timeZone}
               onChange={(e) => setTimeZone(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 px-6 py-4 text-base text-white focus:bg-white/10 focus:border-white/20 focus:outline-none transition-all"
+              className="w-full bg-white/5 border border-white/10 px-6 py-4 text-base text-white focus:bg-white/10 focus:border-white/20 focus:outline-none transition-all rounded-xl"
             >
               {timeZones.map((tz) => (
                 <option key={tz} value={tz} className="bg-black">
@@ -202,6 +204,39 @@ export default function CoachSettingsPage() {
           </button>
         </form>
       </section>
-    </CoachPageContainer>
+    </>
+  );
+
+  // Render with appropriate layout based on role
+  if (isCoach) {
+    return (
+      <div className="relative min-h-screen bg-gradient-to-br from-black via-[#05060c] to-black text-white">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(37,68,255,0.25),_transparent_60%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,_rgba(199,62,42,0.18),_transparent_55%)]" />
+        </div>
+        <CoachNavigation />
+        <main className="relative z-10 flex items-center justify-center" style={{ height: 'calc(100vh - 80px)', marginTop: '80px' }}>
+          <div className="w-full max-w-3xl px-6 sm:px-8 lg:px-12">
+            <CoachPageContainer>
+              {content}
+            </CoachPageContainer>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <Navigation />
+      <main className="flex items-center justify-center" style={{ height: 'calc(100vh - 64px)', marginTop: '64px' }}>
+        <div className="w-full max-w-3xl px-6 sm:px-8 lg:px-12">
+          <div className="space-y-8">
+            {content}
+          </div>
+        </div>
+      </main>
+    </>
   );
 }

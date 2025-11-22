@@ -135,7 +135,7 @@ export default function BookPage() {
 
                   {isSelected && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                      {openings.map((opening) => {
+                      {openings.map((opening: Opening) => {
                         const startDate = new Date(opening.start_at);
                         const endDate = new Date(opening.end_at);
                         const isBusy = busy === opening.id;

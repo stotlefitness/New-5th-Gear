@@ -92,22 +92,6 @@ body {
   border-radius: 50%;
 }
 
-/* Button styles */
-.btn-primary {
-  background: #C73E2A;
-  color: white;
-  padding: 0.625rem 1.5rem;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  border: none;
-  cursor: pointer;
-}
-
-.btn-primary:hover {
-  background: #8B2E1F;
-}
-
 /* Label styles */
 .label {
   text-transform: uppercase;
@@ -133,4 +117,122 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(199, 62, 42, 0.5);
+}
+
+/* Landing page layout */
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background:
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.85)),
+    url("/softball-hero.jpg") center/cover no-repeat;
+}
+
+/* NAVBAR */
+.nav {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  backdrop-filter: blur(18px);
+  background: linear-gradient(
+    to bottom,
+    rgba(15, 23, 42, 0.92),
+    rgba(15, 23, 42, 0.75),
+    transparent
+  );
+}
+
+.nav-left .logo-text {
+  letter-spacing: 0.28em;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.nav-right {
+  display: flex;
+  gap: 8px;
+}
+
+/* Flexible button system */
+.btn {
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease,
+    transform 0.08s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(15, 23, 42, 0.7);
+}
+
+.btn-outline {
+  border-color: #fff;
+  background: transparent;
+}
+
+.btn-primary {
+  border-color: #fff;
+  background: #fff;
+  color: #020617;
+}
+
+/* HERO */
+.hero {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px 56px;
+  text-align: center;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 0, rgba(0, 0, 0, 0.75) 60%);
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  max-width: 760px;
+}
+
+.hero-title {
+  font-size: clamp(36px, 6vw, 56px);
+  line-height: 1.05;
+  margin-bottom: 20px;
+}
+
+.hero-subtitle {
+  font-size: 18px;
+  line-height: 1.6;
+  color: rgba(241, 245, 249, 0.9);
+  margin-bottom: 28px;
+}
+
+.hero-cta {
+  padding-inline: 28px;
+  padding-block: 10px;
 }

@@ -12,6 +12,8 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [accountType, setAccountType] = useState<"parent" | "player">("player");
+  const [playerName, setPlayerName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -19,6 +21,14 @@ export default function SignupPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    // Validate parent account has player name
+    if (accountType === "parent" && !playerName.trim()) {
+      setError("Please enter the player's name");
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) {
       setLoading(false);
@@ -27,13 +37,42 @@ export default function SignupPage() {
     }
     const userId = data.user?.id;
     if (userId) {
-      const { error: profileErr } = await supabase
-        .from("profiles")
-        .insert({ id: userId, email, full_name: fullName, role: "client" });
-      if (profileErr) {
-        setError(profileErr.message);
-        setLoading(false);
-        return;
+      if (accountType === "parent") {
+        // Call server-side API to create parent account with player profile
+        const response = await fetch("/api/signup-parent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            parentId: userId,
+            parentEmail: email,
+            parentName: fullName,
+            playerName: playerName.trim(),
+          }),
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+          setError(result.error || "Failed to create parent account");
+          setLoading(false);
+          return;
+        }
+      } else {
+        // Create player profile
+        const { error: profileErr } = await supabase
+          .from("profiles")
+          .insert({
+            id: userId,
+            email,
+            full_name: fullName,
+            role: "client",
+            account_type: "player",
+          });
+
+        if (profileErr) {
+          setError(profileErr.message);
+          setLoading(false);
+          return;
+        }
       }
       // New signups are always clients, redirect to book page
       router.push("/book");
@@ -78,18 +117,70 @@ export default function SignupPage() {
           <div className="p-20">
             <form onSubmit={onSubmit} className="space-y-10">
               <div className="space-y-4">
+                <label className="block text-sm text-white/70 font-light pl-2 mb-4">
+                  Account Type
+                </label>
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAccountType("player");
+                      setPlayerName("");
+                    }}
+                    className={`flex-1 px-6 py-4 border transition-all ${
+                      accountType === "player"
+                        ? "bg-white/10 border-white/30 text-white"
+                        : "bg-white/5 border-white/10 text-white/60 hover:bg-white/5 hover:border-white/15"
+                    }`}
+                  >
+                    Player
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAccountType("parent")}
+                    className={`flex-1 px-6 py-4 border transition-all ${
+                      accountType === "parent"
+                        ? "bg-white/10 border-white/30 text-white"
+                        : "bg-white/5 border-white/10 text-white/60 hover:bg-white/5 hover:border-white/15"
+                    }`}
+                  >
+                    Parent
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-4">
                 <label htmlFor="fullName" className="block text-sm text-white/70 font-light pl-2">
-                  Full Name
+                  {accountType === "parent" ? "Your Name (Parent)" : "Full Name"}
                 </label>
                 <input
                   id="fullName"
                   className="w-full bg-white/5 border border-white/10 px-8 py-5 text-base text-white placeholder:text-sm placeholder-white/40 focus:bg-white/10 focus:border-white/20 focus:outline-none transition-all"
-                  placeholder="John Doe"
+                  placeholder={accountType === "parent" ? "Jane Doe" : "John Doe"}
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   required
                 />
               </div>
+
+              {accountType === "parent" && (
+                <div className="space-y-4">
+                  <label htmlFor="playerName" className="block text-sm text-white/70 font-light pl-2">
+                    Player's Name
+                  </label>
+                  <input
+                    id="playerName"
+                    className="w-full bg-white/5 border border-white/10 px-8 py-5 text-base text-white placeholder:text-sm placeholder-white/40 focus:bg-white/10 focus:border-white/20 focus:outline-none transition-all"
+                    placeholder="Sarah Doe"
+                    value={playerName}
+                    onChange={(e) => setPlayerName(e.target.value)}
+                    required
+                  />
+                  <p className="text-xs text-white/50 pl-2">
+                    The account will be associated with the player. You'll manage it as an admin.
+                  </p>
+                </div>
+              )}
 
               <div className="space-y-4">
                 <label htmlFor="email" className="block text-sm text-white/70 font-light pl-2">

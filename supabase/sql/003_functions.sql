@@ -3,13 +3,17 @@
 
 create or replace function public.request_booking(p_opening uuid, p_idempotency_key text default null)
 returns uuid language plpgsql security definer set search_path = public as $$
-declare v_client uuid := auth.uid(); v_id uuid;
+declare v_client uuid := auth.uid(); v_player_id uuid; v_id uuid;
 begin
   if v_client is null then raise exception 'unauthorized'; end if;
+  -- Get the effective player_id (player if account_type='player', player_id if account_type='parent')
+  v_player_id := public.get_effective_player_id(v_client);
+  if v_player_id is null then raise exception 'invalid_account'; end if;
   perform 1 from public.openings o where o.id = p_opening and o.start_at > now() and o.spots_available > 0;
   if not found then raise exception 'not_available'; end if;
+  -- Bookings are always associated with the player, not the parent
   insert into public.bookings(opening_id, client_id, idempotency_key)
-  values (p_opening, v_client, p_idempotency_key)
+  values (p_opening, v_player_id, p_idempotency_key)
   on conflict (opening_id, client_id) do update set id = bookings.id
   returning id into v_id;
   return v_id;

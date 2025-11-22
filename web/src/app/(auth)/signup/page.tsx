@@ -49,9 +49,8 @@ export default function SignupPage() {
     if (error) setError(error.message);
   }
 
-  const labelStyles = "text-[11px] uppercase tracking-[0.35em] text-white/50";
   const inputStyles =
-    "w-full border-b border-white/25 bg-transparent pb-3 pt-1 text-lg text-white placeholder-white/30 focus:border-white focus:outline-none focus:ring-0 transition-colors";
+    "w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-base text-white placeholder-white/40 focus:bg-white/10 focus:border-white/20 focus:outline-none transition-all";
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-black text-white">
@@ -66,79 +65,58 @@ export default function SignupPage() {
       <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/70 to-black/95" />
 
       <div className="relative z-10 flex min-h-screen flex-col">
-        <header className="flex items-center justify-between px-6 py-8">
+        <header className="px-6 py-6">
           <Link
             href="/"
-            className="flex items-center gap-2 text-sm font-light uppercase tracking-[0.3em] text-white/70 transition-colors hover:text-white"
+            className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors"
           >
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20">
-              <svg viewBox="0 0 20 20" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={1.5}>
-                <path d="M12 5L7 10l5 5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </span>
+            <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2}>
+              <path d="M12 5L7 10l5 5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
             Back
           </Link>
-
-          <span className="text-xs uppercase tracking-[0.6em] text-white/60">5TH GEAR</span>
-          <span className="w-16" aria-hidden />
         </header>
 
-        <main className="flex flex-1 flex-col items-center px-6 pb-12">
-          <div className="w-full max-w-md space-y-10 rounded-[36px] bg-black/40 p-10 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.55)]">
-            <div className="space-y-2 text-center">
-              <p className="text-xs uppercase tracking-[0.6em] text-white/40">Join the roster</p>
-              <h1 className="text-4xl font-light tracking-tight">Create account</h1>
-              <p className="text-sm text-white/60">Unlock personalized training plans and session requests.</p>
+        <main className="flex flex-1 flex-col items-center justify-center px-6 pb-12">
+          <div className="w-full max-w-sm space-y-8">
+            <div className="space-y-3 text-center">
+              <h1 className="text-3xl font-medium">Create account</h1>
+              <p className="text-sm text-white/60">Join the roster</p>
             </div>
 
-            <form onSubmit={onSubmit} className="space-y-8">
-              <div className="space-y-3">
-                <label htmlFor="fullName" className={labelStyles}>
-                  Full Name
-                </label>
-                <input
-                  id="fullName"
-                  className={inputStyles}
-                  placeholder="Jordan Matthews"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                />
-              </div>
+            <form onSubmit={onSubmit} className="space-y-5">
+              <input
+                id="fullName"
+                className={inputStyles}
+                placeholder="Full name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+              />
 
-              <div className="space-y-3">
-                <label htmlFor="email" className={labelStyles}>
-                  Email Address
-                </label>
-                <input
-                  id="email"
-                  className={inputStyles}
-                  placeholder="you@example.com"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
+              <input
+                id="email"
+                className={inputStyles}
+                placeholder="Email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
 
-              <div className="space-y-3">
-                <label htmlFor="password" className={labelStyles}>
-                  Password
-                </label>
-                <input
-                  id="password"
-                  className={inputStyles}
-                  placeholder="••••••••"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
-                />
-              </div>
+              <input
+                id="password"
+                className={inputStyles}
+                placeholder="Password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+              />
 
               {error && (
-                <div className="rounded-2xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+                <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
                   {error}
                 </div>
               )}
@@ -146,36 +124,38 @@ export default function SignupPage() {
               <button
                 disabled={loading}
                 type="submit"
-                className="w-full rounded-full bg-white/95 py-4 text-sm font-semibold uppercase tracking-[0.4em] text-black transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+                className="w-full rounded-lg bg-white py-3 text-sm font-medium text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {loading ? "Creating..." : "Create Account"}
+                {loading ? "Creating..." : "Create account"}
               </button>
 
-              <p className="text-center text-[10px] uppercase tracking-[0.3em] text-white/40">
+              <p className="text-center text-xs text-white/40">
                 By continuing you agree to our coaching policies.
               </p>
             </form>
 
-            <div className="flex flex-col items-center gap-6">
-              <div className="text-[11px] uppercase tracking-[0.35em] text-white/35">Or continue with</div>
-              <button
-                onClick={onGoogle}
-                disabled={loading}
-                className="flex h-14 w-14 items-center justify-center rounded-full border border-white/30 text-lg font-semibold text-white transition hover:border-white disabled:cursor-not-allowed disabled:opacity-40"
-                aria-label="Sign up with Google"
-              >
-                G
-              </button>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-white/10"></div>
+              </div>
+              <div className="relative flex justify-center text-xs text-white/40">
+                <span className="bg-black/50 px-2">Or</span>
+              </div>
             </div>
 
-            <div className="space-y-3 text-center text-xs uppercase tracking-[0.35em] text-white/35">
-              <p>
-                Already have an account?{" "}
-                <Link href="/login" className="text-white hover:text-white/80 transition-colors">
-                  Sign in
-                </Link>
-              </p>
-              <p className="text-[10px]">Questions? support@5thgearpitching.com</p>
+            <button
+              onClick={onGoogle}
+              disabled={loading}
+              className="w-full rounded-lg border border-white/10 bg-white/5 py-3 text-sm font-medium text-white transition hover:bg-white/10 hover:border-white/20 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Continue with Google
+            </button>
+
+            <div className="text-center text-sm text-white/60">
+              Already have an account?{" "}
+              <Link href="/login" className="text-white hover:text-white/80 transition-colors underline">
+                Sign in
+              </Link>
             </div>
           </div>
         </main>

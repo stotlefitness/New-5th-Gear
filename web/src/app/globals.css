@@ -108,7 +108,10 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: radial-gradient(circle at top, #111827 0, #020617 50%, #000 100%);
+  background:
+    linear-gradient(180deg, rgba(2, 6, 23, 0.92) 0%, rgba(0, 0, 0, 0.78) 55%, rgba(0, 0, 0, 0.9) 100%),
+    url("/softball-hero.jpg") center/cover no-repeat;
+  background-attachment: fixed;
   color: #fff;
 }
 

@@ -103,7 +103,9 @@ export default function ResetPasswordPage() {
             >
               ←
             </Link>
-            5TH&nbsp;GEAR
+            <Link href="/" className="cursor-pointer hover:text-white transition-colors" style={{ textDecoration: "none" }}>
+              5TH&nbsp;GEAR
+            </Link>
           </div>
 
           <h1 className="mb-2 text-3xl font-semibold tracking-tight">Reset password.</h1>

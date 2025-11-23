@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import Link from "next/link";
 
 export default function SignupPage() {
   const supabase = getSupabaseBrowserClient();
@@ -61,7 +62,9 @@ export default function SignupPage() {
         >
           ←
         </button>
-        <div className="auth-logo">5TH&nbsp;GEAR</div>
+        <Link href="/" className="auth-logo" style={{ textDecoration: "none", cursor: "pointer" }}>
+          5TH&nbsp;GEAR
+        </Link>
         <button
           type="button"
           className="icon-btn"

@@ -12,7 +12,6 @@ type Booking = {
   client_id: string;
   opening_id: string;
   openings: { start_at: string; end_at: string };
-  profiles: { full_name: string; email: string };
 };
 
 const supabase = getSupabaseBrowserClient();
@@ -20,7 +19,7 @@ const supabase = getSupabaseBrowserClient();
 async function fetchPending() {
   const { data, error } = await supabase
     .from("bookings")
-    .select("id,status,client_id,opening_id,openings(start_at,end_at),profiles:client_id(full_name,email)")
+    .select("id,status,client_id,opening_id,openings(start_at,end_at)")
     .eq("status", "pending")
     .order("created_at");
   if (error) throw error;
@@ -63,7 +62,7 @@ export default function RequestsPage() {
         <div className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-2xl p-16 lg:p-20 text-center space-y-4">
           <p className="text-sm uppercase tracking-[0.4em] text-white/40">All clear</p>
           <h2 className="text-2xl font-light text-white">No pending requests</h2>
-          <p className="text-white/60 text-sm">Clients will appear here the moment they request time.</p>
+          <p className="text-white/60 text-sm">Athletes will appear here the moment they request time.</p>
         </div>
       ) : (
         <div className="space-y-8">
@@ -89,8 +88,8 @@ export default function RequestsPage() {
                         {formatTime(startDate)} – {formatTime(endDate)}
                       </span>
                       <span className="text-white/30">•</span>
-                      <span className="text-white/90 font-medium">
-                        {booking.profiles?.full_name || booking.client_id.slice(0, 8)}
+                      <span className="font-mono text-xs uppercase tracking-[0.4em] text-white/50">
+                        {booking.client_id.slice(0, 8)}
                       </span>
                     </p>
                   </div>

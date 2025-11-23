@@ -12,11 +12,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [resetMessage, setResetMessage] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setResetMessage(null);
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) {
@@ -34,6 +37,24 @@ export default function LoginPage() {
       } else {
         router.push("/book");
       }
+    }
+  }
+
+  async function onForgotPassword() {
+    if (!email) {
+      setError("Enter your email address to receive a reset link.");
+      return;
+    }
+    setForgotLoading(true);
+    setError(null);
+    setResetMessage(null);
+    const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/reset-password` : undefined;
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+    setForgotLoading(false);
+    if (error) {
+      setError(error.message);
+    } else {
+      setResetMessage("Reset link sent. Check your email for instructions.");
     }
   }
 
@@ -81,8 +102,10 @@ export default function LoginPage() {
               <button
                 type="button"
                 className="field-link"
+                onClick={onForgotPassword}
+                disabled={forgotLoading}
               >
-                Forgot password?
+                {forgotLoading ? "Sending..." : "Forgot password?"}
               </button>
             </div>
             <input
@@ -98,6 +121,12 @@ export default function LoginPage() {
             {error && (
               <p className="auth-error">
                 {error}
+              </p>
+            )}
+
+            {resetMessage && (
+              <p className="auth-success">
+                {resetMessage}
               </p>
             )}
 

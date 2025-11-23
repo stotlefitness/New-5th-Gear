@@ -96,10 +96,10 @@ async function getCoachId(): Promise<string | null> {
     .limit(1)
     .single();
   
-  if (booking?.openings) {
-    const openings = booking.openings as { coach_id: string }[];
-    if (Array.isArray(openings) && openings.length > 0) {
-      return openings[0].coach_id;
+  if (booking) {
+    const bookingData = booking as { openings: { coach_id: string }[] | null };
+    if (bookingData.openings && Array.isArray(bookingData.openings) && bookingData.openings.length > 0) {
+      return bookingData.openings[0].coach_id;
     }
   }
   

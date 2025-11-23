@@ -114,7 +114,7 @@ export default function SettingsPage() {
       </header>
 
       <section className="auth-panel" style={{ maxWidth: 860, width: "100%" }}>
-        <div className="auth-form" style={{ gap: 20 }}>
+        <form className="auth-form" onSubmit={handleSubmit} style={{ gap: 20 }}>
           <div>
             <label htmlFor="fullName" className="field-label">
               Full Name
@@ -181,14 +181,13 @@ export default function SettingsPage() {
 
           <button
             type="submit"
-            onClick={handleSubmit}
             disabled={saving}
             className="btn-primary auth-submit"
             style={{ marginTop: 8 }}
           >
             {saving ? "Saving…" : "Save changes"}
           </button>
-        </div>
+        </form>
       </section>
     </CoachPageContainer>
   );

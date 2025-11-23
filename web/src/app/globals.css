@@ -540,3 +540,114 @@ body {
   padding-inline: 28px;
   padding-block: 10px;
 }
+
+/* Coach page styles */
+.coach-page-inner {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.coach-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.coach-header-label {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.8);
+  margin-bottom: 6px;
+}
+
+.coach-header-title {
+  font-size: 32px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.coach-header-subtitle {
+  font-size: 14px;
+  color: rgba(203, 213, 225, 0.9);
+}
+
+/* Field styles inside the card */
+.coach-field-label {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.9);
+  margin-bottom: 3px;
+}
+
+.coach-field-input {
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  background: rgba(15, 23, 42, 0.7);
+  color: #e5e7eb;
+  font-size: 13px;
+}
+
+.coach-field-input:focus {
+  outline: none;
+  border-color: #ffffff;
+}
+
+.coach-btn {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid #ffffff;
+  background: #ffffff;
+  color: #020617;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.coach-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-1px);
+}
+
+.coach-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.coach-btn-outline {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.coach-btn-outline:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.coach-btn-outline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.coach-list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}

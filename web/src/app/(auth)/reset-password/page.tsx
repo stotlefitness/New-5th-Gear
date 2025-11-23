@@ -1,19 +1,15 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState, Suspense } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type Status = "verifying" | "ready" | "missing" | "error";
 
-function ResetPasswordForm() {
+export default function ResetPasswordPage() {
   const supabase = getSupabaseBrowserClient();
-  const searchParams = useSearchParams();
-  const recoveryToken = useMemo(() => {
-    return searchParams.get("code") ?? searchParams.get("token_hash");
-  }, [searchParams]);
+  const [recoveryToken, setRecoveryToken] = useState<string | null>(null);
   const [status, setStatus] = useState<Status>("verifying");
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [password, setPassword] = useState("");
@@ -21,6 +17,15 @@ function ResetPasswordForm() {
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Get recovery token from URL on client side
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("code") ?? params.get("token_hash");
+      setRecoveryToken(token);
+    }
+  }, []);
 
   useEffect(() => {
     if (status !== "verifying") return;
@@ -191,17 +196,5 @@ function ResetPasswordForm() {
         </div>
       </div>
     </div>
-  );
-}
-
-export default function ResetPasswordPage() {
-  return (
-    <Suspense fallback={
-      <div className="relative min-h-screen overflow-hidden bg-black text-white flex items-center justify-center">
-        <div className="w-12 h-12 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-      </div>
-    }>
-      <ResetPasswordForm />
-    </Suspense>
   );
 }

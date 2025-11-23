@@ -476,12 +476,8 @@ body {
   justify-content: space-between;
   padding: 0 32px;
   backdrop-filter: blur(18px);
-  background: linear-gradient(
-    to bottom,
-    rgba(15, 23, 42, 0.92),
-    rgba(15, 23, 42, 0.75),
-    transparent
-  );
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .nav-left .logo-text {

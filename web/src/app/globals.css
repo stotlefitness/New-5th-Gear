@@ -124,8 +124,9 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: url("/softball-hero.jpg") center/cover no-repeat;
-  color: #fff;
+  background:
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.85)),
+    url("/softball-hero.jpg") center/cover no-repeat;
 }
 
 /* Auth page styles - clean centered version */
@@ -158,14 +159,6 @@ body {
   font-size: 13px;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: #fff;
-  text-decoration: none;
-  cursor: pointer;
-  transition: opacity 0.15s ease;
-}
-
-.auth-logo:hover {
-  opacity: 0.8;
 }
 
 .icon-btn {
@@ -277,6 +270,18 @@ body {
   text-align: center;
 }
 
+/* Success message */
+.auth-success {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 6px;
+  color: rgba(220, 252, 231, 0.9);
+  font-size: 13px;
+  text-align: center;
+}
+
 /* Primary button */
 .btn-primary {
   margin-top: 18px;
@@ -357,11 +362,10 @@ body {
   backdrop-filter: blur(18px);
   background: linear-gradient(
     to bottom,
-    rgba(255, 255, 255, 0.15),
-    rgba(255, 255, 255, 0.08),
+    rgba(15, 23, 42, 0.92),
+    rgba(15, 23, 42, 0.75),
     transparent
   );
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .nav-left .logo-text {
@@ -429,7 +433,7 @@ body {
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: none;
+  background: radial-gradient(circle at center, transparent 0, rgba(0, 0, 0, 0.75) 60%);
   pointer-events: none;
 }
 

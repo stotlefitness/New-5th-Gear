@@ -3,11 +3,24 @@
 
 create or replace function public._booking_accept_effects()
 returns trigger language plpgsql as $$
+declare
+  v_coach_id uuid;
 begin
   if NEW.status = 'accepted' and OLD.status is distinct from 'accepted' then
+    -- Get coach_id from opening
+    select o.coach_id into v_coach_id from public.openings o where o.id = NEW.opening_id;
+    
+    -- Add client to coach roster if not already there
+    insert into public.coach_clients (coach_id, client_id)
+    values (v_coach_id, NEW.client_id)
+    on conflict (coach_id, client_id) do nothing;
+    
+    -- Update opening spots
     update public.openings set spots_available = spots_available - 1
     where id = NEW.opening_id and spots_available > 0;
     if not found then raise exception 'no_spots'; end if;
+    
+    -- Create lesson
     insert into public.lessons (opening_id, coach_id, client_id, start_at, end_at)
     select o.id, o.coach_id, NEW.client_id, o.start_at, o.end_at from public.openings o
     where o.id = NEW.opening_id on conflict (opening_id) do nothing;

@@ -12,11 +12,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [resetMessage, setResetMessage] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setResetMessage(null);
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) {
@@ -37,6 +40,24 @@ export default function LoginPage() {
     }
   }
 
+  async function onForgotPassword() {
+    if (!email) {
+      setError("Enter your email address to receive a reset link.");
+      return;
+    }
+    setForgotLoading(true);
+    setError(null);
+    setResetMessage(null);
+    const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/reset-password` : undefined;
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+    setForgotLoading(false);
+    if (error) {
+      setError(error.message);
+    } else {
+      setResetMessage("Reset link sent. Check your email for instructions.");
+    }
+  }
+
   return (
     <div className="auth-page">
       {/* Top nav */}
@@ -45,7 +66,7 @@ export default function LoginPage() {
           ←
         </button>
 
-        <Link href="/" className="auth-logo">5TH GEAR</Link>
+        <div className="auth-logo">5TH GEAR</div>
 
         <button className="icon-btn" aria-label="Menu">
           ☰
@@ -78,12 +99,14 @@ export default function LoginPage() {
               <label className="field-label" htmlFor="password">
                 Password
               </label>
-              <Link
-                href="/forgot-password"
+              <button
+                type="button"
                 className="field-link"
+                onClick={onForgotPassword}
+                disabled={forgotLoading}
               >
-                Forgot password?
-              </Link>
+                {forgotLoading ? "Sending..." : "Forgot password?"}
+              </button>
             </div>
             <input
               id="password"
@@ -98,6 +121,12 @@ export default function LoginPage() {
             {error && (
               <p className="auth-error">
                 {error}
+              </p>
+            )}
+
+            {resetMessage && (
+              <p className="auth-success">
+                {resetMessage}
               </p>
             )}
 

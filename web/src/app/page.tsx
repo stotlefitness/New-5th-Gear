@@ -81,13 +81,6 @@ export default function Home() {
         </div>
       </main>
 
-      <footer className="border-t border-white/20 bg-black/60 py-8">
-        <div className="max-w-7xl mx-auto px-8 text-center">
-          <p className="text-xs text-white/50 uppercase tracking-[0.28em] font-light">
-            © 2024 5th Gear Pitching
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }

@@ -14,8 +14,8 @@ export default function CoachLayout({
 
       <CoachNavigation />
 
-      <main className="relative z-10 flex items-center justify-center" style={{ height: 'calc(100vh - 80px)', marginTop: '80px' }}>
-        <div className="w-full max-w-3xl px-6 sm:px-8 lg:px-12">
+      <main className="relative z-10 flex items-center justify-center min-h-screen py-20">
+        <div className="w-full max-w-4xl px-6 sm:px-8 lg:px-12">
           {children}
         </div>
       </main>

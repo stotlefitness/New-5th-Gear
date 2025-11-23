@@ -4,7 +4,6 @@ import useSWR from "swr";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { rpcGenerateOpenings } from "@/lib/rpc";
 import { useState } from "react";
-import CoachPageContainer from "@/components/CoachPageContainer";
 
 type Template = {
   id: string;
@@ -55,15 +54,6 @@ export default function AvailabilityPage() {
     }
   }
 
-  async function toggleTemplate(id: string, currentActive: boolean) {
-    const { error } = await supabase
-      .from("availability_templates")
-      .update({ active: !currentActive })
-      .eq("id", id);
-    if (error) return alert(error.message);
-    mutate();
-  }
-
   async function deleteTemplate(id: string) {
     if (!confirm("Are you sure you want to delete this template?")) return;
     const { error } = await supabase.from("availability_templates").delete().eq("id", id);
@@ -72,14 +62,16 @@ export default function AvailabilityPage() {
   }
 
   return (
-    <CoachPageContainer>
-      <header className="text-center space-y-8 mb-8">
-        <p className="text-xs uppercase tracking-[0.4em] text-white/40">Coach tools</p>
-        <h1 className="text-4xl sm:text-5xl font-light tracking-tight text-white">Availability Console</h1>
-        <p className="text-sm sm:text-base text-white/60">Set your weekly windows and generate bookable slots for your clients.</p>
-      </header>
+    <div className="coach-page-inner">
+      <div className="coach-header">
+        <div className="coach-header-label">Coach tools</div>
+        <h1 className="coach-header-title">Availability Console</h1>
+        <p className="coach-header-subtitle">
+          Set your weekly windows and generate bookable slots for your clients.
+        </p>
+      </div>
 
-      <section className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-2xl p-16 lg:p-20" style={{ maxWidth: 860, width: "100%" }}>
+      <section className="auth-panel" style={{ maxWidth: 860, width: "100%" }}>
         <div
           style={{
             display: "grid",
@@ -109,11 +101,14 @@ export default function AvailabilityPage() {
               }}
             >
               <div>
-                <div className="coach-field-label">Day of week</div>
+                <label className="field-label" htmlFor="weekday">
+                  Day of week
+                </label>
                 <select
+                  id="weekday"
                   value={weekday}
                   onChange={(e) => setWeekday(parseInt(e.target.value))}
-                  className="coach-field-input"
+                  className="field-input"
                 >
                   {weekdays.map((d, i) => (
                     <option key={i} value={i}>
@@ -124,33 +119,42 @@ export default function AvailabilityPage() {
               </div>
 
               <div>
-                <div className="coach-field-label">Start time</div>
+                <label className="field-label" htmlFor="start">
+                  Start time
+                </label>
                 <input
+                  id="start"
                   type="time"
                   value={start}
                   onChange={(e) => setStart(e.target.value)}
-                  className="coach-field-input"
+                  className="field-input"
                 />
               </div>
 
               <div>
-                <div className="coach-field-label">End time</div>
+                <label className="field-label" htmlFor="end">
+                  End time
+                </label>
                 <input
+                  id="end"
                   type="time"
                   value={end}
                   onChange={(e) => setEnd(e.target.value)}
-                  className="coach-field-input"
+                  className="field-input"
                 />
               </div>
             </div>
 
             <div style={{ maxWidth: 180 }}>
-              <div className="coach-field-label">Slot duration (min)</div>
+              <label className="field-label" htmlFor="slotMinutes">
+                Slot duration (min)
+              </label>
               <input
+                id="slotMinutes"
                 type="number"
                 value={slotMinutes}
                 onChange={(e) => setSlotMinutes(parseInt(e.target.value))}
-                className="coach-field-input"
+                className="field-input"
                 min={30}
                 step={15}
               />
@@ -168,14 +172,15 @@ export default function AvailabilityPage() {
             <button
               onClick={addTemplate}
               disabled={busy}
-              className="coach-btn"
+              className="btn-primary auth-submit"
             >
               {busy ? "Adding..." : "Add template"}
             </button>
             <button
               onClick={generate}
               disabled={busy}
-              className="coach-btn-outline"
+              className="field-link"
+              style={{ textAlign: "center", padding: "11px 0" }}
             >
               Generate next 6 weeks
             </button>
@@ -185,8 +190,9 @@ export default function AvailabilityPage() {
         <div
           style={{
             height: 1,
-            background: "rgba(255, 255, 255, 0.1)",
+            background: "rgba(148, 163, 184, 0.3)",
             marginBottom: 12,
+            marginTop: 18,
           }}
         />
 
@@ -206,13 +212,23 @@ export default function AvailabilityPage() {
             <p>No templates yet. Add your first window above.</p>
           </div>
         ) : (
-          <div className="space-y-4 mt-4">
+          <div className="auth-form" style={{ gap: 8, marginTop: 8 }}>
             {data.map((template) => (
               <div
                 key={template.id}
-                className="rounded-2xl border border-white/15 bg-white/5 px-8 py-6"
+                style={{
+                  padding: "12px 0",
+                  borderBottom: "1px solid rgba(148, 163, 184, 0.2)",
+                }}
               >
-                <div className="coach-list-row">
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 16,
+                  }}
+                >
                   <div>
                     <div style={{ fontSize: 14, color: "rgba(255, 255, 255, 0.9)" }}>
                       {weekdays[template.weekday]}
@@ -243,7 +259,8 @@ export default function AvailabilityPage() {
                     </span>
                     <button
                       onClick={() => deleteTemplate(template.id)}
-                      className="coach-btn-outline"
+                      className="field-link"
+                      style={{ padding: "4px 8px" }}
                     >
                       Delete
                     </button>
@@ -267,6 +284,6 @@ export default function AvailabilityPage() {
           </div>
         )}
       </section>
-    </CoachPageContainer>
+    </div>
   );
 }

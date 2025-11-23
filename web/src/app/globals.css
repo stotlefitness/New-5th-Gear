@@ -206,7 +206,7 @@ body {
   display: flex;
   flex-direction: column;
   background:
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.85)),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3)),
     url("/softball-hero.jpg") center/cover no-repeat;
 }
 
@@ -549,9 +549,9 @@ body {
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, transparent 0, rgba(0, 0, 0, 0.75) 60%);
+  background: radial-gradient(circle at center, transparent 0, rgba(0, 0, 0, 0.2) 60%);
   pointer-events: none;
-  /* No blue gradient on home hero - keep it clear */
+  /* No blue gradient on home hero - keep it clear and light */
 }
 
 .hero-content {

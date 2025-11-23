@@ -89,6 +89,10 @@ async function getCoachId(): Promise<string | null> {
   const { data: session } = await supabase.auth.getSession();
   if (!session?.session?.user) return null;
   
+  type BookingWithOpenings = {
+    openings: Array<{ coach_id: string }> | null;
+  };
+  
   const { data: booking } = await supabase
     .from("bookings")
     .select("openings(coach_id)")
@@ -97,9 +101,10 @@ async function getCoachId(): Promise<string | null> {
     .single();
   
   if (booking) {
-    const bookingData = booking as { openings: { coach_id: string }[] | null };
-    if (bookingData.openings && Array.isArray(bookingData.openings) && bookingData.openings.length > 0) {
-      return bookingData.openings[0].coach_id;
+    const bookingData = booking as BookingWithOpenings;
+    const openings = bookingData.openings;
+    if (openings && Array.isArray(openings) && openings.length > 0 && openings[0]?.coach_id) {
+      return openings[0].coach_id;
     }
   }
   

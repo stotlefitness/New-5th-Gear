@@ -1,224 +1,233 @@
 "use client";
+import useSWR from 'swr';
+import { getSupabaseBrowserClient } from '@/lib/supabase/client';
+import { rpcGenerateOpenings } from '@/lib/rpc';
+import { useState } from 'react';
+import Navigation from '@/components/Navigation';
 
-import useSWR from "swr";
-import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import { rpcGenerateOpenings } from "@/lib/rpc";
-import { useState } from "react";
-import CoachPageContainer from "@/components/CoachPageContainer";
-
-type Template = {
-  id: string;
-  weekday: number;
-  start_time: string;
-  end_time: string;
-  slot_minutes: number;
-  active: boolean;
-};
+type Template = { id: string; weekday: number; start_time: string; end_time: string; slot_minutes: number; active: boolean };
 
 const supabase = getSupabaseBrowserClient();
 
 async function fetchTemplates() {
-  const { data, error } = await supabase.from("availability_templates").select("*").order("weekday");
+  const { data, error } = await supabase
+    .from('availability_templates')
+    .select('*')
+    .order('weekday');
   if (error) throw error;
   return data as Template[];
 }
 
-const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const weekdaysShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function AvailabilityPage() {
-  const { data, mutate } = useSWR("availability_templates", fetchTemplates);
+  const { data, mutate } = useSWR('availability_templates', fetchTemplates);
   const [weekday, setWeekday] = useState(1);
-  const [start, setStart] = useState("15:00");
-  const [end, setEnd] = useState("18:00");
+  const [start, setStart] = useState('15:00');
+  const [end, setEnd] = useState('18:00');
   const [slotMinutes, setSlotMinutes] = useState(60);
   const [busy, setBusy] = useState(false);
-  const [showForm, setShowForm] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
 
   async function addTemplate() {
     setBusy(true);
-    const { error } = await supabase
-      .from("availability_templates")
-      .insert({ weekday, start_time: start, end_time: end, slot_minutes: slotMinutes, active: true });
+    setSuccess(null);
+    const { error } = await supabase.from('availability_templates').insert({ weekday, start_time: start, end_time: end, slot_minutes: slotMinutes, active: true });
     setBusy(false);
-    if (error) return alert(error.message);
+    if (error) {
+      alert(error.message);
+      return;
+    }
+    setSuccess('Template added successfully!');
+    setTimeout(() => setSuccess(null), 3000);
     mutate();
-    setShowForm(false);
   }
 
   async function generate() {
     try {
       setBusy(true);
+      setSuccess(null);
       const count = await rpcGenerateOpenings(6);
-      alert(`Generated ${count} openings`);
+      setSuccess(`Generated ${count} openings for the next 6 weeks!`);
+      setTimeout(() => setSuccess(null), 5000);
     } catch (e: any) {
-      alert(e.message || "Failed");
+      alert(e.message || 'Failed');
     } finally {
       setBusy(false);
     }
   }
 
-  async function toggleTemplate(id: string, currentActive: boolean) {
-    const { error } = await supabase
-      .from("availability_templates")
-      .update({ active: !currentActive })
-      .eq("id", id);
-    if (error) return alert(error.message);
-    mutate();
-  }
-
-  async function deleteTemplate(id: string) {
-    if (!confirm("Are you sure you want to delete this template?")) return;
-    const { error } = await supabase.from("availability_templates").delete().eq("id", id);
-    if (error) return alert(error.message);
-    mutate();
-  }
-
   return (
-    <CoachPageContainer>
-      <header className="text-center space-y-8 mb-8">
-        <p className="text-xs uppercase tracking-[0.4em] text-white/40">Coach tools</p>
-        <h1 className="text-4xl sm:text-5xl font-light tracking-tight text-white">Availability Console</h1>
-        <p className="text-sm sm:text-base text-white/60">Shape your week and generate the sessions athletes can book.</p>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#1a0a2e] to-[#16213e] relative overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-20 left-10 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-float" style={{ animationDelay: "2s" }}></div>
+      </div>
 
-      <section className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-2xl p-16 lg:p-20 space-y-12">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-white/50">Templates</p>
-            <h2 className="text-2xl font-light text-white">Recurring windows</h2>
+      <Navigation />
+
+      <div className="relative z-10 pt-24 pb-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-5xl mx-auto animate-fade-in">
+          <div className="text-center mb-12">
+            <h1 className="text-5xl sm:text-6xl font-bold mb-4 gradient-text font-[var(--font-space-grotesk)]">
+              Manage Availability
+            </h1>
+            <p className="text-xl text-gray-400">Set your schedule and generate time slots for clients</p>
           </div>
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="px-5 py-2 rounded-full text-xs uppercase tracking-[0.3em] bg-white text-black hover:bg-white/90 transition-all"
-          >
-            {showForm ? "Close" : "Add template"}
-          </button>
-        </div>
 
-        {showForm && (
-          <div className="space-y-6 border-t border-white/10 pt-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="space-y-2">
-                <label className="text-xs uppercase tracking-[0.3em] text-white/50">Day</label>
+          {success && (
+            <div className="mb-6 card rounded-2xl p-4 border-green-500/20 bg-green-500/10 animate-slide-in">
+              <div className="flex items-center gap-3 text-green-400">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="font-semibold">{success}</span>
+              </div>
+            </div>
+          )}
+
+          <div className="card rounded-2xl p-8 mb-8">
+            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+              <span>➕</span>
+              Add New Template
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+              <div className="lg:col-span-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">Day of Week</label>
                 <select
                   value={weekday}
                   onChange={(e) => setWeekday(parseInt(e.target.value))}
-                  className="w-full bg-white/5 border border-white/10 px-4 py-3 text-sm text-white focus:bg-white/10 focus:border-white/30 focus:outline-none"
+                  className="w-full input-modern px-4 py-3 rounded-xl text-white"
                 >
                   {weekdays.map((d, i) => (
-                    <option key={i} value={i}>
-                      {d}
-                    </option>
+                    <option key={i} value={i}>{d}</option>
                   ))}
                 </select>
               </div>
-
-              <div className="space-y-2">
-                <label className="text-xs uppercase tracking-[0.3em] text-white/50">Start</label>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Start Time</label>
                 <input
                   value={start}
                   onChange={(e) => setStart(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 px-4 py-3 text-sm text-white focus:bg-white/10 focus:border-white/30 focus:outline-none"
+                  className="w-full input-modern px-4 py-3 rounded-xl text-white"
                   type="time"
                 />
               </div>
-
-              <div className="space-y-2">
-                <label className="text-xs uppercase tracking-[0.3em] text-white/50">End</label>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">End Time</label>
                 <input
                   value={end}
                   onChange={(e) => setEnd(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 px-4 py-3 text-sm text-white focus:bg-white/10 focus:border-white/30 focus:outline-none"
+                  className="w-full input-modern px-4 py-3 rounded-xl text-white"
                   type="time"
                 />
               </div>
-
-              <div className="space-y-2">
-                <label className="text-xs uppercase tracking-[0.3em] text-white/50">Slot</label>
-                <select
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Slot Duration (min)</label>
+                <input
                   value={slotMinutes}
                   onChange={(e) => setSlotMinutes(parseInt(e.target.value))}
-                  className="w-full bg-white/5 border border-white/10 px-4 py-3 text-sm text-white focus:bg-white/10 focus:border-white/30 focus:outline-none"
-                >
-                  {[30, 45, 60, 75, 90, 120].map((value) => (
-                    <option key={value} value={value}>
-                      {value} min
-                    </option>
-                  ))}
-                </select>
+                  className="w-full input-modern px-4 py-3 rounded-xl text-white"
+                  type="number"
+                  min={30}
+                  step={15}
+                />
               </div>
             </div>
-
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-4">
               <button
                 disabled={busy}
                 onClick={addTemplate}
-                className="px-5 py-3 rounded-full bg-white text-black text-xs uppercase tracking-[0.3em] hover:bg-white/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 btn-primary py-4 rounded-xl text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {busy ? "Adding..." : "Save template"}
+                {busy ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Adding...
+                  </>
+                ) : (
+                  <>
+                    <span>➕</span>
+                    Add Template
+                  </>
+                )}
               </button>
               <button
                 disabled={busy}
                 onClick={generate}
-                className="px-5 py-3 rounded-full border border-white/20 text-white/80 text-xs uppercase tracking-[0.3em] hover:bg-white/5 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 glass py-4 rounded-xl text-white font-semibold border border-white/10 hover:border-white/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                Generate next 6 weeks
+                {busy ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <span>⚡</span>
+                    Generate Next 6 Weeks
+                  </>
+                )}
               </button>
             </div>
           </div>
-        )}
-      </section>
 
-      <section className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-2xl p-16 lg:p-20 space-y-12">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <h2 className="text-2xl font-light text-white">Active windows</h2>
-          <span className="text-xs uppercase tracking-[0.3em] text-white/40">{data?.length ?? 0} total</span>
-        </div>
-
-        {!data || data.length === 0 ? (
-          <div className="text-center py-10 text-white/60">
-            <p className="text-sm">No templates yet. Add your first window above.</p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {data.map((template) => (
-              <div
-                key={template.id}
-                className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 rounded-2xl border border-white/15 bg-white/5 px-8 py-6"
-              >
-                <div className="flex items-center gap-4">
-                  <span
-                    className={`w-2 h-2 rounded-full ${template.active ? "bg-white" : "bg-white/30"}`}
-                  />
-                  <div>
-                    <p className="text-lg text-white font-light">
-                      {weekdays[template.weekday]} • {template.start_time}–{template.end_time}
-                    </p>
-                    <p className="text-xs uppercase tracking-[0.3em] text-white/40">{template.slot_minutes} minute slots</p>
+          <div className="card rounded-2xl p-8">
+            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+              <span>📋</span>
+              Existing Templates
+            </h2>
+            {data && data.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {data.map((template) => (
+                  <div
+                    key={template.id}
+                    className="glass rounded-xl p-5 border border-white/10 hover:border-white/20 transition-all duration-300"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h3 className="text-lg font-bold text-white mb-1">
+                          {weekdays[template.weekday]}
+                        </h3>
+                        <p className="text-gray-400">
+                          {template.start_time} - {template.end_time}
+                        </p>
+                      </div>
+                      <div className={`px-3 py-1 rounded-lg text-xs font-semibold ${
+                        template.active
+                          ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                          : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'
+                      }`}>
+                        {template.active ? 'Active' : 'Inactive'}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-purple-400">
+                      <span>⏱️</span>
+                      <span>{template.slot_minutes} minute slots</span>
+                    </div>
                   </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => toggleTemplate(template.id, template.active)}
-                    className={`px-4 py-2 rounded-full text-xs uppercase tracking-[0.3em] transition ${
-                      template.active ? "bg-white text-black" : "border border-white/20 text-white/70"
-                    }`}
-                  >
-                    {template.active ? "Active" : "Activate"}
-                  </button>
-                  <button
-                    onClick={() => deleteTemplate(template.id)}
-                    className="px-4 py-2 rounded-full text-xs uppercase tracking-[0.3em] text-red-200 border border-red-300/30 hover:bg-red-500/10 transition"
-                  >
-                    Delete
-                  </button>
-                </div>
+                ))}
               </div>
-            ))}
+            ) : (
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">📅</div>
+                <p className="text-gray-400">No templates yet. Add your first availability template above!</p>
+              </div>
+            )}
           </div>
-        )}
-      </section>
-    </CoachPageContainer>
+        </div>
+      </div>
+    </div>
   );
 }
+
+
+
+

@@ -96,8 +96,11 @@ async function getCoachId(): Promise<string | null> {
     .limit(1)
     .single();
   
-  if (booking?.openings && Array.isArray(booking.openings) && booking.openings.length > 0) {
-    return booking.openings[0].coach_id;
+  if (booking?.openings) {
+    const openings = booking.openings as { coach_id: string }[];
+    if (Array.isArray(openings) && openings.length > 0) {
+      return openings[0].coach_id;
+    }
   }
   
   const { data: lesson } = await supabase

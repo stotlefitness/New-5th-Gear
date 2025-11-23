@@ -53,39 +53,33 @@ export default function CoachNavigation() {
   if (loading || profile?.role !== "coach") return null;
 
   return (
-    <nav className="fixed top-0 inset-x-0 z-50 border-b border-white/10 bg-black/40 backdrop-blur-2xl">
-      <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
-        <Link href="/availability" className="flex items-center gap-4">
-          <span className="text-3xl font-thin tracking-[0.4em] text-white/70">5TH</span>
-          <span className="text-sm uppercase tracking-[0.6em] text-white/40">Coach Console</span>
-        </Link>
+    <header className="auth-nav">
+      <Link href="/availability" className="auth-logo">
+        5TH GEAR
+      </Link>
 
-        <div className="flex items-center gap-2">
-          {coachLinks.map((link) => {
-            const active = pathname === link.href || pathname?.startsWith(`${link.href}/`);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`px-4 py-2 text-[0.6rem] uppercase tracking-[0.4em] transition-all duration-200 rounded-full ${
-                  active
-                    ? "bg-white text-black"
-                    : "bg-white/5 text-white/70 hover:bg-white/10"
-                }`}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
+      <div className="flex items-center gap-2">
+        {coachLinks.map((link) => {
+          const active = pathname === link.href || pathname?.startsWith(`${link.href}/`);
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`nav-link ${active ? "nav-link-active" : ""}`}
+            >
+              {link.label}
+            </Link>
+          );
+        })}
 
-          <button
-            onClick={signOut}
-            className="px-4 py-2 text-[0.6rem] uppercase tracking-[0.4em] text-white/70 hover:text-white"
-          >
-            Logout
-          </button>
-        </div>
+        <button
+          onClick={signOut}
+          className="icon-btn"
+          aria-label="Logout"
+        >
+          →
+        </button>
       </div>
-    </nav>
+    </header>
   );
 }

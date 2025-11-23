@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
@@ -8,7 +8,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type Status = "verifying" | "ready" | "missing" | "error";
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const supabase = getSupabaseBrowserClient();
   const searchParams = useSearchParams();
   const recoveryToken = useMemo(() => {
@@ -191,5 +191,17 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <div className="relative min-h-screen overflow-hidden bg-black text-white flex items-center justify-center">
+        <div className="w-12 h-12 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+      </div>
+    }>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }

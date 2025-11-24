@@ -96,8 +96,12 @@ async function getCoachId(): Promise<string | null> {
     .limit(1)
     .single();
 
-  if (booking?.openings?.coach_id) {
-    return booking.openings.coach_id;
+  // Handle array response from Supabase foreign key relationship
+  if (booking?.openings) {
+    const openings = Array.isArray(booking.openings) ? booking.openings : [booking.openings];
+    if (openings.length > 0 && openings[0]?.coach_id) {
+      return openings[0].coach_id;
+    }
   }
 
   const { data: lesson } = await supabase

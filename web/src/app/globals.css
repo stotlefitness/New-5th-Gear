@@ -136,6 +136,12 @@ body {
       linear-gradient(to bottom, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.85)),
       url("/softball-hero.jpg") center 20% / cover no-repeat;
   }
+  
+  .auth-page {
+    background:
+      linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.95)),
+      url("/softball-hero.jpg") center 20% / cover no-repeat;
+  }
 }
 
 /* Auth page styles - clean centered version */

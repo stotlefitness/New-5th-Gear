@@ -21,6 +21,7 @@ type BookingRaw = {
   client_id: string;
   opening_id: string;
   openings: { start_at: string; end_at: string }[];
+  profiles: { full_name: string; email: string }[] | { full_name: string; email: string } | null;
 };
 
 const supabase = getSupabaseBrowserClient();
@@ -34,10 +35,31 @@ async function fetchPending(): Promise<Booking[]> {
   if (error) throw error;
   
   // Transform the data to match the Booking type
-  return (data as BookingRaw[]).map((booking) => ({
-    ...booking,
-    openings: booking.openings[0] || { start_at: "", end_at: "" },
-  }));
+  return (data as BookingRaw[]).map((booking) => {
+    // Handle openings array
+    const opening = Array.isArray(booking.openings) 
+      ? (booking.openings[0] || { start_at: "", end_at: "" })
+      : booking.openings;
+    
+    // Handle profiles - Supabase returns it as an array for foreign key relationships
+    let profile: { full_name: string; email: string } | null = null;
+    if (booking.profiles) {
+      if (Array.isArray(booking.profiles)) {
+        profile = booking.profiles[0] || null;
+      } else {
+        profile = booking.profiles;
+      }
+    }
+    
+    return {
+      id: booking.id,
+      status: booking.status,
+      client_id: booking.client_id,
+      opening_id: booking.opening_id,
+      openings: opening,
+      profiles: profile,
+    };
+  });
 }
 
 function formatDate(date: Date): string {

@@ -171,7 +171,7 @@ export default function BookPage() {
                           gap: 12,
                         }}
                       >
-                        {openings.map((opening) => {
+                        {openings.map((opening: Opening) => {
                           const startDate = new Date(opening.start_at);
                           const endDate = new Date(opening.end_at);
                           const isBusy = busy === opening.id;

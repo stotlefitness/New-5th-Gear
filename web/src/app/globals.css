@@ -222,7 +222,8 @@ body {
   padding: 8px 0;
   border: none;
   border-bottom: 1px solid rgba(148, 163, 184, 0.8);
-  background: transparent;
+  background: transparent !important;
+  background-color: transparent !important;
   color: #fff;
   font-size: 15px;
 }
@@ -234,6 +235,24 @@ body {
 .field-input:focus {
   outline: none;
   border-bottom-color: #f9fafb;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.field-input:-webkit-autofill,
+.field-input:-webkit-autofill:hover,
+.field-input:-webkit-autofill:focus,
+.field-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px transparent inset !important;
+  -webkit-text-fill-color: #fff !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.field-input:autofill {
+  background: transparent !important;
+  background-color: transparent !important;
 }
 
 /* Row with Password + Forgot Password on the right */

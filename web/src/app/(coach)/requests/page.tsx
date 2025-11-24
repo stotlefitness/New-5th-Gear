@@ -15,16 +15,29 @@ type Booking = {
   profiles: { full_name: string; email: string } | null;
 };
 
+type BookingRaw = {
+  id: string;
+  status: string;
+  client_id: string;
+  opening_id: string;
+  openings: { start_at: string; end_at: string }[];
+};
+
 const supabase = getSupabaseBrowserClient();
 
-async function fetchPending() {
+async function fetchPending(): Promise<Booking[]> {
   const { data, error } = await supabase
     .from("bookings")
     .select("id,status,client_id,opening_id,openings(start_at,end_at),profiles:client_id(full_name,email)")
     .eq("status", "pending")
     .order("created_at");
   if (error) throw error;
-  return data as Booking[];
+  
+  // Transform the data to match the Booking type
+  return (data as BookingRaw[]).map((booking) => ({
+    ...booking,
+    openings: booking.openings[0] || { start_at: "", end_at: "" },
+  }));
 }
 
 function formatDate(date: Date): string {

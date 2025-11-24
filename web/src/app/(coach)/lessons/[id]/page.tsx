@@ -12,16 +12,22 @@ const supabase = getSupabaseBrowserClient();
 async function fetchLesson(id: string) {
   const { data, error } = await supabase
     .from("lessons")
-    .select("id,start_at,end_at,client_id,profiles:client_id(full_name,email)")
+    .select("id,start_at,end_at,client_id,profiles!lessons_client_id_fkey(full_name,email)")
     .eq("id", id)
     .single();
   if (error) throw error;
-  return data as {
-    id: string;
-    start_at: string;
-    end_at: string;
-    client_id: string;
-    profiles: { full_name: string; email: string } | null;
+  
+  // Handle the profile data - Supabase returns it as an array for foreign key relationships
+  const profileData = Array.isArray((data as any).profiles) 
+    ? ((data as any).profiles[0] || null)
+    : ((data as any).profiles || null);
+  
+  return {
+    id: (data as any).id,
+    start_at: (data as any).start_at,
+    end_at: (data as any).end_at,
+    client_id: (data as any).client_id,
+    profiles: profileData as { full_name: string; email: string } | null,
   };
 }
 

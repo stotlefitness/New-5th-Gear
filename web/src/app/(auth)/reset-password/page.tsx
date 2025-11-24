@@ -6,6 +6,8 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
+export const dynamic = 'force-dynamic';
+
 type Status = "verifying" | "ready" | "missing" | "error";
 
 export default function ResetPasswordPage() {

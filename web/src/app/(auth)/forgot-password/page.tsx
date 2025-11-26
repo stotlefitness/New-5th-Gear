@@ -19,6 +19,18 @@ export default function ForgotPasswordPage() {
     setError(null);
     setSuccess(false);
 
+    // First, check if the email exists in the profiles table
+    const { data: emailExists, error: checkError } = await supabase.rpc("check_email_exists", {
+      p_email: email.trim()
+    });
+
+    if (checkError || !emailExists) {
+      setLoading(false);
+      setError("No account found with this email address. Please check your email or create a new account.");
+      return;
+    }
+
+    // If email exists, send reset link
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });

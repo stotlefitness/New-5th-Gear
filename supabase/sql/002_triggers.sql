@@ -51,17 +51,27 @@ for each row execute function public._booking_unaccept_effects();
 -- Auto-create profile when user signs up
 create or replace function public._handle_new_user()
 returns trigger language plpgsql security definer set search_path = public as $$
+declare
+  v_full_name text;
+  v_role text;
 begin
+  -- Extract metadata with defaults
+  v_full_name := coalesce(nullif(NEW.raw_user_meta_data->>'full_name', ''), 'User');
+  v_role := coalesce(nullif(NEW.raw_user_meta_data->>'role', ''), 'client');
+  
+  -- Insert profile (trigger runs with SECURITY DEFINER, bypassing RLS)
   insert into public.profiles (id, email, full_name, role)
-  values (
-    NEW.id,
-    NEW.email,
-    coalesce(NEW.raw_user_meta_data->>'full_name', ''),
-    coalesce(NEW.raw_user_meta_data->>'role', 'client')
-  )
+  values (NEW.id, NEW.email, v_full_name, v_role::user_role)
   on conflict (id) do update
-  set email = excluded.email;
+  set email = excluded.email,
+      full_name = coalesce(nullif(excluded.full_name, ''), profiles.full_name);
+  
   return NEW;
+exception
+  when others then
+    -- Log error but don't fail user creation
+    raise warning 'Failed to create profile for user %: %', NEW.id, SQLERRM;
+    return NEW;
 end; $$;
 
 drop trigger if exists on_auth_user_created on auth.users;

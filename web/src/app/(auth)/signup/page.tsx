@@ -162,7 +162,7 @@ export default function SignupPage() {
           </form>
 
           {error && (
-            <p className="auth-message error" role="alert">
+            <p className="auth-error" role="alert">
               {error}
             </p>
           )}

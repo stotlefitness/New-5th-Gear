@@ -73,6 +73,7 @@ export default function AvailabilityPage() {
 
       <section className="auth-panel" style={{ maxWidth: 860, width: "100%" }}>
         <div
+          className="availability-form-grid"
           style={{
             display: "grid",
             gridTemplateColumns: "minmax(0, 3fr) minmax(0, 2fr)",
@@ -93,6 +94,7 @@ export default function AvailabilityPage() {
             </div>
 
             <div
+              className="availability-inputs-grid"
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
@@ -222,6 +224,7 @@ export default function AvailabilityPage() {
                 }}
               >
                 <div
+                  className="template-item"
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -238,7 +241,7 @@ export default function AvailabilityPage() {
                     </div>
                   </div>
 
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div className="template-actions" style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <span
                       style={{
                         fontSize: 11,

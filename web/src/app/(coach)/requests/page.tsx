@@ -156,7 +156,7 @@ export default function RequestsPage() {
                     </div>
 
                     {!isProcessed && (
-                      <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                      <div className="request-actions" style={{ display: "flex", gap: 8, marginTop: 4 }}>
                         <button
                           disabled={isBusy}
                           onClick={() => decide(booking.id, "decline")}

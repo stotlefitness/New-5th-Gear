@@ -165,6 +165,7 @@ export default function BookPage() {
 
                     {isSelected && (
                       <div
+                        className="sessions-grid"
                         style={{
                           display: "grid",
                           gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",

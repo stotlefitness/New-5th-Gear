@@ -281,8 +281,8 @@ export default function MessagesPage() {
 
       {isCoach ? (
         // Coach view with client selector
-        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 24, maxWidth: 1200, width: "100%" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "minmax(240px, 1fr) 2fr", gap: 24 }}>
+        <div className="messages-grid" style={{ display: "grid", gridTemplateColumns: "1fr", gap: 24, maxWidth: 1200, width: "100%" }}>
+          <div className="messages-split" style={{ display: "grid", gridTemplateColumns: "minmax(240px, 1fr) 2fr", gap: 24 }}>
             {/* Client List */}
             <section className="auth-panel" style={{ maxHeight: "600px", overflowY: "auto" }}>
               <div
@@ -407,7 +407,7 @@ export default function MessagesPage() {
                   </div>
 
                   {/* Message Input */}
-                  <div style={{ display: "flex", gap: 12 }}>
+                  <div className="message-input-container" style={{ display: "flex", gap: 12 }}>
                     <textarea
                       value={messageContent}
                       onChange={(e) => setMessageContent(e.target.value)}
@@ -517,7 +517,7 @@ export default function MessagesPage() {
               </div>
 
               {/* Message Input */}
-              <div style={{ display: "flex", gap: 12 }}>
+              <div className="message-input-container" style={{ display: "flex", gap: 12 }}>
                 <textarea
                   value={messageContent}
                   onChange={(e) => setMessageContent(e.target.value)}

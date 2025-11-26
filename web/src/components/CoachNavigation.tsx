@@ -44,10 +44,15 @@ export default function CoachNavigation() {
     });
   }, []);
 
-  async function signOut() {
+  async function signOut(e?: React.MouseEvent | React.TouchEvent) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     const supabase = getSupabaseBrowserClient();
     await supabase.auth.signOut();
     router.push("/");
+    router.refresh();
   }
 
   if (loading || profile?.role !== "coach") return null;
@@ -73,7 +78,12 @@ export default function CoachNavigation() {
         })}
 
         <button
-          onClick={signOut}
+          onClick={(e) => signOut(e)}
+          onTouchEnd={(e) => {
+            e.preventDefault();
+            signOut(e);
+          }}
+          type="button"
           className="icon-btn"
           aria-label="Logout"
         >

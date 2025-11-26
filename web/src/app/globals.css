@@ -244,6 +244,8 @@ body {
 .icon-btn {
   width: 32px;
   height: 32px;
+  min-width: 32px;
+  min-height: 32px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.4);
   background: transparent;
@@ -254,6 +256,9 @@ body {
   justify-content: center;
   cursor: pointer;
   transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
 }
 
 .icon-btn:hover {
@@ -859,6 +864,14 @@ body {
   /* Ensure buttons don't get cut off */
   button, .btn, .btn-primary {
     min-height: 44px; /* iOS touch target */
+  }
+  
+  /* Improve icon-btn touch target on mobile */
+  .icon-btn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
   }
   
   /* Better spacing for form elements */

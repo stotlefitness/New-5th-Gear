@@ -49,10 +49,15 @@ export default function Navigation() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const handleSignOut = async () => {
+  const handleSignOut = async (e?: React.MouseEvent | React.TouchEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     const supabase = getSupabaseBrowserClient();
     await supabase.auth.signOut();
     router.push("/");
+    router.refresh();
   };
 
   const isActive = (path: string) => pathname === path;
@@ -101,7 +106,12 @@ export default function Navigation() {
             ))}
             {user && (
               <button
-                onClick={handleSignOut}
+                onClick={(e) => handleSignOut(e)}
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  handleSignOut(e);
+                }}
+                type="button"
                 className="ml-4 px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all duration-300"
               >
                 Sign Out
@@ -160,10 +170,19 @@ export default function Navigation() {
             ))}
             {user && (
               <button
-                onClick={() => {
-                  handleSignOut();
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleSignOut(e);
                   setIsMenuOpen(false);
                 }}
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleSignOut(e);
+                  setIsMenuOpen(false);
+                }}
+                type="button"
                 className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all"
               >
                 Sign Out

@@ -69,7 +69,8 @@ create or replace function public.create_profile(
   p_id uuid,
   p_email text,
   p_full_name text,
-  p_role text default 'client'
+  p_role text default 'client',
+  p_account_type text default 'player'
 )
 returns void language plpgsql security definer set search_path = public as $$
 begin
@@ -77,12 +78,58 @@ begin
     raise exception 'unauthorized';
   end if;
   
-  insert into public.profiles (id, email, full_name, role)
-  values (p_id, p_email, p_full_name, p_role::user_role)
+  insert into public.profiles (id, email, full_name, role, account_type)
+  values (p_id, p_email, p_full_name, p_role::user_role, p_account_type::account_type)
   on conflict (id) do update
   set email = excluded.email,
       full_name = excluded.full_name,
-      role = excluded.role;
+      role = excluded.role,
+      account_type = excluded.account_type;
+end; $$;
+
+-- Create or update player (bypasses RLS)
+create or replace function public.create_player(
+  p_account_id uuid,
+  p_name text,
+  p_handedness text default null,
+  p_height_inches int default null,
+  p_weight_lbs int default null,
+  p_age int default null,
+  p_date_of_birth date default null,
+  p_player_status text default 'new',
+  p_is_primary boolean default false
+)
+returns uuid language plpgsql security definer set search_path = public as $$
+declare
+  v_player_id uuid;
+begin
+  if auth.uid() is null or auth.uid() <> p_account_id then
+    raise exception 'unauthorized';
+  end if;
+  
+  -- If setting as primary, unset other primary players for this account
+  if p_is_primary then
+    update public.players set is_primary = false where account_id = p_account_id;
+  end if;
+  
+  -- If this is the first player for the account, make it primary
+  if not exists (select 1 from public.players where account_id = p_account_id) then
+    p_is_primary := true;
+  end if;
+  
+  insert into public.players (
+    account_id, name, handedness, height_inches, weight_lbs, age, 
+    date_of_birth, player_status, is_primary
+  )
+  values (
+    p_account_id, p_name, 
+    case when p_handedness is not null then p_handedness::handedness else null end,
+    p_height_inches, p_weight_lbs, p_age, p_date_of_birth,
+    p_player_status::player_status, p_is_primary
+  )
+  returning id into v_player_id;
+  
+  return v_player_id;
 end; $$;
 
 

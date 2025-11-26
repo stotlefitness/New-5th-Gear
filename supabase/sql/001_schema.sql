@@ -5,6 +5,9 @@
 create type booking_status as enum ('pending','accepted','declined','canceled');
 create type opening_source as enum ('template','override');
 create type user_role as enum ('coach','client');
+create type account_type as enum ('parent','player');
+create type handedness as enum ('right','left');
+create type player_status as enum ('new','returning');
 
 -- profiles mirror auth.users
 create table if not exists public.profiles (
@@ -12,10 +15,30 @@ create table if not exists public.profiles (
   email text unique not null check (position('@' in email) > 1),
   full_name text not null,
   role user_role not null,
+  account_type account_type not null default 'player',
   time_zone text not null default 'America/Chicago',
   created_at timestamptz not null default now()
 );
 create index if not exists profiles_role_idx on public.profiles(role);
+create index if not exists profiles_account_type_idx on public.profiles(account_type);
+
+-- players table (for both parent and player accounts)
+create table if not exists public.players (
+  id uuid primary key default gen_random_uuid(),
+  account_id uuid not null references public.profiles(id) on delete cascade,
+  name text not null,
+  handedness handedness,
+  height_inches int check (height_inches > 0 and height_inches < 120),
+  weight_lbs int check (weight_lbs > 0 and weight_lbs < 500),
+  age int check (age > 0 and age < 100),
+  date_of_birth date,
+  player_status player_status not null default 'new',
+  is_primary boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists players_account_idx on public.players(account_id);
+create index if not exists players_primary_idx on public.players(account_id, is_primary) where is_primary = true;
 
 -- roster (single coach)
 create table if not exists public.coach_clients (

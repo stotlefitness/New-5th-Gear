@@ -54,17 +54,20 @@ returns trigger language plpgsql security definer set search_path = public as $$
 declare
   v_full_name text;
   v_role text;
+  v_account_type text;
 begin
   -- Extract metadata with defaults
   v_full_name := coalesce(nullif(NEW.raw_user_meta_data->>'full_name', ''), 'User');
   v_role := coalesce(nullif(NEW.raw_user_meta_data->>'role', ''), 'client');
+  v_account_type := coalesce(nullif(NEW.raw_user_meta_data->>'account_type', ''), 'player');
   
   -- Insert profile (trigger runs with SECURITY DEFINER, bypassing RLS)
-  insert into public.profiles (id, email, full_name, role)
-  values (NEW.id, NEW.email, v_full_name, v_role::user_role)
+  insert into public.profiles (id, email, full_name, role, account_type)
+  values (NEW.id, NEW.email, v_full_name, v_role::user_role, v_account_type::account_type)
   on conflict (id) do update
   set email = excluded.email,
-      full_name = coalesce(nullif(excluded.full_name, ''), profiles.full_name);
+      full_name = coalesce(nullif(excluded.full_name, ''), profiles.full_name),
+      account_type = excluded.account_type;
   
   return NEW;
 exception

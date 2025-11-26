@@ -2,6 +2,7 @@
 -- Enable and define strict RLS policies
 
 alter table public.profiles enable row level security;
+alter table public.players enable row level security;
 alter table public.coach_clients enable row level security;
 alter table public.availability_templates enable row level security;
 alter table public.availability_overrides enable row level security;
@@ -19,6 +20,21 @@ drop policy if exists "update self profile" on public.profiles;
 create policy "read own profile" on public.profiles for select using (auth.uid() = id);
 create policy "insert self profile" on public.profiles for insert with check (auth.uid() = id);
 create policy "update self profile" on public.profiles for update using (auth.uid() = id);
+
+-- players
+drop policy if exists "read own players" on public.players;
+drop policy if exists "coach read players" on public.players;
+drop policy if exists "insert own players" on public.players;
+drop policy if exists "update own players" on public.players;
+create policy "read own players" on public.players for select using (account_id = auth.uid());
+create policy "coach read players" on public.players for select using (
+  exists (
+    select 1 from public.coach_clients cc 
+    where cc.client_id = players.account_id and cc.coach_id = auth.uid()
+  )
+);
+create policy "insert own players" on public.players for insert with check (account_id = auth.uid());
+create policy "update own players" on public.players for update using (account_id = auth.uid());
 
 -- roster
 drop policy if exists "coach manage roster" on public.coach_clients;

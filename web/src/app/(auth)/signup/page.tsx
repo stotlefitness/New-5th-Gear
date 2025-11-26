@@ -223,11 +223,31 @@ export default function SignupPage() {
                   setAccountType("parent");
                   handleNext();
                 }}
-                className="btn-primary"
-                style={{ width: "100%", padding: "16px", textAlign: "left", display: "flex", flexDirection: "column", alignItems: "flex-start" }}
+                style={{ 
+                  width: "100%", 
+                  padding: "16px", 
+                  textAlign: "left", 
+                  display: "flex", 
+                  flexDirection: "column", 
+                  alignItems: "flex-start",
+                  background: "rgba(255, 255, 255, 0.1)",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                  borderRadius: "999px",
+                  color: "#ffffff",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.15)";
+                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.3)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
+                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.2)";
+                }}
               >
-                <span style={{ fontSize: 16, fontWeight: 600, marginBottom: 4 }}>Parent Account</span>
-                <span style={{ fontSize: 13, opacity: 0.8 }}>Manage multiple players from one account</span>
+                <span style={{ fontSize: 16, fontWeight: 600, marginBottom: 4, color: "#ffffff" }}>Parent Account</span>
+                <span style={{ fontSize: 13, opacity: 0.9, color: "rgba(255, 255, 255, 0.9)" }}>Manage multiple players from one account</span>
               </button>
 
               <button
@@ -236,11 +256,31 @@ export default function SignupPage() {
                   setAccountType("player");
                   handleNext();
                 }}
-                className="btn-primary"
-                style={{ width: "100%", padding: "16px", textAlign: "left", display: "flex", flexDirection: "column", alignItems: "flex-start" }}
+                style={{ 
+                  width: "100%", 
+                  padding: "16px", 
+                  textAlign: "left", 
+                  display: "flex", 
+                  flexDirection: "column", 
+                  alignItems: "flex-start",
+                  background: "rgba(255, 255, 255, 0.1)",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                  borderRadius: "999px",
+                  color: "#ffffff",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.15)";
+                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.3)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
+                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.2)";
+                }}
               >
-                <span style={{ fontSize: 16, fontWeight: 600, marginBottom: 4 }}>Player Account</span>
-                <span style={{ fontSize: 13, opacity: 0.8 }}>Individual player account</span>
+                <span style={{ fontSize: 16, fontWeight: 600, marginBottom: 4, color: "#ffffff" }}>Player Account</span>
+                <span style={{ fontSize: 13, opacity: 0.9, color: "rgba(255, 255, 255, 0.9)" }}>Individual player account</span>
               </button>
             </div>
           )}

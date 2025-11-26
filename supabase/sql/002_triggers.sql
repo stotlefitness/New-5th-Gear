@@ -48,6 +48,27 @@ drop trigger if exists trg_booking_unaccept on public.bookings;
 create trigger trg_booking_unaccept after update of status on public.bookings
 for each row execute function public._booking_unaccept_effects();
 
+-- Auto-create profile when user signs up
+create or replace function public._handle_new_user()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  insert into public.profiles (id, email, full_name, role)
+  values (
+    NEW.id,
+    NEW.email,
+    coalesce(NEW.raw_user_meta_data->>'full_name', ''),
+    coalesce(NEW.raw_user_meta_data->>'role', 'client')
+  )
+  on conflict (id) do update
+  set email = excluded.email;
+  return NEW;
+end; $$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public._handle_new_user();
+
 
 
 

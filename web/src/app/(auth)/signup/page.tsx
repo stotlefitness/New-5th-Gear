@@ -19,23 +19,57 @@ export default function SignupPage() {
     setLoading(true);
     setError(null);
 
-    const { data, error: signupError } = await supabase.auth.signUp({ email, password });
+    // Sign up with metadata - trigger will create profile automatically
+    const { data, error: signupError } = await supabase.auth.signUp({ 
+      email, 
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+          role: "client"
+        }
+      }
+    });
+    
     if (signupError) {
       setError(signupError.message);
       setLoading(false);
       return;
     }
 
-    const userId = data.user?.id;
-    if (userId) {
-      const { error: profileErr } = await supabase
-        .from("profiles")
-        .insert({ id: userId, email, full_name: fullName, role: "client" });
+    // If email confirmation is required, show message
+    if (data.user && !data.session) {
+      setError("Please check your email to confirm your account before signing in.");
+      setLoading(false);
+      return;
+    }
 
-      if (profileErr) {
-        setError(profileErr.message);
-        setLoading(false);
-        return;
+    // Profile is created automatically by trigger
+    // If trigger didn't fire, use RPC function as fallback
+    if (data.user?.id) {
+      // Small delay to let trigger complete
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Check if profile exists, if not create it using RPC function
+      const { data: existingProfile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", data.user.id)
+        .single();
+      
+      if (!existingProfile) {
+        const { error: profileErr } = await supabase.rpc("create_profile", {
+          p_id: data.user.id,
+          p_email: email,
+          p_full_name: fullName,
+          p_role: "client"
+        });
+
+        if (profileErr) {
+          setError(profileErr.message);
+          setLoading(false);
+          return;
+        }
       }
 
       setLoading(false);

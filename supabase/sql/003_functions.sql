@@ -64,6 +64,27 @@ begin
   return v_count;
 end; $$;
 
+-- Create or update profile (bypasses RLS)
+create or replace function public.create_profile(
+  p_id uuid,
+  p_email text,
+  p_full_name text,
+  p_role text default 'client'
+)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null or auth.uid() <> p_id then
+    raise exception 'unauthorized';
+  end if;
+  
+  insert into public.profiles (id, email, full_name, role)
+  values (p_id, p_email, p_full_name, p_role::user_role)
+  on conflict (id) do update
+  set email = excluded.email,
+      full_name = excluded.full_name,
+      role = excluded.role;
+end; $$;
+
 
 
 

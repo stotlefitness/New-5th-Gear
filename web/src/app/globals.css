@@ -584,12 +584,14 @@ body {
   inset: 0;
   background: radial-gradient(circle at center, transparent 0, rgba(0, 0, 0, 0.2) 60%);
   pointer-events: none;
+  z-index: 1;
   /* No blue gradient on home hero - keep it clear and light */
 }
 
 .hero-content {
   position: relative;
   max-width: 760px;
+  z-index: 2;
 }
 
 .hero-title {

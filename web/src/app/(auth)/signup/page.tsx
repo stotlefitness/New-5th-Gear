@@ -63,6 +63,33 @@ export default function SignupPage() {
     setLoading(true);
     setError(null);
 
+    // Validation
+    if (!accountType) {
+      setError("Please select an account type");
+      setLoading(false);
+      return;
+    }
+    if (accountType === "parent" && !parentName.trim()) {
+      setError("Please enter parent name");
+      setLoading(false);
+      return;
+    }
+    if (!playerName.trim()) {
+      setError("Please enter player name");
+      setLoading(false);
+      return;
+    }
+    if (!email.trim()) {
+      setError("Please enter email address");
+      setLoading(false);
+      return;
+    }
+    if (!password || password.length < 6) {
+      setError("Password must be at least 6 characters");
+      setLoading(false);
+      return;
+    }
+
     try {
       // Step 1: Create account
       const fullName = accountType === "parent" ? parentName : playerName;

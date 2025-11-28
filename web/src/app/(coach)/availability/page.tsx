@@ -34,9 +34,14 @@ export default function AvailabilityPage() {
 
   async function addTemplate() {
     setBusy(true);
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session?.user) {
+      setBusy(false);
+      return alert("Not authenticated");
+    }
     const { error } = await supabase
       .from("availability_templates")
-      .insert({ weekday, start_time: start, end_time: end, slot_minutes: slotMinutes, active: true });
+      .insert({ coach_id: session.session.user.id, weekday, start_time: start, end_time: end, slot_minutes: slotMinutes, active: true });
     setBusy(false);
     if (error) return alert(error.message);
     mutate();

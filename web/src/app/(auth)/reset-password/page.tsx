@@ -2,7 +2,6 @@
 
 import { FormEvent, useEffect, useMemo, useState, Suspense } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -81,19 +80,7 @@ function ResetPasswordForm() {
   const disableForm = status !== "ready" || submitting;
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-black text-white">
-      <div className="absolute inset-0">
-        <Image
-          src="/softball-hero.jpg"
-          alt="Softball player"
-          fill
-          priority
-          quality={90}
-          className="object-cover object-center"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/95 to-black" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#122033_0%,rgba(0,0,0,0.7)_55%,#000_100%)]" />
-      </div>
+    <div className="auth-page" style={{ position: 'relative', overflow: 'hidden', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
 
       <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-12 sm:px-6">
         <div className="w-full max-w-[420px] rounded-[28px] border border-white/10 bg-black/75 px-7 py-9 shadow-[0_24px_80px_rgba(0,0,0,0.8)] backdrop-blur-2xl">

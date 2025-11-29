@@ -24,6 +24,27 @@ async function fetchTemplates() {
 
 const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
+// Convert 24-hour time string (HH:MM or HH:MM:SS) to 12-hour AM/PM format
+function formatTime12Hour(timeString: string): string {
+  const [hours, minutes] = timeString.split(':').map(Number);
+  const period = hours >= 12 ? 'PM' : 'AM';
+  const hours12 = hours % 12 || 12;
+  return `${hours12}:${minutes.toString().padStart(2, '0')} ${period}`;
+}
+
+// Get date range for generation
+function getDateRange(weeks: number): string {
+  const today = new Date();
+  const endDate = new Date(today);
+  endDate.setDate(endDate.getDate() + (weeks * 7) - 1);
+  
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  };
+  
+  return `${formatDate(today)} – ${formatDate(endDate)}`;
+}
+
 export default function AvailabilityPage() {
   const { data, mutate } = useSWR("availability_templates", fetchTemplates);
   const [weekday, setWeekday] = useState(1);
@@ -183,14 +204,19 @@ export default function AvailabilityPage() {
             >
               {busy ? "Adding..." : "Add template"}
             </button>
-            <button
-              onClick={generate}
-              disabled={busy}
-              className="field-link"
-              style={{ textAlign: "center", padding: "11px 0" }}
-            >
-              Generate next 6 weeks
-            </button>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <button
+                onClick={generate}
+                disabled={busy}
+                className="field-link"
+                style={{ textAlign: "center", padding: "11px 0" }}
+              >
+                Generate next 6 weeks
+              </button>
+              <div style={{ fontSize: 11, color: "rgba(255, 255, 255, 0.5)", textAlign: "center" }}>
+                {getDateRange(6)}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -242,7 +268,7 @@ export default function AvailabilityPage() {
                       {weekdays[template.weekday]}
                     </div>
                     <div style={{ fontSize: 13, opacity: 0.8, color: "rgba(255, 255, 255, 0.7)" }}>
-                      {template.start_time} – {template.end_time}
+                      {formatTime12Hour(template.start_time)} – {formatTime12Hour(template.end_time)}
                     </div>
                   </div>
 

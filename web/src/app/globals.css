@@ -510,7 +510,7 @@ body {
   justify-content: space-between;
   padding: 0 32px;
   backdrop-filter: blur(18px);
-  background: transparent;
+  background: rgba(0, 0, 0, 0) !important; /* Force transparent */
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   z-index: 100;
 }
@@ -573,21 +573,20 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;      /* instead of center - anchor closer to top */
-  padding: 96px 24px 64px;          /* big top padding, smaller bottom */
-  min-height: calc(100vh - 64px);  /* full viewport minus nav height */
+  justify-content: flex-start;      /* anchor closer to top */
+  padding: 64px 24px 64px;          /* start right after nav (64px nav height) */
+  min-height: 100vh;                /* full viewport height */
   text-align: center;
   background: url("/softball-hero.jpg") center 20% / cover no-repeat;
   background-attachment: scroll;
-  margin-top: 64px;                /* account for fixed nav */
 }
 
 /* Adjust hero image positioning for better mobile/desktop viewing */
 @media (max-width: 767px) {
   .hero {
     background: url("/softball-hero.jpg") center 25% / cover no-repeat;
-    min-height: calc(100vh - 56px); /* slightly less – phones have smaller nav */
-    padding-top: 72px;
+    min-height: 100vh;
+    padding-top: 56px;               /* start right after nav on mobile */
     padding-bottom: 32px;
   }
   .auth-page {

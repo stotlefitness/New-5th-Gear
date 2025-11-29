@@ -571,23 +571,27 @@ body {
   position: relative;
   flex: 1;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;      /* anchor closer to top */
-  padding: 64px 24px 64px;          /* start right after nav (64px nav height) */
-  min-height: 100vh;                /* full viewport height */
+  align-items: center;             /* vertical align */
+  justify-content: center;         /* horizontal align */
+  padding: 0 24px 64px;            /* no big top padding */
+  min-height: calc(100vh - 64px);  /* full viewport minus nav height */
   text-align: center;
   background: url("/softball-hero.jpg") center 20% / cover no-repeat;
   background-attachment: scroll;
 }
 
 /* Adjust hero image positioning for better mobile/desktop viewing */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .hero {
     background: url("/softball-hero.jpg") center 25% / cover no-repeat;
-    min-height: 100vh;
-    padding-top: 56px;               /* start right after nav on mobile */
-    padding-bottom: 32px;
+    min-height: auto;
+    padding: 88px 16px 40px;        /* space under nav, modest bottom */
+    align-items: flex-start;         /* start higher on the screen */
+  }
+  
+  .hero-content {
+    transform: none;                 /* kill the desktop offset */
+    max-width: 100%;
   }
   .auth-page {
     background:
@@ -627,7 +631,9 @@ body {
 
 .hero-content {
   position: relative;
-  max-width: 760px;
+  max-width: 800px;
+  text-align: center;
+  transform: translateY(-40px);    /* nudge content slightly up on desktop */
   z-index: 2;
 }
 
@@ -870,11 +876,7 @@ body {
     font-size: 16px; /* Prevents zoom on iOS */
   }
   
-  /* Hero section - tighten mobile hero */
-  .hero-content {
-    width: 100%;
-  }
-  
+  /* Hero section - mobile adjustments */
   .hero-title {
     font-size: 32px;
     line-height: 1.15;

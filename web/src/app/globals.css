@@ -634,6 +634,7 @@ body {
   position: relative;
   max-width: 800px;
   text-align: center;
+  transform: translateY(30px);    /* nudge content slightly down */
   z-index: 2;
 }
 

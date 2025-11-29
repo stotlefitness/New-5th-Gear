@@ -158,14 +158,22 @@ export default function SignupPage() {
     }
   }
 
-  function handleNext() {
-    if (currentStep === 1 && !accountType) {
-      setError("Please select an account type");
-      return;
+  function handleNext(selectedAccountType?: AccountType, selectedPlayerStatus?: PlayerStatus) {
+    if (currentStep === 1) {
+      const typeToCheck = selectedAccountType ?? accountType;
+      if (!typeToCheck) {
+        setError("Please select an account type");
+        return;
+      }
+      setAccountType(typeToCheck);
     }
-    if (currentStep === 2 && !playerStatus) {
-      setError("Please select if you're a new or returning player");
-      return;
+    if (currentStep === 2) {
+      const statusToCheck = selectedPlayerStatus ?? playerStatus;
+      if (!statusToCheck) {
+        setError("Please select if you're a new or returning player");
+        return;
+      }
+      setPlayerStatus(statusToCheck);
     }
     setError(null);
     setCurrentStep(currentStep + 1);
@@ -219,9 +227,9 @@ export default function SignupPage() {
               
               <button
                 type="button"
-                onClick={() => {
-                  setAccountType("parent");
-                  handleNext();
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNext("parent");
                 }}
                 style={{ 
                   width: "100%", 
@@ -252,9 +260,9 @@ export default function SignupPage() {
 
               <button
                 type="button"
-                onClick={() => {
-                  setAccountType("player");
-                  handleNext();
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNext("player");
                 }}
                 style={{ 
                   width: "100%", 
@@ -294,9 +302,9 @@ export default function SignupPage() {
               
               <button
                 type="button"
-                onClick={() => {
-                  setPlayerStatus("new");
-                  handleNext();
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNext(undefined, "new");
                 }}
                 className="btn-primary"
                 style={{ width: "100%", padding: "16px" }}
@@ -306,9 +314,9 @@ export default function SignupPage() {
 
               <button
                 type="button"
-                onClick={() => {
-                  setPlayerStatus("returning");
-                  handleNext();
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNext(undefined, "returning");
                 }}
                 className="btn-primary"
                 style={{ width: "100%", padding: "16px" }}

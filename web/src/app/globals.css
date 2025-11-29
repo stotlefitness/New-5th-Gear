@@ -200,7 +200,7 @@ body {
   background: rgba(199, 62, 42, 0.5);
 }
 
-/* Landing page layout */
+/* Landing page layout - clean hero, no gradient */
 .page {
   min-height: 100vh;
   display: flex;
@@ -208,15 +208,17 @@ body {
   background: #000000;
 }
 
-/* Auth page styles - matches home page hero exactly */
+/* Auth page styles - same hero image but with dark blue/black gradient filter */
 .auth-page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   background:
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3)),
+    radial-gradient(circle at center, rgba(15,23,42,0.35), rgba(15,23,42,0.96)),
+    linear-gradient(to bottom, rgba(15,23,42,0.8), rgba(15,23,42,0.95)),
     url("/softball-hero.jpg") center 20% / cover no-repeat;
   background-attachment: scroll;
+  backdrop-filter: blur(4px);
 }
 
 /* Top nav bar (arrow / brand / menu) */
@@ -558,46 +560,42 @@ body {
   color: #020617;
 }
 
-/* HERO */
+/* HERO - clean background, no gradient (only on home page) */
 .hero {
   position: relative;
-  min-height: calc(100vh + 64px);
+  flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 80px 24px 56px;
-  padding-top: calc(64px + 80px);
+  align-items: center;             /* vertical */
+  justify-content: center;         /* horizontal */
+  padding: 0 24px 56px;            /* no big top padding */
+  min-height: calc(100vh - 64px);  /* full viewport minus nav height */
   text-align: center;
-  background:
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3)),
-    url("/softball-hero.jpg") center 20% / cover no-repeat;
+  background: url("/softball-hero.jpg") center 20% / cover no-repeat;
   background-attachment: scroll;
-  margin-top: -64px;
+  margin-top: 64px;                /* account for fixed nav */
 }
 
 /* Adjust hero image positioning for better mobile/desktop viewing */
 @media (max-width: 767px) {
   .hero {
-    background:
-      linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3)),
-      url("/softball-hero.jpg") center 25% / cover no-repeat;
+    background: url("/softball-hero.jpg") center 25% / cover no-repeat;
   }
   .auth-page {
     background:
-      linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3)),
+      radial-gradient(circle at center, rgba(15,23,42,0.35), rgba(15,23,42,0.96)),
+      linear-gradient(to bottom, rgba(15,23,42,0.8), rgba(15,23,42,0.95)),
       url("/softball-hero.jpg") center 25% / cover no-repeat;
   }
 }
 
 @media (min-width: 768px) {
   .hero {
-    background:
-      linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3)),
-      url("/softball-hero.jpg") center 20% / cover no-repeat;
+    background: url("/softball-hero.jpg") center 20% / cover no-repeat;
   }
   .auth-page {
     background:
-      linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3)),
+      radial-gradient(circle at center, rgba(15,23,42,0.35), rgba(15,23,42,0.96)),
+      linear-gradient(to bottom, rgba(15,23,42,0.8), rgba(15,23,42,0.95)),
       url("/softball-hero.jpg") center 20% / cover no-repeat;
   }
 }
@@ -605,10 +603,9 @@ body {
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, transparent 0, rgba(0, 0, 0, 0.2) 60%);
+  background: transparent; /* No overlay on home hero - keep it crisp and clean */
   pointer-events: none;
   z-index: 1;
-  /* No blue gradient on home hero - keep it clear and light */
 }
 
 .hero-content {
@@ -856,9 +853,19 @@ body {
     font-size: 16px; /* Prevents zoom on iOS */
   }
   
-  /* Hero section - reduce padding on mobile */
+  /* Hero section - nudge mobile hero up a bit */
   .hero {
-    padding: 40px 16px 32px;
+    align-items: flex-start;   /* start higher on the screen */
+    justify-content: center;
+    padding-top: 80px;         /* space under nav (64px nav + 16px gap) */
+    padding-bottom: 32px;
+    padding-left: 24px;
+    padding-right: 24px;
+    min-height: calc(100vh - 0px); /* allow it to be tighter on mobile */
+  }
+  
+  .hero-content {
+    width: 100%;
   }
   
   .hero-title {

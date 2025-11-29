@@ -584,14 +584,15 @@ body {
 @media (max-width: 768px) {
   .hero {
     background: url("/softball-hero.jpg") center 25% / cover no-repeat;
-    min-height: auto;
-    padding: 88px 16px 40px;        /* space under nav, modest bottom */
-    align-items: flex-start;         /* start higher on the screen */
+    min-height: auto;                /* no full-screen flex */
+    display: block;                  /* kill flex centering */
+    padding: 96px 16px 40px;        /* space below nav, comfy bottom */
   }
   
   .hero-content {
-    transform: none;                 /* kill the desktop offset */
     max-width: 100%;
+    transform: none;                 /* remove desktop offset */
+    text-align: center;
   }
   .auth-page {
     background:
@@ -877,6 +878,7 @@ body {
   }
   
   /* Hero section - mobile adjustments */
+  .hero-heading,
   .hero-title {
     font-size: 32px;
     line-height: 1.15;

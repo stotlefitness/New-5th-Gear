@@ -208,17 +208,23 @@ body {
   background: #000000;
 }
 
-/* Auth page styles - same hero image but with dark blue/black gradient filter */
+/* Auth page styles - same hero image but with soft dim overlay */
 .auth-page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  color: #fff;
   background:
-    radial-gradient(circle at center, rgba(15,23,42,0.35), rgba(15,23,42,0.96)),
-    linear-gradient(to bottom, rgba(15,23,42,0.8), rgba(15,23,42,0.95)),
-    url("/softball-hero.jpg") center 20% / cover no-repeat;
+    /* soft dark gradient */
+    linear-gradient(
+      to bottom,
+      rgba(6, 12, 30, 0.78),
+      rgba(6, 12, 30, 0.90)
+    ),
+    url("/softball-hero.jpg") center / cover no-repeat;
+  /* blends the gradient with the image instead of covering it */
+  background-blend-mode: multiply;
   background-attachment: scroll;
-  backdrop-filter: blur(4px);
 }
 
 /* Top nav bar (arrow / brand / menu) */
@@ -504,7 +510,7 @@ body {
   justify-content: space-between;
   padding: 0 32px;
   backdrop-filter: blur(18px);
-  background: rgba(255, 255, 255, 0.05);
+  background: transparent;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   z-index: 100;
 }
@@ -565,9 +571,10 @@ body {
   position: relative;
   flex: 1;
   display: flex;
-  align-items: center;             /* vertical */
-  justify-content: center;         /* horizontal */
-  padding: 0 24px 56px;            /* no big top padding */
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;      /* instead of center - anchor closer to top */
+  padding: 96px 24px 64px;          /* big top padding, smaller bottom */
   min-height: calc(100vh - 64px);  /* full viewport minus nav height */
   text-align: center;
   background: url("/softball-hero.jpg") center 20% / cover no-repeat;
@@ -579,12 +586,19 @@ body {
 @media (max-width: 767px) {
   .hero {
     background: url("/softball-hero.jpg") center 25% / cover no-repeat;
+    min-height: calc(100vh - 56px); /* slightly less – phones have smaller nav */
+    padding-top: 72px;
+    padding-bottom: 32px;
   }
   .auth-page {
     background:
-      radial-gradient(circle at center, rgba(15,23,42,0.35), rgba(15,23,42,0.96)),
-      linear-gradient(to bottom, rgba(15,23,42,0.8), rgba(15,23,42,0.95)),
+      linear-gradient(
+        to bottom,
+        rgba(6, 12, 30, 0.78),
+        rgba(6, 12, 30, 0.90)
+      ),
       url("/softball-hero.jpg") center 25% / cover no-repeat;
+    background-blend-mode: multiply;
   }
 }
 
@@ -594,9 +608,13 @@ body {
   }
   .auth-page {
     background:
-      radial-gradient(circle at center, rgba(15,23,42,0.35), rgba(15,23,42,0.96)),
-      linear-gradient(to bottom, rgba(15,23,42,0.8), rgba(15,23,42,0.95)),
+      linear-gradient(
+        to bottom,
+        rgba(6, 12, 30, 0.78),
+        rgba(6, 12, 30, 0.90)
+      ),
       url("/softball-hero.jpg") center 20% / cover no-repeat;
+    background-blend-mode: multiply;
   }
 }
 
@@ -853,27 +871,22 @@ body {
     font-size: 16px; /* Prevents zoom on iOS */
   }
   
-  /* Hero section - nudge mobile hero up a bit */
-  .hero {
-    align-items: flex-start;   /* start higher on the screen */
-    justify-content: center;
-    padding-top: 80px;         /* space under nav (64px nav + 16px gap) */
-    padding-bottom: 32px;
-    padding-left: 24px;
-    padding-right: 24px;
-    min-height: calc(100vh - 0px); /* allow it to be tighter on mobile */
-  }
-  
+  /* Hero section - tighten mobile hero */
   .hero-content {
     width: 100%;
   }
   
   .hero-title {
-    font-size: clamp(28px, 8vw, 48px);
+    font-size: 32px;
+    line-height: 1.15;
   }
   
   .hero-subtitle {
-    font-size: 16px;
+    font-size: 15px;
+  }
+  
+  .hero-cta {
+    width: 100%;
   }
   
   /* Additional mobile spacing improvements */

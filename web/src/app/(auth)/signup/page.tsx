@@ -306,10 +306,30 @@ export default function SignupPage() {
                   e.preventDefault();
                   handleNext(undefined, "new");
                 }}
-                className="btn-primary"
-                style={{ width: "100%", padding: "16px" }}
+                style={{ 
+                  width: "100%", 
+                  padding: "16px", 
+                  textAlign: "left", 
+                  display: "flex", 
+                  flexDirection: "column", 
+                  alignItems: "flex-start",
+                  background: "rgba(255, 255, 255, 0.1)",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                  borderRadius: "999px",
+                  color: "#ffffff",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.15)";
+                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.3)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
+                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.2)";
+                }}
               >
-                New Player
+                <span style={{ fontSize: 16, fontWeight: 600, color: "#ffffff" }}>New Player</span>
               </button>
 
               <button
@@ -318,10 +338,30 @@ export default function SignupPage() {
                   e.preventDefault();
                   handleNext(undefined, "returning");
                 }}
-                className="btn-primary"
-                style={{ width: "100%", padding: "16px" }}
+                style={{ 
+                  width: "100%", 
+                  padding: "16px", 
+                  textAlign: "left", 
+                  display: "flex", 
+                  flexDirection: "column", 
+                  alignItems: "flex-start",
+                  background: "rgba(255, 255, 255, 0.1)",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                  borderRadius: "999px",
+                  color: "#ffffff",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.15)";
+                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.3)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)";
+                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.2)";
+                }}
               >
-                Returning Player
+                <span style={{ fontSize: 16, fontWeight: 600, color: "#ffffff" }}>Returning Player</span>
               </button>
 
               <button type="button" onClick={handleBack} className="field-link" style={{ textAlign: "center", marginTop: 8 }}>

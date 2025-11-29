@@ -654,6 +654,15 @@ body {
 .hero-cta {
   padding-inline: 28px;
   padding-block: 10px;
+  background: transparent !important;  /* glass effect */
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: #fff !important;
+  backdrop-filter: blur(10px);
+}
+
+.hero-cta:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
 }
 
 /* Coach page styles */

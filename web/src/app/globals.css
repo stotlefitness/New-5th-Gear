@@ -634,7 +634,6 @@ body {
   position: relative;
   max-width: 800px;
   text-align: center;
-  transform: translateY(-40px);    /* nudge content slightly up on desktop */
   z-index: 2;
 }
 

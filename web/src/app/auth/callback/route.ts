@@ -91,9 +91,31 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(new URL('/complete-account', requestUrl.origin));
       }
 
+      // Validate that coach role is only for the actual coach
+      const { data: coachSettings } = await supabase
+        .from('app_settings')
+        .select('value')
+        .eq('key', 'single_coach')
+        .maybeSingle();
+      
+      let isRealCoach = false;
+      if (coachSettings?.value?.coach_id) {
+        const coachId = coachSettings.value.coach_id;
+        isRealCoach = coachId === user.id;
+      }
+
+      // If profile was created with coach role but user is not the real coach, fix it
+      if (profileRetry.role === 'coach' && !isRealCoach) {
+        await supabase
+          .from('profiles')
+          .update({ role: 'client' })
+          .eq('id', user.id);
+        profileRetry.role = 'client';
+      }
+
       // Profile created, redirect based on role
       const meta = user.user_metadata || {};
-      if (profileRetry.role === 'coach') {
+      if (profileRetry.role === 'coach' && isRealCoach) {
         return NextResponse.redirect(new URL('/availability', requestUrl.origin));
       }
 
@@ -108,8 +130,38 @@ export async function GET(request: NextRequest) {
 
     // Profile exists, check completeness
     if (profile) {
+      // CRITICAL: Only allow coach role if email matches the configured coach email
+      // This prevents clients from being incorrectly identified as coaches
+      const { data: coachSettings } = await supabase
+        .from('app_settings')
+        .select('value')
+        .eq('key', 'single_coach')
+        .maybeSingle();
+      
+      let isRealCoach = false;
+      if (coachSettings?.value?.coach_id) {
+        const coachId = coachSettings.value.coach_id;
+        const { data: coachProfile } = await supabase
+          .from('profiles')
+          .select('id, email')
+          .eq('id', coachId)
+          .maybeSingle();
+        isRealCoach = coachProfile?.id === user.id;
+      }
+
+      // If profile says coach but they're not the real coach, fix the role
+      if (profile.role === 'coach' && !isRealCoach) {
+        // Update profile to client role
+        await supabase
+          .from('profiles')
+          .update({ role: 'client' })
+          .eq('id', user.id);
+        profile.role = 'client';
+      }
+
       // For coaches, profile existence is enough (no player_name needed)
-      if (profile.role === 'coach') {
+      // But verify they're actually the coach by checking app_settings
+      if (profile.role === 'coach' && isRealCoach) {
         return NextResponse.redirect(new URL('/availability', requestUrl.origin));
       }
 

@@ -33,8 +33,36 @@ export default function LoginPage() {
         .maybeSingle();
 
       if (profileError || !profile) {
-        // No profile - redirect to complete account
-        router.push("/complete-account");
+        // Try to create profile via RPC (in case trigger failed)
+        await supabase.rpc('ensure_profile_exists', { p_user_id: data.user.id });
+        
+        // Check again if profile exists now
+        const { data: profileRetry } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", data.user.id)
+          .maybeSingle();
+
+        if (!profileRetry) {
+          // Still no profile - redirect to complete account
+          router.push("/complete-account");
+          return;
+        }
+        
+        // Profile created, continue with profileRetry
+        const meta = data.user.user_metadata || {};
+        if (profileRetry.role === "coach") {
+          router.push("/availability");
+          return;
+        }
+        
+        const isComplete = meta.account_type && meta.player_name;
+        if (!isComplete) {
+          router.push("/complete-account");
+          return;
+        }
+        
+        router.push("/book");
         return;
       }
 

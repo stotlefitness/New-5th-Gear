@@ -28,7 +28,39 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
 
       // Handle case where profile doesn't exist (404) or other errors
       if (profileError || !profile) {
-        // No profile - redirect to complete account
+        // Try to create profile via RPC (in case trigger failed)
+        try {
+          await supabase.rpc('ensure_profile_exists', { p_user_id: data.user.id });
+          
+          // Check again if profile exists now
+          const { data: profileRetry } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", data.user.id)
+            .maybeSingle();
+
+          if (profileRetry) {
+            // Profile created, continue with profileRetry
+            if (profileRetry.role === "coach") {
+              setChecking(false);
+              return;
+            }
+            
+            const meta = data.user.user_metadata || {};
+            const isComplete = meta.account_type && meta.player_name;
+            if (!isComplete && pathname !== "/complete-account") {
+              router.push("/complete-account");
+              return;
+            }
+            
+            setChecking(false);
+            return;
+          }
+        } catch (rpcError) {
+          console.error('Failed to ensure profile exists:', rpcError);
+        }
+        
+        // Still no profile - redirect to complete account
         if (pathname !== "/complete-account") {
           router.push("/complete-account");
         }

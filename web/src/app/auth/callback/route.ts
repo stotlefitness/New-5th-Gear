@@ -49,30 +49,51 @@ export async function GET(request: NextRequest) {
       .eq('id', user.id)
       .maybeSingle();
 
-    // If profile doesn't exist, create it from user metadata
+    // If profile doesn't exist, try to create it via RPC (in case trigger failed)
     if (profileError || !profile) {
-      const meta = user.user_metadata || {};
-      const fullName = meta.full_name || user.email?.split("@")[0] || "User";
-      const role = (meta.role || "client") as "coach" | "client";
-      const accountType = (meta.account_type || "player") as "parent" | "player";
+      // First try RPC function (safer, handles edge cases)
+      const { error: rpcError } = await supabase.rpc('ensure_profile_exists', {
+        p_user_id: user.id
+      });
 
-      const { error: insertError } = await supabase
+      if (rpcError) {
+        console.error('RPC failed, trying direct insert:', rpcError);
+        // Fallback to direct insert
+        const meta = user.user_metadata || {};
+        const fullName = meta.full_name || user.email?.split("@")[0] || "User";
+        const role = (meta.role || "client") as "coach" | "client";
+        const accountType = (meta.account_type || "player") as "parent" | "player";
+
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            email: user.email || "",
+            full_name: fullName,
+            role: role,
+            account_type: accountType,
+          });
+
+        if (insertError) {
+          console.error('Failed to create profile:', insertError);
+          return NextResponse.redirect(new URL('/complete-account', requestUrl.origin));
+        }
+      }
+
+      // Re-fetch profile after creation
+      const { data: profileRetry } = await supabase
         .from('profiles')
-        .insert({
-          id: user.id,
-          email: user.email || "",
-          full_name: fullName,
-          role: role,
-          account_type: accountType,
-        });
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle();
 
-      if (insertError) {
-        console.error('Failed to create profile:', insertError);
+      if (!profileRetry) {
         return NextResponse.redirect(new URL('/complete-account', requestUrl.origin));
       }
 
       // Profile created, redirect based on role
-      if (role === 'coach') {
+      const meta = user.user_metadata || {};
+      if (profileRetry.role === 'coach') {
         return NextResponse.redirect(new URL('/availability', requestUrl.origin));
       }
 
@@ -85,6 +106,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL('/book', requestUrl.origin));
     }
 
+    // Profile exists, check completeness
     if (profile) {
       // For coaches, profile existence is enough (no player_name needed)
       if (profile.role === 'coach') {

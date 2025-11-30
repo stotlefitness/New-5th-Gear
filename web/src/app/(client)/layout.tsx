@@ -29,8 +29,19 @@ export default function ClientLayout({
         .eq("id", data.user.id)
         .maybeSingle();
 
-      if (!profile || profile.role !== "client") {
-        router.push("/availability");
+      if (!profile) {
+        // No profile - redirect to complete account
+        router.push("/complete-account");
+        return;
+      }
+      
+      if (profile.role !== "client") {
+        // Not a client - redirect to appropriate portal based on role
+        if (profile.role === "coach") {
+          router.push("/availability");
+        } else {
+          router.push("/complete-account");
+        }
         return;
       }
 

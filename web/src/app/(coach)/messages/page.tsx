@@ -427,18 +427,19 @@ export default function MessagesPage() {
             </section>
 
             {/* Chat Area */}
-            <section className="auth-panel" style={{ display: "flex", flexDirection: "column", maxHeight: "600px" }}>
+            <section className="auth-panel" style={{ display: "flex", flexDirection: "column", maxHeight: "600px", overflow: "hidden" }}>
               {!selectedClient ? (
                 <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <p className="text-sm text-white/60">Select a client to start messaging</p>
                 </div>
               ) : (
-                <>
+                <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", minWidth: 0 }}>
                   <div
                     style={{
                       paddingBottom: 16,
                       marginBottom: 16,
                       borderBottom: "1px solid rgba(148, 163, 184, 0.2)",
+                      flexShrink: 0,
                     }}
                   >
                     <div style={{ fontSize: 15, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
@@ -457,7 +458,8 @@ export default function MessagesPage() {
                       gap: 12,
                       marginBottom: 16,
                       paddingRight: 8,
-                      width: "100%",
+                      minWidth: 0,
+                      overflowX: "hidden",
                     }}
                   >
                     {!messages || messages.length === 0 ? (
@@ -499,7 +501,7 @@ export default function MessagesPage() {
                   </div>
 
                   {/* Message Input */}
-                  <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} style={{ display: "flex", gap: 12, width: "100%", alignItems: "flex-end", marginTop: "auto" }}>
+                  <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} style={{ display: "flex", gap: 12, width: "100%", alignItems: "flex-end", marginTop: "auto", flexShrink: 0, minWidth: 0 }}>
                     <textarea
                       value={messageContent}
                       onChange={(e) => setMessageContent(e.target.value)}
@@ -513,10 +515,8 @@ export default function MessagesPage() {
                       disabled={sending}
                       rows={4}
                       style={{
-                        flex: "1 1 auto",
-                        width: "100%",
-                        minWidth: "400px",
-                        maxWidth: "100%",
+                        flex: "1 1 0",
+                        minWidth: 0,
                         padding: "16px 20px",
                         borderRadius: "12px",
                         background: "rgba(255, 255, 255, 0.2)",
@@ -556,25 +556,26 @@ export default function MessagesPage() {
                       {sending ? "Sending…" : "Send"}
                     </button>
                   </form>
-                </>
+                </div>
               )}
             </section>
           </div>
         </div>
       ) : (
         // Client view - auto-opened with coach
-        <section className="auth-panel" style={{ maxWidth: 860, width: "100%", display: "flex", flexDirection: "column", maxHeight: "600px" }}>
+        <section className="auth-panel" style={{ maxWidth: 860, width: "100%", display: "flex", flexDirection: "column", maxHeight: "600px", overflow: "hidden" }}>
           {!coach ? (
             <div className="text-center py-12">
               <p className="text-sm text-white/60">Unable to find your coach. Please contact support.</p>
             </div>
           ) : (
-            <>
+            <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", minWidth: 0 }}>
               <div
                 style={{
                   paddingBottom: 16,
                   marginBottom: 16,
                   borderBottom: "1px solid rgba(148, 163, 184, 0.2)",
+                  flexShrink: 0,
                 }}
               >
                 <div style={{ fontSize: 15, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>{coach.full_name}</div>
@@ -591,6 +592,8 @@ export default function MessagesPage() {
                   gap: 12,
                   marginBottom: 16,
                   paddingRight: 8,
+                  minWidth: 0,
+                  overflowX: "hidden",
                 }}
               >
                 {!messages || messages.length === 0 ? (
@@ -632,7 +635,7 @@ export default function MessagesPage() {
               </div>
 
               {/* Message Input */}
-              <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} style={{ display: "flex", gap: 12, width: "100%", alignItems: "flex-end", marginTop: "auto" }}>
+              <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} style={{ display: "flex", gap: 12, width: "100%", alignItems: "flex-end", marginTop: "auto", flexShrink: 0, minWidth: 0 }}>
                 <textarea
                   value={messageContent}
                   onChange={(e) => setMessageContent(e.target.value)}
@@ -646,10 +649,8 @@ export default function MessagesPage() {
                   disabled={sending}
                   rows={4}
                   style={{
-                    flex: "1 1 auto",
-                    width: "100%",
-                    minWidth: "400px",
-                    maxWidth: "100%",
+                    flex: "1 1 0",
+                    minWidth: 0,
                     padding: "16px 20px",
                     borderRadius: "12px",
                     background: "rgba(255, 255, 255, 0.2)",
@@ -688,7 +689,7 @@ export default function MessagesPage() {
                   {sending ? "Sending…" : "Send"}
                 </button>
               </form>
-            </>
+            </div>
           )}
         </section>
       )}

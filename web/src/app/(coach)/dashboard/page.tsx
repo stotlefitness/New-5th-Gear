@@ -297,8 +297,7 @@ export default function CoachDashboardPage() {
         </section>
 
         {/* This Week Schedule */}
-          {/* This Week Schedule */}
-          <section className="auth-panel" style={{ width: "100%" }}>
+        <section className="auth-panel" style={{ width: "100%" }}>
             <div style={{ marginBottom: 20 }}>
               <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
                 This week

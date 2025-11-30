@@ -3,7 +3,7 @@
 import useSWR from "swr";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { rpcDecideBooking } from "@/lib/rpc";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CoachPageContainer from "@/components/CoachPageContainer";
 
 type Booking = {
@@ -74,6 +74,31 @@ export default function RequestsPage() {
   const { data, mutate, isLoading } = useSWR("coach_pending", fetchPending);
   const [busy, setBusy] = useState<string | null>(null);
   const [processedId, setProcessedId] = useState<string | null>(null);
+
+  // Real-time subscription for bookings (when client requests, appears immediately)
+  useEffect(() => {
+    const supabaseClient = getSupabaseBrowserClient();
+    
+    const channel = supabaseClient
+      .channel("bookings-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "bookings",
+          filter: "status=eq.pending",
+        },
+        () => {
+          mutate(); // Refresh bookings when any change occurs
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabaseClient.removeChannel(channel);
+    };
+  }, [mutate]);
 
   async function decide(id: string, decision: "accept" | "decline") {
     try {

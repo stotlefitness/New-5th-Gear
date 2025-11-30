@@ -82,7 +82,7 @@ export default function ClientLessonsPage() {
   const router = useRouter();
   const [role, setRole] = useState<string | null>(null);
   const [checking, setChecking] = useState(true);
-  const { data, error, isLoading } = useSWR("client-lessons", fetchLessons);
+  const { data, error, isLoading, mutate } = useSWR("client-lessons", fetchLessons);
 
   useEffect(() => {
     async function checkRole() {
@@ -109,6 +109,37 @@ export default function ClientLessonsPage() {
 
     checkRole();
   }, [router]);
+
+  // Real-time subscription for lessons (when booking is accepted, lesson appears immediately)
+  useEffect(() => {
+    if (!role || role !== "client") return;
+    
+    const supabaseClient = getSupabaseBrowserClient();
+    
+    supabaseClient.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      
+      const channel = supabaseClient
+        .channel("client-lessons-changes")
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "lessons",
+            filter: `client_id=eq.${user.id}`,
+          },
+          () => {
+            mutate(); // Refresh lessons when any change occurs
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabaseClient.removeChannel(channel);
+      };
+    });
+  }, [mutate, role]);
 
   if (checking || role !== "client") {
     return (

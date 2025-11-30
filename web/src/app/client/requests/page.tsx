@@ -57,6 +57,40 @@ export default function ClientRequestsPage() {
   const [checking, setChecking] = useState(true);
   const { data, error, isLoading, mutate } = useSWR("client-requests", fetchRequests);
 
+  // Real-time subscription for booking status updates (when coach accepts/declines)
+  useEffect(() => {
+    if (!role || role !== "client") return;
+    
+    const supabaseClient = getSupabaseBrowserClient();
+    let channel: any = null;
+    
+    supabaseClient.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      
+      channel = supabaseClient
+        .channel("client-bookings-changes")
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "bookings",
+            filter: `client_id=eq.${user.id}`,
+          },
+          () => {
+            mutate(); // Refresh when any booking for this client changes
+          }
+        )
+        .subscribe();
+    });
+
+    return () => {
+      if (channel) {
+        supabaseClient.removeChannel(channel);
+      }
+    };
+  }, [mutate, role]);
+
   useEffect(() => {
     async function checkRole() {
       const { data: { user } } = await supabase.auth.getUser();

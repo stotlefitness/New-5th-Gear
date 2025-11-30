@@ -3,7 +3,7 @@
 import useSWR from "swr";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { rpcRequestBooking } from "@/lib/rpc";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type Opening = {
   id: string;
@@ -53,6 +53,30 @@ export default function BookPage() {
   const { data, error, isLoading, mutate } = useSWR("openings", fetcher);
   const [busy, setBusy] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+
+  // Real-time subscription for openings (when coach publishes new slots)
+  useEffect(() => {
+    const supabaseClient = getSupabaseBrowserClient();
+    
+    const channel = supabaseClient
+      .channel("openings-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "openings",
+        },
+        () => {
+          mutate(); // Refresh openings when any change occurs
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabaseClient.removeChannel(channel);
+    };
+  }, [mutate]);
 
   async function request(id: string) {
     try {

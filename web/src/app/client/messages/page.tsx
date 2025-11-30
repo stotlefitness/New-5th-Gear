@@ -75,6 +75,31 @@ export default function ClientMessagesPage() {
     });
   }, []);
 
+  // Real-time subscription for messages (bidirectional chat)
+  useEffect(() => {
+    if (!conversation?.id) return;
+
+    const channel = supabase
+      .channel(`messages-${conversation.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversation.id}`,
+        },
+        () => {
+          mutateMessages(); // Refresh messages when new message is inserted
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [conversation?.id, mutateMessages]);
+
   async function sendMessage(e: React.FormEvent) {
     e.preventDefault();
     if (!messageText.trim() || sending) return;

@@ -281,9 +281,9 @@ export default function ClientDashboardPage() {
 
   return (
     <ClientPageWrapper title="Dashboard" subtitle="Your training schedule and updates">
-      <div style={{ display: "flex", flexDirection: "column", gap: 24, marginTop: 32 }}>
-        {/* Welcome Section */}
-        <section className="auth-panel" style={{ maxWidth: 1200, width: "100%" }}>
+      <div className="grid gap-6 lg:grid-cols-2" style={{ marginTop: 32, width: "100%" }}>
+        {/* Welcome Section - Full width on all screens */}
+        <section className="auth-panel lg:col-span-2" style={{ width: "100%" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             <div>
               <h1 className="text-4xl sm:text-5xl font-light tracking-tight text-white" style={{ marginBottom: 8 }}>
@@ -302,12 +302,8 @@ export default function ClientDashboardPage() {
           </div>
         </section>
 
-        {/* Main Content Grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 24, maxWidth: 1200, width: "100%" }}>
-          {/* Left Column */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            {/* This Week Schedule */}
-            <section className="auth-panel" style={{ width: "100%" }}>
+        {/* This Week Schedule */}
+        <section className="auth-panel" style={{ width: "100%" }}>
               <div style={{ marginBottom: 20 }}>
                 <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
                   This week
@@ -396,11 +392,74 @@ export default function ClientDashboardPage() {
               <Link href="/book" className="field-link" style={{ textAlign: "center", padding: "10px 0" }}>
                 View all sessions →
               </Link>
-            </section>
+        </section>
 
-            {/* Recent Lessons */}
-            {pastLessons.length > 0 && (
-              <section className="auth-panel" style={{ width: "100%" }}>
+        {/* Messages */}
+        <section className="auth-panel" style={{ width: "100%" }}>
+          <div style={{ marginBottom: 16 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
+              Messages
+            </h2>
+            <p style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.6)" }}>
+              Your conversation with Coach Alaina.
+            </p>
+          </div>
+
+          {latestMessage ? (
+            <>
+              <div
+                style={{
+                  padding: "12px 16px",
+                  borderRadius: "8px",
+                  background: "rgba(255, 255, 255, 0.03)",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  marginBottom: 16,
+                }}
+              >
+                <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)", marginBottom: 8 }}>
+                  {new Date(latestMessage.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
+                </div>
+                <div style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.8)", lineHeight: 1.5 }}>
+                  {latestMessage.content.substring(0, 100)}
+                  {latestMessage.content.length > 100 ? "..." : ""}
+                </div>
+              </div>
+              {unreadMessages > 0 && (
+                <div style={{ marginBottom: 16 }}>
+                  <span
+                    style={{
+                      display: "inline-block",
+                      padding: "4px 8px",
+                      borderRadius: "4px",
+                      background: "rgba(239, 68, 68, 0.15)",
+                      border: "1px solid rgba(239, 68, 68, 0.3)",
+                      fontSize: 11,
+                      color: "rgba(239, 68, 68, 0.9)",
+                    }}
+                  >
+                    {unreadMessages} unread message{unreadMessages !== 1 ? "s" : ""}
+                  </span>
+                </div>
+              )}
+              <Link href="/client/messages" className="field-link" style={{ textAlign: "center", padding: "10px 0" }}>
+                Open Messages →
+              </Link>
+            </>
+          ) : (
+            <>
+              <div style={{ padding: "20px", textAlign: "center", color: "rgba(255, 255, 255, 0.5)", fontSize: 13, marginBottom: 16 }}>
+                No messages yet. Start a conversation with your coach!
+              </div>
+              <Link href="/client/messages" className="field-link" style={{ textAlign: "center", padding: "10px 0" }}>
+                Send a message →
+              </Link>
+            </>
+          )}
+        </section>
+
+        {/* Recent Lessons */}
+        {pastLessons.length > 0 && (
+          <section className="auth-panel" style={{ width: "100%" }}>
                 <div style={{ marginBottom: 20 }}>
                   <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
                     Recent lessons
@@ -451,78 +510,12 @@ export default function ClientDashboardPage() {
                 <Link href="/client/lessons" className="field-link" style={{ textAlign: "center", padding: "10px 0" }}>
                   View full lesson history →
                 </Link>
-              </section>
-            )}
-          </div>
+          </section>
+        )}
 
-          {/* Right Column */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            {/* Messages */}
-            <section className="auth-panel" style={{ width: "100%" }}>
-              <div style={{ marginBottom: 16 }}>
-                <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
-                  Messages
-                </h2>
-                <p style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.6)" }}>
-                  Your conversation with Coach Alaina.
-                </p>
-              </div>
-
-              {latestMessage ? (
-                <>
-                  <div
-                    style={{
-                      padding: "12px 16px",
-                      borderRadius: "8px",
-                      background: "rgba(255, 255, 255, 0.03)",
-                      border: "1px solid rgba(255, 255, 255, 0.1)",
-                      marginBottom: 16,
-                    }}
-                  >
-                    <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)", marginBottom: 8 }}>
-                      {new Date(latestMessage.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
-                    </div>
-                    <div style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.8)", lineHeight: 1.5 }}>
-                      {latestMessage.content.substring(0, 100)}
-                      {latestMessage.content.length > 100 ? "..." : ""}
-                    </div>
-                  </div>
-                  {unreadMessages > 0 && (
-                    <div style={{ marginBottom: 16 }}>
-                      <span
-                        style={{
-                          display: "inline-block",
-                          padding: "4px 8px",
-                          borderRadius: "4px",
-                          background: "rgba(239, 68, 68, 0.15)",
-                          border: "1px solid rgba(239, 68, 68, 0.3)",
-                          fontSize: 11,
-                          color: "rgba(239, 68, 68, 0.9)",
-                        }}
-                      >
-                        {unreadMessages} unread message{unreadMessages !== 1 ? "s" : ""}
-                      </span>
-                    </div>
-                  )}
-                  <Link href="/client/messages" className="field-link" style={{ textAlign: "center", padding: "10px 0" }}>
-                    Open Messages →
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <div style={{ padding: "20px", textAlign: "center", color: "rgba(255, 255, 255, 0.5)", fontSize: 13, marginBottom: 16 }}>
-                    No messages yet. Start a conversation with your coach!
-                  </div>
-                  <Link href="/client/messages" className="field-link" style={{ textAlign: "center", padding: "10px 0" }}>
-                    Send a message →
-                  </Link>
-                </>
-              )}
-            </section>
-
-            {/* Requests */}
-            {bookings.length > 0 && (
-              <section className="auth-panel" style={{ width: "100%" }}>
+        {/* Requests */}
+        {bookings.length > 0 && (
+          <section className="auth-panel" style={{ width: "100%" }}>
                 <div style={{ marginBottom: 16 }}>
                   <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
                     Recent requests
@@ -577,10 +570,8 @@ export default function ClientDashboardPage() {
                 <Link href="/client/requests" className="field-link" style={{ textAlign: "center", padding: "10px 0" }}>
                   View all requests →
                 </Link>
-              </section>
-            )}
-          </div>
-        </div>
+          </section>
+        )}
       </div>
     </ClientPageWrapper>
   );

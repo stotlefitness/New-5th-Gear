@@ -51,9 +51,36 @@ export default function CompleteAccountPage() {
         return;
       }
 
-      // Pre-fill from existing metadata if available
-      if (meta.account_type) setAccountType(meta.account_type);
-      if (meta.parent_name) setParentName(meta.parent_name);
+      // Check for signup context in sessionStorage (from Google signup flow)
+      const signupAccountType = typeof window !== "undefined" 
+        ? sessionStorage.getItem("google_signup_account_type") || sessionStorage.getItem("signup_account_type")
+        : null;
+      const signupParentName = typeof window !== "undefined"
+        ? sessionStorage.getItem("google_signup_parent_name") || sessionStorage.getItem("signup_parent_name")
+        : null;
+
+      // Pre-fill from signup context first, then from existing metadata
+      if (signupAccountType) {
+        setAccountType(signupAccountType as AccountType);
+        // Clean up sessionStorage after reading
+        if (typeof window !== "undefined") {
+          sessionStorage.removeItem("google_signup_account_type");
+          sessionStorage.removeItem("signup_account_type");
+        }
+      } else if (meta.account_type) {
+        setAccountType(meta.account_type);
+      }
+
+      if (signupParentName) {
+        setParentName(signupParentName);
+        if (typeof window !== "undefined") {
+          sessionStorage.removeItem("google_signup_parent_name");
+          sessionStorage.removeItem("signup_parent_name");
+        }
+      } else if (meta.parent_name) {
+        setParentName(meta.parent_name);
+      }
+
       if (meta.player_name) setPlayerName(meta.player_name);
       if (meta.handedness) setHandedness(meta.handedness);
       if (meta.height_feet) setHeightFeet(meta.height_feet.toString());
@@ -226,56 +253,58 @@ export default function CompleteAccountPage() {
           </p>
 
           <form className="auth-form" onSubmit={handleSubmit}>
-            {/* Account Type */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <p style={{ fontSize: 14, color: "rgba(255, 255, 255, 0.7)", marginBottom: 8 }}>
-                Choose your account type
-              </p>
-              
-              <button
-                type="button"
-                onClick={() => setAccountType("parent")}
-                style={{ 
-                  width: "100%", 
-                  padding: "16px", 
-                  textAlign: "left", 
-                  display: "flex", 
-                  flexDirection: "column", 
-                  alignItems: "flex-start",
-                  background: accountType === "parent" ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.1)",
-                  border: accountType === "parent" ? "1px solid rgba(255, 255, 255, 0.4)" : "1px solid rgba(255, 255, 255, 0.2)",
-                  borderRadius: "999px",
-                  color: "#ffffff",
-                  cursor: "pointer",
-                  transition: "all 0.15s ease"
-                }}
-              >
-                <span style={{ fontSize: 16, fontWeight: 600, marginBottom: 4, color: "#ffffff" }}>Parent Account</span>
-                <span style={{ fontSize: 13, opacity: 0.9, color: "rgba(255, 255, 255, 0.9)" }}>Manage multiple players from one account</span>
-              </button>
+            {/* Account Type - only show if not already set */}
+            {!accountType && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <p style={{ fontSize: 14, color: "rgba(255, 255, 255, 0.7)", marginBottom: 8 }}>
+                  Choose your account type
+                </p>
+                
+                <button
+                  type="button"
+                  onClick={() => setAccountType("parent")}
+                  style={{ 
+                    width: "100%", 
+                    padding: "16px", 
+                    textAlign: "left", 
+                    display: "flex", 
+                    flexDirection: "column", 
+                    alignItems: "flex-start",
+                    background: accountType === "parent" ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.1)",
+                    border: accountType === "parent" ? "1px solid rgba(255, 255, 255, 0.4)" : "1px solid rgba(255, 255, 255, 0.2)",
+                    borderRadius: "999px",
+                    color: "#ffffff",
+                    cursor: "pointer",
+                    transition: "all 0.15s ease"
+                  }}
+                >
+                  <span style={{ fontSize: 16, fontWeight: 600, marginBottom: 4, color: "#ffffff" }}>Parent Account</span>
+                  <span style={{ fontSize: 13, opacity: 0.9, color: "rgba(255, 255, 255, 0.9)" }}>Manage multiple players from one account</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => setAccountType("player")}
-                style={{ 
-                  width: "100%", 
-                  padding: "16px", 
-                  textAlign: "left", 
-                  display: "flex", 
-                  flexDirection: "column", 
-                  alignItems: "flex-start",
-                  background: accountType === "player" ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.1)",
-                  border: accountType === "player" ? "1px solid rgba(255, 255, 255, 0.4)" : "1px solid rgba(255, 255, 255, 0.2)",
-                  borderRadius: "999px",
-                  color: "#ffffff",
-                  cursor: "pointer",
-                  transition: "all 0.15s ease"
-                }}
-              >
-                <span style={{ fontSize: 16, fontWeight: 600, marginBottom: 4, color: "#ffffff" }}>Player Account</span>
-                <span style={{ fontSize: 13, opacity: 0.9, color: "rgba(255, 255, 255, 0.9)" }}>Individual player account</span>
-              </button>
-            </div>
+                <button
+                  type="button"
+                  onClick={() => setAccountType("player")}
+                  style={{ 
+                    width: "100%", 
+                    padding: "16px", 
+                    textAlign: "left", 
+                    display: "flex", 
+                    flexDirection: "column", 
+                    alignItems: "flex-start",
+                    background: accountType === "player" ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.1)",
+                    border: accountType === "player" ? "1px solid rgba(255, 255, 255, 0.4)" : "1px solid rgba(255, 255, 255, 0.2)",
+                    borderRadius: "999px",
+                    color: "#ffffff",
+                    cursor: "pointer",
+                    transition: "all 0.15s ease"
+                  }}
+                >
+                  <span style={{ fontSize: 16, fontWeight: 600, marginBottom: 4, color: "#ffffff" }}>Player Account</span>
+                  <span style={{ fontSize: 13, opacity: 0.9, color: "rgba(255, 255, 255, 0.9)" }}>Individual player account</span>
+                </button>
+              </div>
+            )}
 
             {accountType === "parent" && (
               <>

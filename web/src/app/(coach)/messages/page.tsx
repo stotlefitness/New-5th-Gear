@@ -515,14 +515,23 @@ export default function MessagesPage() {
                         flex: 1,
                         padding: "12px 16px",
                         borderRadius: "12px",
-                        background: "rgba(255, 255, 255, 0.15)",
-                        border: "1px solid rgba(255, 255, 255, 0.3)",
+                        background: "rgba(255, 255, 255, 0.12)",
+                        border: "2px solid rgba(255, 255, 255, 0.4)",
                         color: "#ffffff",
                         fontSize: 14,
                         fontFamily: "inherit",
                         resize: "vertical",
                         minHeight: "60px",
                         maxHeight: "120px",
+                        outline: "none",
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.background = "rgba(255, 255, 255, 0.18)";
+                        e.target.style.borderColor = "rgba(255, 255, 255, 0.6)";
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.background = "rgba(255, 255, 255, 0.12)";
+                        e.target.style.borderColor = "rgba(255, 255, 255, 0.4)";
                       }}
                     />
                     <button
@@ -631,14 +640,23 @@ export default function MessagesPage() {
                     flex: 1,
                     padding: "12px 16px",
                     borderRadius: "12px",
-                    background: "rgba(255, 255, 255, 0.15)",
-                    border: "1px solid rgba(255, 255, 255, 0.3)",
+                    background: "rgba(255, 255, 255, 0.12)",
+                    border: "2px solid rgba(255, 255, 255, 0.4)",
                     color: "#ffffff",
                     fontSize: 14,
                     fontFamily: "inherit",
                     resize: "vertical",
                     minHeight: "60px",
                     maxHeight: "120px",
+                    outline: "none",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.background = "rgba(255, 255, 255, 0.18)";
+                    e.target.style.borderColor = "rgba(255, 255, 255, 0.6)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.background = "rgba(255, 255, 255, 0.12)";
+                    e.target.style.borderColor = "rgba(255, 255, 255, 0.4)";
                   }}
                 />
                 <button

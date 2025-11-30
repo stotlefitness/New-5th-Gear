@@ -3,7 +3,7 @@
 import useSWR from "swr";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { rpcGenerateOpenings } from "@/lib/rpc";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type Template = {
   id: string;
@@ -14,12 +14,67 @@ type Template = {
   active: boolean;
 };
 
+type Opening = {
+  id: string;
+  start_at: string;
+  end_at: string;
+  spots_available: number;
+  capacity: number;
+  source: string;
+};
+
 const supabase = getSupabaseBrowserClient();
 
 async function fetchTemplates() {
   const { data, error } = await supabase.from("availability_templates").select("*").order("weekday");
   if (error) throw error;
   return data as Template[];
+}
+
+async function fetchOpenings(): Promise<Opening[]> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  // Get start of current week (Monday) and end of next 4 weeks
+  const now = new Date();
+  const from = new Date(now);
+  from.setDate(now.getDate() - now.getDay() + 1); // Monday of current week
+  from.setHours(0, 0, 0, 0);
+  
+  const to = new Date(from);
+  to.setDate(to.getDate() + 28); // 4 weeks from Monday
+
+  const { data, error } = await supabase
+    .from("openings")
+    .select("id, start_at, end_at, spots_available, capacity, source")
+    .eq("coach_id", user.id)
+    .gte("start_at", from.toISOString())
+    .lte("start_at", to.toISOString())
+    .order("start_at", { ascending: true });
+  
+  if (error) throw error;
+  return (data || []) as Opening[];
+}
+
+function groupOpeningsByDate(openings: Opening[]): Map<string, Opening[]> {
+  const grouped = new Map<string, Opening[]>();
+  openings.forEach((opening) => {
+    const date = new Date(opening.start_at);
+    const dateKey = date.toDateString();
+    if (!grouped.has(dateKey)) {
+      grouped.set(dateKey, []);
+    }
+    grouped.get(dateKey)!.push(opening);
+  });
+  return grouped;
+}
+
+function formatDateForOpening(date: Date): string {
+  return date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+}
+
+function formatTimeForOpening(date: Date): string {
+  return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
 }
 
 const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -46,12 +101,35 @@ function getDateRange(weeks: number): string {
 }
 
 export default function AvailabilityPage() {
-  const { data, mutate } = useSWR("availability_templates", fetchTemplates);
+  const { data: templates, mutate: mutateTemplates } = useSWR("availability_templates", fetchTemplates);
+  const { data: openings, mutate: mutateOpenings, isLoading: openingsLoading } = useSWR("coach_openings", fetchOpenings);
   const [weekday, setWeekday] = useState(1);
   const [start, setStart] = useState("15:00");
   const [end, setEnd] = useState("18:00");
   const [slotMinutes, setSlotMinutes] = useState(60);
   const [busy, setBusy] = useState(false);
+
+  // Real-time subscription for openings (refresh when new slots are generated)
+  useEffect(() => {
+    const channel = supabase
+      .channel("coach-openings-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "openings",
+        },
+        () => {
+          mutateOpenings(); // Refresh openings when any change occurs
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [mutateOpenings]);
 
   async function addTemplate() {
     setBusy(true);
@@ -65,13 +143,14 @@ export default function AvailabilityPage() {
       .insert({ coach_id: session.session.user.id, weekday, start_time: start, end_time: end, slot_minutes: slotMinutes, active: true });
     setBusy(false);
     if (error) return alert(error.message);
-    mutate();
+    mutateTemplates();
   }
 
   async function generate() {
     try {
       setBusy(true);
       const count = await rpcGenerateOpenings(6);
+      await mutateOpenings(); // Refresh openings after generation
       alert(`Generated ${count} openings`);
     } catch (e: any) {
       alert(e.message || "Failed");
@@ -84,8 +163,11 @@ export default function AvailabilityPage() {
     if (!confirm("Are you sure you want to delete this template?")) return;
     const { error } = await supabase.from("availability_templates").delete().eq("id", id);
     if (error) return alert(error.message);
-    mutate();
+    mutateTemplates();
   }
+
+  const groupedOpenings = openings ? groupOpeningsByDate(openings) : new Map();
+  const openingDates = Array.from(groupedOpenings.keys()).sort();
 
   return (
     <div className="coach-page-inner">
@@ -315,6 +397,126 @@ export default function AvailabilityPage() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+      </section>
+
+      {/* Published Openings Section */}
+      <section className="auth-panel" style={{ maxWidth: 860, width: "100%", marginTop: 24 }}>
+        <div
+          style={{
+            fontSize: 13,
+            fontWeight: 500,
+            marginBottom: 16,
+            color: "rgba(255, 255, 255, 0.9)",
+            textTransform: "uppercase",
+            letterSpacing: "0.1em",
+          }}
+        >
+          Published openings
+        </div>
+        <p style={{ fontSize: 14, color: "rgba(255, 255, 255, 0.6)", marginBottom: 20 }}>
+          See every open slot clients can book. This is exactly what clients see in their portal.
+        </p>
+
+        {openingsLoading ? (
+          <div className="text-center py-12">
+            <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-sm text-white/60">Loading openings...</p>
+          </div>
+        ) : openingDates.length === 0 ? (
+          <div className="text-center py-12 text-white/60 text-sm">
+            <p>No openings published yet.</p>
+            <p style={{ marginTop: 8, fontSize: 13 }}>Generate openings from templates above to create bookable slots.</p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {openingDates.map((dateKey) => {
+              const dayOpenings = groupedOpenings.get(dateKey)!;
+              const date = new Date(dateKey);
+              const availableCount = dayOpenings.filter(o => o.spots_available > 0).length;
+              const totalCount = dayOpenings.length;
+
+              return (
+                <div
+                  key={dateKey}
+                  style={{
+                    padding: "16px 20px",
+                    borderRadius: "12px",
+                    border: "1px solid rgba(255, 255, 255, 0.1)",
+                    background: "rgba(255, 255, 255, 0.03)",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      marginBottom: 12,
+                      flexWrap: "wrap",
+                      gap: 8,
+                    }}
+                  >
+                    <div>
+                      <h3 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
+                        {formatDateForOpening(date)}
+                      </h3>
+                      <p style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                        {totalCount} {totalCount === 1 ? "slot" : "slots"} • {availableCount} available
+                      </p>
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+                      gap: 10,
+                    }}
+                  >
+                    {dayOpenings.map((opening) => {
+                      const startDate = new Date(opening.start_at);
+                      const endDate = new Date(opening.end_at);
+                      const isAvailable = opening.spots_available > 0;
+
+                      return (
+                        <div
+                          key={opening.id}
+                          style={{
+                            padding: "12px 16px",
+                            borderRadius: "8px",
+                            border: isAvailable 
+                              ? "1px solid rgba(76, 175, 80, 0.3)" 
+                              : "1px solid rgba(239, 68, 68, 0.3)",
+                            background: isAvailable 
+                              ? "rgba(76, 175, 80, 0.1)" 
+                              : "rgba(239, 68, 68, 0.1)",
+                          }}
+                        >
+                          <div style={{ fontSize: 15, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
+                            {formatTimeForOpening(startDate)} – {formatTimeForOpening(endDate)}
+                          </div>
+                          <div
+                            style={{
+                              fontSize: 11,
+                              textTransform: "uppercase",
+                              letterSpacing: "0.05em",
+                              color: isAvailable 
+                                ? "rgba(76, 175, 80, 0.9)" 
+                                : "rgba(239, 68, 68, 0.9)",
+                            }}
+                          >
+                            {opening.spots_available > 0 
+                              ? `${opening.spots_available} spot${opening.spots_available === 1 ? "" : "s"} available`
+                              : "Booked"}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </section>

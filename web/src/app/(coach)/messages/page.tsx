@@ -311,21 +311,11 @@ export default function MessagesPage() {
     setSending(false);
   }
 
-  if (loading) {
-    return (
-      <CoachPageContainer>
-        <div className="text-center space-y-4 py-32">
-          <div className="w-12 h-12 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto" />
-          <p className="text-sm text-white/60">Loading messages…</p>
-        </div>
-      </CoachPageContainer>
-    );
-  }
-
   const isCoach = profile?.role === "coach";
   const selectedClient = clients?.find((c) => c.id === selectedClientId);
 
   // Real-time subscription for conversations list (coach only) - show new conversations immediately
+  // MUST be before any early returns to follow React hooks rules
   useEffect(() => {
     if (profile?.role !== "coach" || !user) return;
 
@@ -349,6 +339,17 @@ export default function MessagesPage() {
       supabase.removeChannel(channel);
     };
   }, [profile?.role, user, mutateConversations]);
+
+  if (loading) {
+    return (
+      <CoachPageContainer>
+        <div className="text-center space-y-4 py-32">
+          <div className="w-12 h-12 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto" />
+          <p className="text-sm text-white/60">Loading messages…</p>
+        </div>
+      </CoachPageContainer>
+    );
+  }
 
   return (
     <CoachPageContainer>

@@ -88,7 +88,10 @@ export default function LoginPage() {
 
   async function handleGoogleLogin() {
     setError(null);
-    const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/auth/callback` : undefined;
+    // Pass intended_role=client in the callback URL so callback knows this is from client login
+    const redirectTo = typeof window !== "undefined" 
+      ? `${window.location.origin}/auth/callback?intended_role=client` 
+      : undefined;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {

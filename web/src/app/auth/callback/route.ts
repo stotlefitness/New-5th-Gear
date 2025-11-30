@@ -6,6 +6,7 @@ import type { NextRequest } from 'next/server';
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
+  const intendedRole = requestUrl.searchParams.get('intended_role'); // 'client' or 'coach' - indicates where login originated
   const cookieStore = await cookies();
 
   const supabase = createServerClient(
@@ -61,7 +62,32 @@ export async function GET(request: NextRequest) {
         // Fallback to direct insert
         const meta = user.user_metadata || {};
         const fullName = meta.full_name || user.email?.split("@")[0] || "User";
-        const role = (meta.role || "client") as "coach" | "client";
+        
+        // Check if user is the real coach (from app_settings)
+        const { data: coachSettings } = await supabase
+          .from('app_settings')
+          .select('value')
+          .eq('key', 'single_coach')
+          .maybeSingle();
+        
+        let isRealCoach = false;
+        if (coachSettings?.value?.coach_id) {
+          isRealCoach = coachSettings.value.coach_id === user.id;
+        }
+        
+        // Determine role:
+        // - If they're the real coach, always set role='coach'
+        // - Otherwise, use intended_role from query param (defaults to 'client' if not provided)
+        let role: "coach" | "client" = "client";
+        if (isRealCoach) {
+          role = "coach";
+        } else if (intendedRole === "client") {
+          role = "client";
+        } else {
+          // Default to client for safety
+          role = "client";
+        }
+        
         const accountType = (meta.account_type || "player") as "parent" | "player";
 
         const { error: insertError } = await supabase
@@ -150,6 +176,7 @@ export async function GET(request: NextRequest) {
       }
 
       // If profile says coach but they're not the real coach, fix the role
+      // This ensures only the configured coach can have coach role
       if (profile.role === 'coach' && !isRealCoach) {
         // Update profile to client role
         await supabase
@@ -158,6 +185,9 @@ export async function GET(request: NextRequest) {
           .eq('id', user.id);
         profile.role = 'client';
       }
+      
+      // Note: If they're the real coach, they always go to coach portal
+      // regardless of where they logged in from (intended_role is ignored for real coach)
 
       // For coaches, profile existence is enough (no player_name needed)
       // But verify they're actually the coach by checking app_settings

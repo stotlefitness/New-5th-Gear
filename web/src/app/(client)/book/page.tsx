@@ -21,7 +21,7 @@ const fetcher = async () => {
     .from("openings")
     .select("id,start_at,end_at,spots_available")
     .gte("start_at", from.toISOString())
-    .lte("end_at", to.toISOString())
+    .lte("start_at", to.toISOString())
     .gt("spots_available", 0)
     .order("start_at");
   if (error) throw error;

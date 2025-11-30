@@ -232,25 +232,28 @@ export default function LessonsPage() {
               {upcoming.map((lesson) => {
                 const startDate = new Date(lesson.start_at);
                 const endDate = new Date(lesson.end_at);
+                const isCanceling = cancelingId === lesson.id;
+                const isRescheduling = reschedulingId === lesson.id;
 
                 return (
-                  <Link
+                  <section
                     key={lesson.id}
-                    href={`/lessons/${lesson.id}`}
-                    className="block"
+                    className="auth-panel"
+                    style={{ width: "100%", transition: "all 0.2s" }}
                   >
-                    <section className="auth-panel" style={{ width: "100%", cursor: "pointer", transition: "all 0.2s" }}>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          flexWrap: "wrap",
-                          gap: 12,
-                        }}
-                      >
-                        <div>
-                          <h3 style={{ fontSize: 20, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        flexWrap: "wrap",
+                        gap: 12,
+                        marginBottom: 12,
+                      }}
+                    >
+                      <div style={{ flex: 1 }}>
+                        <Link href={`/lessons/${lesson.id}`} style={{ textDecoration: "none" }}>
+                          <h3 style={{ fontSize: 20, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4, cursor: "pointer" }}>
                             {formatDate(startDate)}
                           </h3>
                           <p style={{ fontSize: 14, color: "rgba(255, 255, 255, 0.7)", marginBottom: lesson.location ? 4 : 8 }}>
@@ -264,24 +267,64 @@ export default function LessonsPage() {
                           <p style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.5)" }}>
                             {lesson.client.full_name} {lesson.client.email && `• ${lesson.client.email}`}
                           </p>
-                        </div>
-                        <div
-                          style={{
-                            padding: "6px 12px",
-                            borderRadius: "999px",
-                            background: "rgba(76, 175, 80, 0.15)",
-                            border: "1px solid rgba(76, 175, 80, 0.3)",
-                            fontSize: 11,
-                            color: "rgba(76, 175, 80, 0.9)",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.1em",
-                          }}
-                        >
-                          Confirmed
-                        </div>
+                        </Link>
                       </div>
-                    </section>
-                  </Link>
+                      <div
+                        style={{
+                          padding: "6px 12px",
+                          borderRadius: "999px",
+                          background: "rgba(76, 175, 80, 0.15)",
+                          border: "1px solid rgba(76, 175, 80, 0.3)",
+                          fontSize: 11,
+                          color: "rgba(76, 175, 80, 0.9)",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.1em",
+                        }}
+                      >
+                        Confirmed
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                      <Link
+                        href={`/lessons/${lesson.id}`}
+                        className="field-link"
+                        style={{ flex: 1, padding: "8px 16px", textAlign: "center", fontSize: 13 }}
+                      >
+                        View Details
+                      </Link>
+                      <button
+                        onClick={() => handleReschedule(lesson)}
+                        disabled={isCanceling || isRescheduling}
+                        className="field-link"
+                        style={{
+                          flex: 1,
+                          padding: "8px 16px",
+                          fontSize: 13,
+                          border: "1px solid rgba(255, 255, 255, 0.2)",
+                          borderRadius: "8px",
+                        }}
+                      >
+                        {isRescheduling ? "Rescheduling..." : "Reschedule"}
+                      </button>
+                      <button
+                        onClick={() => handleCancel(lesson)}
+                        disabled={isCanceling || isRescheduling}
+                        style={{
+                          flex: 1,
+                          padding: "8px 16px",
+                          fontSize: 13,
+                          background: "rgba(239, 68, 68, 0.1)",
+                          border: "1px solid rgba(239, 68, 68, 0.3)",
+                          borderRadius: "8px",
+                          color: "rgba(239, 68, 68, 0.9)",
+                          cursor: isCanceling || isRescheduling ? "not-allowed" : "pointer",
+                          opacity: isCanceling || isRescheduling ? 0.5 : 1,
+                        }}
+                      >
+                        {isCanceling ? "Canceling..." : "Cancel"}
+                      </button>
+                    </div>
+                  </section>
                 );
               })}
             </div>

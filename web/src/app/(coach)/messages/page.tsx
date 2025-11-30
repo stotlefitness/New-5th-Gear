@@ -245,6 +245,7 @@ export default function MessagesPage() {
         },
         () => {
           mutateMessages(); // Refresh messages when new message is inserted
+          mutateConversations(); // Also refresh conversations list to update updated_at
         }
       )
       .subscribe();
@@ -252,7 +253,7 @@ export default function MessagesPage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [conversationId, mutateMessages]);
+  }, [conversationId, mutateMessages, mutateConversations]);
 
   async function sendMessage() {
     if (!conversationId || !messageContent.trim() || !user) return;
@@ -294,6 +295,31 @@ export default function MessagesPage() {
   const isCoach = profile?.role === "coach";
   const selectedClient = clients?.find((c) => c.id === selectedClientId);
 
+  // Real-time subscription for conversations list (coach only) - show new conversations immediately
+  useEffect(() => {
+    if (profile?.role !== "coach" || !user) return;
+
+    const channel = supabase
+      .channel("coach-conversations-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "conversations",
+          filter: `coach_id=eq.${user.id}`,
+        },
+        () => {
+          mutateConversations(); // Refresh conversations list when any change occurs
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile?.role, user, mutateConversations]);
+
   return (
     <CoachPageContainer>
       <header className="text-center space-y-6 mb-8">
@@ -305,10 +331,10 @@ export default function MessagesPage() {
       </header>
 
       {isCoach ? (
-        // Coach view with client selector
+        // Coach view with conversations selector
         <div className="messages-grid" style={{ display: "grid", gridTemplateColumns: "1fr", gap: 24, maxWidth: 1200, width: "100%" }}>
           <div className="messages-split" style={{ display: "grid", gridTemplateColumns: "minmax(240px, 1fr) 2fr", gap: 24 }}>
-            {/* Client List */}
+            {/* Conversations List */}
             <section className="auth-panel" style={{ maxHeight: "600px", overflowY: "auto" }}>
               <div
                 style={{
@@ -319,43 +345,46 @@ export default function MessagesPage() {
                   marginBottom: 16,
                 }}
               >
-                Clients
+                Conversations
               </div>
-              {!clients || clients.length === 0 ? (
-                <div className="text-center py-8 text-white/60 text-sm">No clients found</div>
+              {!conversations || conversations.length === 0 ? (
+                <div className="text-center py-8 text-white/60 text-sm">No conversations yet</div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {clients.map((client) => (
-                    <button
-                      key={client.id}
-                      onClick={() => handleSelectClient(client.id)}
-                      style={{
-                        width: "100%",
-                        textAlign: "left",
-                        padding: "12px 16px",
-                        borderRadius: "12px",
-                        border: selectedClientId === client.id ? "1px solid rgba(255, 255, 255, 0.3)" : "1px solid rgba(255, 255, 255, 0.1)",
-                        background: selectedClientId === client.id ? "rgba(255, 255, 255, 0.1)" : "transparent",
-                        transition: "all 0.2s",
-                        cursor: "pointer",
-                      }}
-                      onMouseEnter={(e) => {
-                        if (selectedClientId !== client.id) {
-                          e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (selectedClientId !== client.id) {
-                          e.currentTarget.style.background = "transparent";
-                        }
-                      }}
-                    >
-                      <div style={{ fontSize: 14, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
-                        {client.full_name}
-                      </div>
-                      <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)" }}>{client.email}</div>
-                    </button>
-                  ))}
+                  {conversations.map((conv) => {
+                    const isSelected = selectedClientId === conv.client_id;
+                    return (
+                      <button
+                        key={conv.id}
+                        onClick={() => handleSelectClient(conv.client_id)}
+                        style={{
+                          width: "100%",
+                          textAlign: "left",
+                          padding: "12px 16px",
+                          borderRadius: "12px",
+                          border: isSelected ? "1px solid rgba(255, 255, 255, 0.3)" : "1px solid rgba(255, 255, 255, 0.1)",
+                          background: isSelected ? "rgba(255, 255, 255, 0.1)" : "transparent",
+                          transition: "all 0.2s",
+                          cursor: "pointer",
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isSelected) {
+                            e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected) {
+                            e.currentTarget.style.background = "transparent";
+                          }
+                        }}
+                      >
+                        <div style={{ fontSize: 14, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
+                          {conv.client.full_name}
+                        </div>
+                        <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)" }}>{conv.client.email}</div>
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </section>

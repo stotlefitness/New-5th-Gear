@@ -22,6 +22,58 @@ type Conversation = {
 
 const supabase = getSupabaseBrowserClient();
 
+async function getCoachId(): Promise<string | null> {
+  // Try to get coach from app_settings first (single coach setup)
+  const { data: settings } = await supabase
+    .from("app_settings")
+    .select("value")
+    .eq("key", "single_coach")
+    .maybeSingle();
+
+  if (settings?.value?.coach_id) {
+    return settings.value.coach_id;
+  }
+
+  // Fallback: get coach from any booking or lesson
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data: booking } = await supabase
+    .from("bookings")
+    .select("openings(coach_id)")
+    .eq("client_id", user.id)
+    .limit(1)
+    .maybeSingle();
+
+  // Handle array response from Supabase foreign key relationship
+  if (booking?.openings) {
+    const openings = Array.isArray(booking.openings) ? booking.openings : [booking.openings];
+    if (openings.length > 0 && openings[0]?.coach_id) {
+      return openings[0].coach_id;
+    }
+  }
+
+  const { data: lesson } = await supabase
+    .from("lessons")
+    .select("coach_id")
+    .eq("client_id", user.id)
+    .limit(1)
+    .maybeSingle();
+
+  if (lesson?.coach_id) {
+    return lesson.coach_id;
+  }
+
+  // Last resort: get any coach
+  const { data: coachProfile } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("role", "coach")
+    .maybeSingle();
+
+  return coachProfile?.id || null;
+}
+
 async function fetchConversation(): Promise<Conversation | null> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
@@ -112,28 +164,43 @@ export default function ClientMessagesPage() {
       let convId = conversation?.id;
 
       if (!convId) {
-        const { data: coachProfile } = await supabase
-          .from("profiles")
-          .select("id")
-          .eq("role", "coach")
-          .maybeSingle();
+        // Get the correct coach ID using the same logic as other parts of the app
+        const coachId = await getCoachId();
 
-        if (!coachProfile) {
-          alert("Coach not found");
+        if (!coachId) {
+          alert("Coach not found. Please contact support.");
           return;
         }
 
         const { data: newConv, error: convError } = await supabase
           .from("conversations")
           .insert({
-            coach_id: coachProfile.id,
+            coach_id: coachId,
             client_id: user.id,
           })
           .select()
           .single();
 
-        if (convError) throw convError;
-        convId = newConv.id;
+        if (convError) {
+          // If conversation already exists (race condition), fetch it
+          if (convError.code === "23505") {
+            const { data: existingConv } = await supabase
+              .from("conversations")
+              .select("id")
+              .eq("coach_id", coachId)
+              .eq("client_id", user.id)
+              .maybeSingle();
+            if (existingConv) {
+              convId = existingConv.id;
+            } else {
+              throw convError;
+            }
+          } else {
+            throw convError;
+          }
+        } else {
+          convId = newConv.id;
+        }
         await mutateConversation();
       }
 
@@ -144,6 +211,12 @@ export default function ClientMessagesPage() {
       });
 
       if (msgError) throw msgError;
+
+      // Update conversation updated_at so it appears at top of coach's list
+      await supabase
+        .from("conversations")
+        .update({ updated_at: new Date().toISOString() })
+        .eq("id", convId);
 
       setMessageText("");
       await mutateMessages();

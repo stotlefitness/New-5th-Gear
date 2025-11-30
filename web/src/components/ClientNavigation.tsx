@@ -10,7 +10,11 @@ interface Profile {
 }
 
 const clientLinks = [
-  { href: "/book", label: "Book Lesson" },
+  { href: "/book", label: "Sessions" },
+  { href: "/client/requests", label: "Requests" },
+  { href: "/client/lessons", label: "Lessons" },
+  { href: "/client/messages", label: "Messages" },
+  { href: "/client/settings", label: "Settings" },
 ];
 
 export default function ClientNavigation() {

@@ -1,24 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import ClientNavigation from "@/components/ClientNavigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
-export default function ClientLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+const supabase = getSupabaseBrowserClient();
+
+export function ClientPageWrapper({ children, title, subtitle }: { children: ReactNode; title: string; subtitle: string }) {
   const router = useRouter();
+  const [role, setRole] = useState<string | null>(null);
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     async function checkRole() {
-      const supabase = getSupabaseBrowserClient();
-      const { data, error } = await supabase.auth.getUser();
-
-      if (error || !data.user) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
         router.push("/login");
         return;
       }
@@ -26,7 +23,7 @@ export default function ClientLayout({
       const { data: profile } = await supabase
         .from("profiles")
         .select("role")
-        .eq("id", data.user.id)
+        .eq("id", user.id)
         .maybeSingle();
 
       if (!profile || profile.role !== "client") {
@@ -34,16 +31,17 @@ export default function ClientLayout({
         return;
       }
 
+      setRole(profile.role);
       setChecking(false);
     }
 
     checkRole();
   }, [router]);
 
-  if (checking) {
+  if (checking || role !== "client") {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="w-12 h-12 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+        <div className="w-12 h-12 border-2 border-white/30 border-t-white rounded-full animate-spin" />
       </div>
     );
   }
@@ -54,16 +52,19 @@ export default function ClientLayout({
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(37,68,255,0.25),_transparent_60%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,_rgba(199,62,42,0.18),_transparent_55%)]" />
       </div>
-
       <ClientNavigation />
-
       <main className="relative z-10 flex items-center justify-center min-h-screen py-20">
         <div className="w-full max-w-4xl px-6 sm:px-8 lg:px-12">
-          {children}
+          <div className="coach-page-inner">
+            <div className="coach-header">
+              <div className="coach-header-label">Client portal</div>
+              <h1 className="coach-header-title">{title}</h1>
+              <p className="coach-header-subtitle">{subtitle}</p>
+            </div>
+            {children}
+          </div>
         </div>
       </main>
     </div>
   );
 }
-
-

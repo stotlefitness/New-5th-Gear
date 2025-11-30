@@ -35,6 +35,7 @@ export default function SignupPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [created, setCreated] = useState(false);
 
   function calculateHeightInches(): number | null {
     const feet = parseInt(heightFeet) || 0;
@@ -111,13 +112,6 @@ export default function SignupPage() {
         return;
       }
 
-      // If email confirmation is required
-      if (data.user && !data.session) {
-        setError("Please check your email to confirm your account before signing in.");
-        setLoading(false);
-        return;
-      }
-
       if (!data.user?.id) {
         setError("Failed to create account. Please try again.");
         setLoading(false);
@@ -150,8 +144,9 @@ export default function SignupPage() {
         return;
       }
 
+      // ✅ Account successfully created
       setLoading(false);
-      router.push("/book");
+      setCreated(true);
     } catch (err: any) {
       setError(err.message || "An error occurred. Please try again.");
       setLoading(false);
@@ -188,6 +183,58 @@ export default function SignupPage() {
     if (typeof window !== "undefined") {
       window.location.href = "mailto:support@5thgear.com";
     }
+  }
+
+  function goToLogin() {
+    router.push("/login");
+  }
+
+  // Success state
+  if (created) {
+    return (
+      <div className="auth-page">
+        <header className="auth-nav">
+          <button
+            type="button"
+            className="icon-btn"
+            aria-label="Back"
+            onClick={() => router.push("/")}
+          >
+            ←
+          </button>
+          <Link href="/" className="auth-logo" style={{ textDecoration: "none", cursor: "pointer" }}>
+            5TH&nbsp;GEAR
+          </Link>
+          <button
+            type="button"
+            className="icon-btn"
+            aria-label="Menu"
+            onClick={() => router.push("/")}
+          >
+            ☰
+          </button>
+        </header>
+
+        <main className="auth-main">
+          <section className="auth-panel">
+            <h1 className="auth-title">Account created.</h1>
+            <p className="auth-secondary" style={{ marginTop: 12, marginBottom: 24 }}>
+              Your 5th Gear account is ready. Log in to manage your training and book sessions.
+            </p>
+            <button
+              type="button"
+              onClick={goToLogin}
+              className="btn-primary auth-submit"
+            >
+              Log in
+            </button>
+            <button type="button" className="inline-link small" onClick={handleSupportClick} style={{ marginTop: 18 }}>
+              Need help? Contact support
+            </button>
+          </section>
+        </main>
+      </div>
+    );
   }
 
   return (

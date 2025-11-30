@@ -15,7 +15,7 @@ export default function CompleteAccountPage() {
   const [error, setError] = useState<string | null>(null);
   
   // Form state
-  const [accountType, setAccountType] = useState<AccountType | "">("");
+  const [accountType, setAccountType] = useState<AccountType | null>(null);
   const [parentName, setParentName] = useState("");
   const [playerName, setPlayerName] = useState("");
   const [handedness, setHandedness] = useState<"right" | "left" | "">("");
@@ -270,8 +270,8 @@ export default function CompleteAccountPage() {
                     display: "flex", 
                     flexDirection: "column", 
                     alignItems: "flex-start",
-                    background: accountType === "parent" ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.1)",
-                    border: accountType === "parent" ? "1px solid rgba(255, 255, 255, 0.4)" : "1px solid rgba(255, 255, 255, 0.2)",
+                    background: "rgba(255, 255, 255, 0.1)",
+                    border: "1px solid rgba(255, 255, 255, 0.2)",
                     borderRadius: "999px",
                     color: "#ffffff",
                     cursor: "pointer",
@@ -292,8 +292,8 @@ export default function CompleteAccountPage() {
                     display: "flex", 
                     flexDirection: "column", 
                     alignItems: "flex-start",
-                    background: accountType === "player" ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.1)",
-                    border: accountType === "player" ? "1px solid rgba(255, 255, 255, 0.4)" : "1px solid rgba(255, 255, 255, 0.2)",
+                    background: "rgba(255, 255, 255, 0.1)",
+                    border: "1px solid rgba(255, 255, 255, 0.2)",
                     borderRadius: "999px",
                     color: "#ffffff",
                     cursor: "pointer",

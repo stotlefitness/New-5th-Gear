@@ -68,7 +68,7 @@ export default function BookPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center px-4">
+      <div className="flex items-center justify-center px-4">
         <div className="text-center space-y-4">
           <div className="w-12 h-12 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto" />
           <p className="text-sm text-white/60">Loading available sessions…</p>
@@ -79,7 +79,7 @@ export default function BookPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center px-4">
+      <div className="flex items-center justify-center px-4">
         <section className="auth-panel" style={{ maxWidth: 500, width: "100%", textAlign: "center" }}>
           <div style={{ padding: "40px 0" }}>
             <p className="text-xs uppercase tracking-[0.4em] text-white/40" style={{ marginBottom: 12 }}>
@@ -99,143 +99,143 @@ export default function BookPage() {
   const dates = Array.from(groupedOpenings.keys()).sort();
 
   return (
-    <div className="min-h-screen bg-black px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-      <div className="max-w-4xl mx-auto">
-        <header className="text-center space-y-6 mb-8">
-          <p className="text-xs uppercase tracking-[0.4em] text-white/40">Book a session</p>
-          <h1 className="text-4xl sm:text-5xl font-light tracking-tight text-white">Available sessions</h1>
-          <p className="text-sm sm:text-base text-white/60">Select an available time slot for your pitching session</p>
-        </header>
+    <div className="coach-page-inner">
+      <div className="coach-header">
+        <div className="coach-header-label">Client portal</div>
+        <h1 className="coach-header-title">Available sessions</h1>
+        <p className="coach-header-subtitle">
+          Select an available time slot for your pitching session
+        </p>
+      </div>
 
-        {dates.length === 0 ? (
-          <section className="auth-panel" style={{ maxWidth: 860, width: "100%", textAlign: "center" }}>
-            <div style={{ padding: "40px 0" }}>
-              <p className="text-xs uppercase tracking-[0.4em] text-white/40" style={{ marginBottom: 12 }}>
-                No availability
-              </p>
-              <h2 className="auth-title" style={{ fontSize: 24, marginBottom: 8 }}>
-                No sessions available
-              </h2>
-              <p style={{ fontSize: 14, color: "rgba(255, 255, 255, 0.6)" }}>Check back soon for new availability</p>
-            </div>
-          </section>
-        ) : (
-          <div className="space-y-6">
-            {dates.map((dateKey) => {
-              const openings = groupedOpenings.get(dateKey)!;
-              const date = new Date(dateKey);
-              const isSelected = selectedDate === dateKey || dates.length === 1;
+      {dates.length === 0 ? (
+        <section className="auth-panel" style={{ maxWidth: 860, width: "100%", textAlign: "center" }}>
+          <div style={{ padding: "40px 0" }}>
+            <p className="text-xs uppercase tracking-[0.4em] text-white/40" style={{ marginBottom: 12 }}>
+              No availability
+            </p>
+            <h2 className="auth-title" style={{ fontSize: 24, marginBottom: 8 }}>
+              No sessions available
+            </h2>
+            <p style={{ fontSize: 14, color: "rgba(255, 255, 255, 0.6)" }}>Check back soon for new availability</p>
+          </div>
+        </section>
+      ) : (
+        <div className="space-y-6">
+          {dates.map((dateKey) => {
+            const openings = groupedOpenings.get(dateKey)!;
+            const date = new Date(dateKey);
+            const isSelected = selectedDate === dateKey || dates.length === 1;
 
-              return (
-                <section key={dateKey} className="auth-panel" style={{ width: "100%" }}>
+            return (
+              <section key={dateKey} className="auth-panel" style={{ width: "100%" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 16,
+                  }}
+                >
                   <div
                     style={{
                       display: "flex",
-                      flexDirection: "column",
-                      gap: 16,
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      flexWrap: "wrap",
+                      gap: 12,
                     }}
                   >
+                    <div>
+                      <h2 style={{ fontSize: 20, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
+                        {formatDate(date)}
+                      </h2>
+                      <p style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                        {openings.length} {openings.length === 1 ? "session" : "sessions"} available
+                      </p>
+                    </div>
+                    {dates.length > 1 && (
+                      <button
+                        onClick={() => setSelectedDate(isSelected ? null : dateKey)}
+                        className="field-link"
+                        style={{ fontSize: 13, padding: "6px 12px" }}
+                      >
+                        {isSelected ? "Collapse" : "Expand"}
+                      </button>
+                    )}
+                  </div>
+
+                  {isSelected && (
                     <div
+                      className="sessions-grid"
                       style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        flexWrap: "wrap",
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
                         gap: 12,
                       }}
                     >
-                      <div>
-                        <h2 style={{ fontSize: 20, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
-                          {formatDate(date)}
-                        </h2>
-                        <p style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                          {openings.length} {openings.length === 1 ? "session" : "sessions"} available
-                        </p>
-                      </div>
-                      {dates.length > 1 && (
-                        <button
-                          onClick={() => setSelectedDate(isSelected ? null : dateKey)}
-                          className="field-link"
-                          style={{ fontSize: 13, padding: "6px 12px" }}
-                        >
-                          {isSelected ? "Collapse" : "Expand"}
-                        </button>
-                      )}
-                    </div>
+                      {openings.map((opening: Opening) => {
+                        const startDate = new Date(opening.start_at);
+                        const endDate = new Date(opening.end_at);
+                        const isBusy = busy === opening.id;
 
-                    {isSelected && (
-                      <div
-                        className="sessions-grid"
-                        style={{
-                          display: "grid",
-                          gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-                          gap: 12,
-                        }}
-                      >
-                        {openings.map((opening: Opening) => {
-                          const startDate = new Date(opening.start_at);
-                          const endDate = new Date(opening.end_at);
-                          const isBusy = busy === opening.id;
-
-                          return (
+                        return (
+                          <div
+                            key={opening.id}
+                            style={{
+                              padding: "16px",
+                              borderRadius: "12px",
+                              border: "1px solid rgba(255, 255, 255, 0.1)",
+                              background: "rgba(255, 255, 255, 0.03)",
+                            }}
+                          >
                             <div
-                              key={opening.id}
                               style={{
-                                padding: "16px",
-                                borderRadius: "12px",
-                                border: "1px solid rgba(255, 255, 255, 0.1)",
-                                background: "rgba(255, 255, 255, 0.03)",
+                                display: "flex",
+                                alignItems: "flex-start",
+                                justifyContent: "space-between",
+                                marginBottom: 12,
                               }}
                             >
+                              <div>
+                                <div style={{ fontSize: 16, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
+                                  {formatTime(startDate)}
+                                </div>
+                                <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)" }}>until {formatTime(endDate)}</div>
+                              </div>
                               <div
                                 style={{
-                                  display: "flex",
-                                  alignItems: "flex-start",
-                                  justifyContent: "space-between",
-                                  marginBottom: 12,
+                                  padding: "4px 8px",
+                                  borderRadius: "6px",
+                                  background: "rgba(255, 255, 255, 0.1)",
+                                  fontSize: 11,
+                                  color: "rgba(255, 255, 255, 0.7)",
+                                  textTransform: "uppercase",
+                                  letterSpacing: "0.05em",
                                 }}
                               >
-                                <div>
-                                  <div style={{ fontSize: 16, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
-                                    {formatTime(startDate)}
-                                  </div>
-                                  <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)" }}>until {formatTime(endDate)}</div>
-                                </div>
-                                <div
-                                  style={{
-                                    padding: "4px 8px",
-                                    borderRadius: "6px",
-                                    background: "rgba(255, 255, 255, 0.1)",
-                                    fontSize: 11,
-                                    color: "rgba(255, 255, 255, 0.7)",
-                                    textTransform: "uppercase",
-                                    letterSpacing: "0.05em",
-                                  }}
-                                >
-                                  {opening.spots_available} {opening.spots_available === 1 ? "spot" : "spots"}
-                                </div>
+                                {opening.spots_available} {opening.spots_available === 1 ? "spot" : "spots"}
                               </div>
-
-                              <button
-                                disabled={isBusy}
-                                onClick={() => request(opening.id)}
-                                className="btn-primary"
-                                style={{ width: "100%", fontSize: 13, padding: "10px 16px" }}
-                              >
-                                {isBusy ? "Requesting…" : "Request session"}
-                              </button>
                             </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                </section>
-              );
-            })}
-          </div>
-        )}
-      </div>
+
+                            <button
+                              disabled={isBusy}
+                              onClick={() => request(opening.id)}
+                              className="btn-primary"
+                              style={{ width: "100%", fontSize: 13, padding: "10px 16px" }}
+                            >
+                              {isBusy ? "Requesting…" : "Request session"}
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

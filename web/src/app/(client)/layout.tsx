@@ -1,4 +1,4 @@
-import Navigation from "@/components/Navigation";
+import ClientNavigation from "@/components/ClientNavigation";
 import { AuthGate } from "@/components/AuthGate";
 
 export default function ClientLayout({
@@ -8,12 +8,20 @@ export default function ClientLayout({
 }) {
   return (
     <AuthGate>
-      <Navigation />
-      <main className="flex items-center justify-center" style={{ height: 'calc(100vh - 64px)', marginTop: '64px' }}>
-        <div className="w-full max-w-3xl px-6 sm:px-8 lg:px-12">
-          {children}
+      <div className="relative min-h-screen bg-gradient-to-br from-black via-[#05060c] to-black text-white">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(37,68,255,0.25),_transparent_60%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,_rgba(199,62,42,0.18),_transparent_55%)]" />
         </div>
-      </main>
+
+        <ClientNavigation />
+
+        <main className="relative z-10 flex items-center justify-center min-h-screen py-20">
+          <div className="w-full max-w-4xl px-6 sm:px-8 lg:px-12">
+            {children}
+          </div>
+        </main>
+      </div>
     </AuthGate>
   );
 }

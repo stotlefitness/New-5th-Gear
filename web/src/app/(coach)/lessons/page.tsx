@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import useSWR from "swr";
 import Link from "next/link";
@@ -78,7 +77,6 @@ function formatTime(date: Date): string {
 }
 
 export default function LessonsPage() {
-  const router = useRouter();
   const { data, error, isLoading, mutate } = useSWR("coach-lessons", fetchLessons);
 
   // Real-time subscription for lessons

@@ -1,10 +1,11 @@
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 
-export async function rpcRequestBooking(openingId: string, idempotencyKey?: string) {
+export async function rpcRequestBooking(openingId: string, idempotencyKey?: string, locationRequested?: string | null) {
   const supabase = getSupabaseBrowserClient();
   const { data, error } = await supabase.rpc('request_booking', {
     p_opening: openingId,
     p_idempotency_key: idempotencyKey ?? null,
+    p_location_requested: locationRequested || null,
   });
   if (error) throw error;
   return data as string;

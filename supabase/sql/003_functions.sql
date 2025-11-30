@@ -1,16 +1,16 @@
 -- 003_functions.sql
 -- SECURITY DEFINER transactional RPCs
 
-create or replace function public.request_booking(p_opening uuid, p_idempotency_key text default null)
+create or replace function public.request_booking(p_opening uuid, p_idempotency_key text default null, p_location_requested text default null)
 returns uuid language plpgsql security definer set search_path = public as $$
 declare v_client uuid := auth.uid(); v_id uuid;
 begin
   if v_client is null then raise exception 'unauthorized'; end if;
   perform 1 from public.openings o where o.id = p_opening and o.start_at > now() and o.spots_available > 0;
   if not found then raise exception 'not_available'; end if;
-  insert into public.bookings(opening_id, client_id, idempotency_key)
-  values (p_opening, v_client, p_idempotency_key)
-  on conflict (opening_id, client_id) do update set id = bookings.id
+  insert into public.bookings(opening_id, client_id, idempotency_key, location_requested)
+  values (p_opening, v_client, p_idempotency_key, p_location_requested)
+  on conflict (opening_id, client_id) do update set id = bookings.id, location_requested = coalesce(excluded.location_requested, bookings.location_requested)
   returning id into v_id;
   return v_id;
 end; $$;
@@ -63,7 +63,7 @@ begin
   -- Generate slots for each template
   -- For each day matching the weekday, create multiple slots based on time range
   -- Example: template 15:00-18:00 with 60-min slots creates 3 slots: 15:00, 16:00, 17:00
-  insert into public.openings (coach_id, start_at, end_at, source, template_id, capacity, spots_available)
+  insert into public.openings (coach_id, start_at, end_at, source, template_id, capacity, spots_available, location)
   select 
     v_coach,
     (d::date + t.start_time + (slot_offset * t.slot_minutes||' minutes')::interval)::timestamptz,
@@ -71,7 +71,8 @@ begin
     'template'::opening_source,
     t.id,
     1, 
-    1
+    1,
+    t.location
   from public.availability_templates t,
        generate_series(v_start_date, v_end, '1 day') d,
        generate_series(0, 

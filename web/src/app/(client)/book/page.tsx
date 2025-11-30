@@ -10,6 +10,7 @@ type Opening = {
   start_at: string;
   end_at: string;
   spots_available: number;
+  location?: string | null;
 };
 
 const fetcher = async () => {
@@ -19,7 +20,7 @@ const fetcher = async () => {
   to.setDate(to.getDate() + 28);
   const { data, error } = await supabase
     .from("openings")
-    .select("id,start_at,end_at,spots_available")
+    .select("id,start_at,end_at,spots_available,location")
     .gte("start_at", from.toISOString())
     .lte("start_at", to.toISOString())
     .gt("spots_available", 0)
@@ -53,6 +54,8 @@ export default function BookPage() {
   const { data, error, isLoading, mutate } = useSWR("openings", fetcher);
   const [busy, setBusy] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [requestingId, setRequestingId] = useState<string | null>(null);
+  const [locationRequested, setLocationRequested] = useState("");
 
   // Real-time subscription for openings (when coach publishes new slots)
   useEffect(() => {
@@ -79,14 +82,23 @@ export default function BookPage() {
   }, [mutate]);
 
   async function request(id: string) {
+    setRequestingId(id);
+    setLocationRequested("");
+  }
+
+  async function confirmRequest() {
+    if (!requestingId) return;
     try {
-      setBusy(id);
-      await rpcRequestBooking(id, crypto.randomUUID());
+      setBusy(requestingId);
+      await rpcRequestBooking(requestingId, crypto.randomUUID(), locationRequested.trim() || null);
       await mutate();
+      setRequestingId(null);
+      setLocationRequested("");
     } catch (e: any) {
       alert(e.message || "Request failed");
     } finally {
       setBusy(null);
+      setRequestingId(null);
     }
   }
 
@@ -224,7 +236,14 @@ export default function BookPage() {
                                 <div style={{ fontSize: 16, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
                                   {formatTime(startDate)}
                                 </div>
-                                <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)" }}>until {formatTime(endDate)}</div>
+                                <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)", marginBottom: opening.location ? 4 : 0 }}>
+                                  until {formatTime(endDate)}
+                                </div>
+                                {opening.location && (
+                                  <div style={{ fontSize: 11, color: "rgba(255, 255, 255, 0.6)", display: "flex", alignItems: "center", gap: 4, marginTop: 4 }}>
+                                    📍 {opening.location}
+                                  </div>
+                                )}
                               </div>
                               <div
                                 style={{
@@ -258,6 +277,110 @@ export default function BookPage() {
               </section>
             );
           })}
+        </div>
+      )}
+
+      {/* Location Request Modal */}
+      {requestingId && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0, 0, 0, 0.7)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+            padding: 20,
+          }}
+          onClick={() => {
+            setRequestingId(null);
+            setLocationRequested("");
+            setBusy(null);
+          }}
+        >
+          <div
+            style={{
+              background: "rgba(5, 8, 22, 0.95)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              borderRadius: "16px",
+              padding: "24px",
+              maxWidth: 480,
+              width: "100%",
+              boxShadow: "0 24px 60px rgba(0, 0, 0, 0.8)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 8 }}>
+              Request Lesson
+            </h3>
+            <p style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.6)", marginBottom: 20 }}>
+              Would you like to request a specific location for this lesson? (Optional)
+            </p>
+            <div style={{ marginBottom: 20 }}>
+              <label
+                htmlFor="location-request"
+                style={{
+                  display: "block",
+                  fontSize: 12,
+                  fontWeight: 500,
+                  color: "rgba(255, 255, 255, 0.8)",
+                  marginBottom: 8,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                }}
+              >
+                Location Request
+              </label>
+              <input
+                id="location-request"
+                type="text"
+                value={locationRequested}
+                onChange={(e) => setLocationRequested(e.target.value)}
+                placeholder="e.g., Main Field, Training Facility, etc."
+                style={{
+                  width: "100%",
+                  padding: "12px 16px",
+                  borderRadius: "8px",
+                  background: "rgba(255, 255, 255, 0.05)",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  color: "rgba(255, 255, 255, 0.9)",
+                  fontSize: 14,
+                }}
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    confirmRequest();
+                  } else if (e.key === "Escape") {
+                    setRequestingId(null);
+                    setLocationRequested("");
+                    setBusy(null);
+                  }
+                }}
+              />
+            </div>
+            <div style={{ display: "flex", gap: 12 }}>
+              <button
+                onClick={() => {
+                  setRequestingId(null);
+                  setLocationRequested("");
+                  setBusy(null);
+                }}
+                className="field-link"
+                style={{ flex: 1, padding: "10px 16px", fontSize: 13 }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmRequest}
+                disabled={busy === requestingId}
+                className="btn-primary"
+                style={{ flex: 1, padding: "10px 16px", fontSize: 13 }}
+              >
+                {busy === requestingId ? "Requesting…" : "Request"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

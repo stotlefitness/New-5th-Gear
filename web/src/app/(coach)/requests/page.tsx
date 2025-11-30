@@ -11,6 +11,7 @@ type Booking = {
   status: string;
   client_id: string;
   opening_id: string;
+  location_requested?: string | null;
   openings: { start_at: string; end_at: string };
   profiles: { full_name: string; email: string } | null;
 };
@@ -20,6 +21,7 @@ type BookingRaw = {
   status: string;
   client_id: string;
   opening_id: string;
+  location_requested?: string | null;
   openings: { start_at: string; end_at: string }[];
   profiles: { full_name: string; email: string }[] | { full_name: string; email: string } | null;
 };
@@ -29,7 +31,7 @@ const supabase = getSupabaseBrowserClient();
 async function fetchPending(): Promise<Booking[]> {
   const { data, error } = await supabase
     .from("bookings")
-    .select("id,status,client_id,opening_id,openings(start_at,end_at),profiles:client_id(full_name,email)")
+    .select("id,status,client_id,opening_id,location_requested,openings(start_at,end_at),profiles:client_id(full_name,email)")
     .eq("status", "pending")
     .order("created_at");
   if (error) throw error;
@@ -56,6 +58,7 @@ async function fetchPending(): Promise<Booking[]> {
       status: booking.status,
       client_id: booking.client_id,
       opening_id: booking.opening_id,
+      location_requested: booking.location_requested || null,
       openings: opening,
       profiles: profile,
     };
@@ -176,9 +179,15 @@ export default function RequestsPage() {
                       </div>
                     </div>
 
-                    <div style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.7)" }}>
+                    <div style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.7)", marginBottom: booking.location_requested ? 8 : 0 }}>
                       {formatDate(startDate)} · {formatTime(startDate)} – {formatTime(endDate)}
                     </div>
+
+                    {booking.location_requested && (
+                      <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.6)", display: "flex", alignItems: "center", gap: 4, marginBottom: 8 }}>
+                        📍 Location requested: {booking.location_requested}
+                      </div>
+                    )}
 
                     {!isProcessed && (
                       <div className="request-actions" style={{ display: "flex", gap: 8, marginTop: 4 }}>

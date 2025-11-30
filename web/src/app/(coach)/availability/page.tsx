@@ -12,6 +12,7 @@ type Template = {
   end_time: string;
   slot_minutes: number;
   active: boolean;
+  location?: string | null;
 };
 
 type Opening = {
@@ -21,6 +22,7 @@ type Opening = {
   spots_available: number;
   capacity: number;
   source: string;
+  location?: string | null;
 };
 
 const supabase = getSupabaseBrowserClient();
@@ -28,7 +30,7 @@ const supabase = getSupabaseBrowserClient();
 async function fetchTemplates() {
   const { data, error } = await supabase.from("availability_templates").select("*").order("weekday");
   if (error) throw error;
-  return data as Template[];
+  return (data || []) as Template[];
 }
 
 async function fetchOpenings(): Promise<Opening[]> {
@@ -46,7 +48,7 @@ async function fetchOpenings(): Promise<Opening[]> {
 
   const { data, error } = await supabase
     .from("openings")
-    .select("id, start_at, end_at, spots_available, capacity, source")
+    .select("id, start_at, end_at, spots_available, capacity, source, location")
     .eq("coach_id", user.id)
     .gte("start_at", from.toISOString())
     .lte("start_at", to.toISOString())
@@ -107,11 +109,13 @@ export default function AvailabilityPage() {
   const [start, setStart] = useState("15:00");
   const [end, setEnd] = useState("18:00");
   const [slotMinutes, setSlotMinutes] = useState(60);
+  const [location, setLocation] = useState("");
   const [busy, setBusy] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editStartTime, setEditStartTime] = useState("");
   const [editEndTime, setEditEndTime] = useState("");
+  const [editLocation, setEditLocation] = useState("");
 
   // Real-time subscription for openings (refresh when new slots are generated)
   useEffect(() => {
@@ -144,7 +148,15 @@ export default function AvailabilityPage() {
     }
     const { error } = await supabase
       .from("availability_templates")
-      .insert({ coach_id: session.session.user.id, weekday, start_time: start, end_time: end, slot_minutes: slotMinutes, active: true });
+      .insert({ 
+        coach_id: session.session.user.id, 
+        weekday, 
+        start_time: start, 
+        end_time: end, 
+        slot_minutes: slotMinutes, 
+        location: location.trim() || null,
+        active: true 
+      });
     setBusy(false);
     if (error) return alert(error.message);
     mutateTemplates();
@@ -202,6 +214,7 @@ export default function AvailabilityPage() {
     setEditingId(opening.id);
     setEditStartTime(`${startHours}:${startMins}`);
     setEditEndTime(`${endHours}:${endMins}`);
+    setEditLocation(opening.location || "");
   }
 
   async function saveEdit() {
@@ -232,6 +245,7 @@ export default function AvailabilityPage() {
         .update({
           start_at: newStart.toISOString(),
           end_at: newEnd.toISOString(),
+          location: editLocation.trim() || null,
         })
         .eq("id", editingId);
       
@@ -241,6 +255,7 @@ export default function AvailabilityPage() {
       setEditingId(null);
       setEditStartTime("");
       setEditEndTime("");
+      setEditLocation("");
     } catch (e: any) {
       alert(e.message || "Failed to update opening");
     }
@@ -364,19 +379,42 @@ export default function AvailabilityPage() {
               </div>
             </div>
 
-            <div style={{ maxWidth: 180 }}>
-              <label className="field-label" htmlFor="slotMinutes">
-                Slot duration (min)
-              </label>
-              <input
-                id="slotMinutes"
-                type="number"
-                value={slotMinutes}
-                onChange={(e) => setSlotMinutes(parseInt(e.target.value))}
-                className="field-input"
-                min={30}
-                step={15}
-              />
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "180px 1fr",
+                gap: 10,
+                marginTop: 10,
+              }}
+            >
+              <div>
+                <label className="field-label" htmlFor="slotMinutes">
+                  Slot duration (min)
+                </label>
+                <input
+                  id="slotMinutes"
+                  type="number"
+                  value={slotMinutes}
+                  onChange={(e) => setSlotMinutes(parseInt(e.target.value))}
+                  className="field-input"
+                  min={30}
+                  step={15}
+                />
+              </div>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <label className="field-label" htmlFor="location" style={{ marginBottom: 8 }}>
+                  Location (optional)
+                </label>
+                <input
+                  id="location"
+                  type="text"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  className="field-input"
+                  placeholder="e.g., Main Field, Training Facility"
+                  style={{ width: "100%" }}
+                />
+              </div>
             </div>
           </div>
 
@@ -492,17 +530,29 @@ export default function AvailabilityPage() {
                   </div>
                 </div>
 
-                <div
-                  style={{
-                    fontSize: 11,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.18em",
-                    opacity: 0.65,
-                    marginTop: 4,
-                    color: "rgba(255, 255, 255, 0.6)",
-                  }}
-                >
-                  {template.slot_minutes} minute slots
+                <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 4 }}>
+                  <div
+                    style={{
+                      fontSize: 11,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.18em",
+                      opacity: 0.65,
+                      color: "rgba(255, 255, 255, 0.6)",
+                    }}
+                  >
+                    {template.slot_minutes} minute slots
+                  </div>
+                  {template.location && (
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: "rgba(255, 255, 255, 0.5)",
+                        fontStyle: "italic",
+                      }}
+                    >
+                      📍 {template.location}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -637,6 +687,22 @@ export default function AvailabilityPage() {
                                   }}
                                 />
                               </div>
+                              <input
+                                type="text"
+                                value={editLocation}
+                                onChange={(e) => setEditLocation(e.target.value)}
+                                placeholder="Location (optional) - e.g., Main Field, Training Facility"
+                                style={{
+                                  width: "100%",
+                                  padding: "8px 12px",
+                                  borderRadius: "6px",
+                                  background: "rgba(255, 255, 255, 0.1)",
+                                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                                  color: "#fff",
+                                  fontSize: 13,
+                                  marginTop: 4,
+                                }}
+                              />
                               <div style={{ display: "flex", gap: 6 }}>
                                 <button
                                   onClick={saveEdit}
@@ -650,6 +716,7 @@ export default function AvailabilityPage() {
                                     setEditingId(null);
                                     setEditStartTime("");
                                     setEditEndTime("");
+                                    setEditLocation("");
                                   }}
                                   className="field-link"
                                   style={{ flex: 1, padding: "6px 12px", fontSize: 11 }}
@@ -663,6 +730,20 @@ export default function AvailabilityPage() {
                               <div style={{ fontSize: 15, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
                                 {formatTimeForOpening(startDate)} – {formatTimeForOpening(endDate)}
                               </div>
+                              {opening.location && (
+                                <div
+                                  style={{
+                                    fontSize: 11,
+                                    color: "rgba(255, 255, 255, 0.6)",
+                                    marginBottom: 4,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 4,
+                                  }}
+                                >
+                                  📍 {opening.location}
+                                </div>
+                              )}
                               <div
                                 style={{
                                   fontSize: 11,

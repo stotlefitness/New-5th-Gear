@@ -15,6 +15,7 @@ type Lesson = {
   created_at: string;
   booking_id?: string;
   coach_id?: string;
+  location?: string | null;
 };
 
 const supabase = getSupabaseBrowserClient();
@@ -80,7 +81,7 @@ async function fetchLessons(): Promise<{ upcoming: Lesson[]; past: Lesson[] }> {
   // Fetch upcoming lessons with booking info
   const { data: upcoming, error: upcomingError } = await supabase
     .from("lessons")
-    .select("id, opening_id, start_at, end_at, created_at, coach_id")
+    .select("id, opening_id, start_at, end_at, created_at, coach_id, location")
     .eq("client_id", user.id)
     .gte("start_at", now)
     .order("start_at", { ascending: true });
@@ -107,7 +108,7 @@ async function fetchLessons(): Promise<{ upcoming: Lesson[]; past: Lesson[] }> {
 
   const { data: past, error: pastError } = await supabase
     .from("lessons")
-    .select("id, opening_id, start_at, end_at, created_at, coach_id")
+    .select("id, opening_id, start_at, end_at, created_at, coach_id, location")
     .eq("client_id", user.id)
     .lt("start_at", now)
     .order("start_at", { ascending: false })
@@ -364,9 +365,14 @@ export default function ClientLessonsPage() {
                           <h3 style={{ fontSize: 20, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
                             {formatDate(startDate)}
                           </h3>
-                          <p style={{ fontSize: 14, color: "rgba(255, 255, 255, 0.7)" }}>
+                          <p style={{ fontSize: 14, color: "rgba(255, 255, 255, 0.7)", marginBottom: lesson.location ? 4 : 0 }}>
                             {formatTime(startDate)} – {formatTime(endDate)}
                           </p>
+                          {lesson.location && (
+                            <p style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)", marginTop: 4, display: "flex", alignItems: "center", gap: 4 }}>
+                              📍 {lesson.location}
+                            </p>
+                          )}
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                           <div
@@ -462,9 +468,14 @@ export default function ClientLessonsPage() {
                           <h3 style={{ fontSize: 20, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
                             {formatDate(startDate)}
                           </h3>
-                          <p style={{ fontSize: 14, color: "rgba(255, 255, 255, 0.7)" }}>
+                          <p style={{ fontSize: 14, color: "rgba(255, 255, 255, 0.7)", marginBottom: lesson.location ? 4 : 0 }}>
                             {formatTime(startDate)} – {formatTime(endDate)}
                           </p>
+                          {lesson.location && (
+                            <p style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)", marginTop: 4, display: "flex", alignItems: "center", gap: 4 }}>
+                              📍 {lesson.location}
+                            </p>
+                          )}
                         </div>
                         <div
                           style={{

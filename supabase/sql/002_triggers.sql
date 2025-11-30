@@ -20,10 +20,18 @@ begin
     where id = NEW.opening_id and spots_available > 0;
     if not found then raise exception 'no_spots'; end if;
     
-    -- Create lesson
-    insert into public.lessons (opening_id, coach_id, client_id, start_at, end_at)
-    select o.id, o.coach_id, NEW.client_id, o.start_at, o.end_at from public.openings o
-    where o.id = NEW.opening_id on conflict (opening_id) do nothing;
+    -- Create lesson with location (use location_requested from booking if provided, otherwise use opening location)
+    insert into public.lessons (opening_id, coach_id, client_id, start_at, end_at, location)
+    select 
+      o.id, 
+      o.coach_id, 
+      NEW.client_id, 
+      o.start_at, 
+      o.end_at,
+      coalesce(NEW.location_requested, o.location)
+    from public.openings o
+    where o.id = NEW.opening_id 
+    on conflict (opening_id) do nothing;
   end if;
   return NEW;
 end; $$;

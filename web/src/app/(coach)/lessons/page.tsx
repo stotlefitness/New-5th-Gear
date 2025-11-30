@@ -13,6 +13,7 @@ type Lesson = {
   end_at: string;
   created_at: string;
   client_id: string;
+  location?: string | null;
   client: {
     full_name: string;
     email: string;
@@ -30,7 +31,7 @@ async function fetchLessons(): Promise<{ upcoming: Lesson[]; past: Lesson[] }> {
   // Fetch upcoming lessons
   const { data: upcomingRaw, error: upcomingError } = await supabase
     .from("lessons")
-    .select("id, opening_id, start_at, end_at, created_at, client_id, profiles:client_id(full_name, email)")
+    .select("id, opening_id, start_at, end_at, created_at, client_id, location, profiles:client_id(full_name, email)")
     .eq("coach_id", user.id)
     .gte("start_at", now)
     .order("start_at", { ascending: true });
@@ -40,7 +41,7 @@ async function fetchLessons(): Promise<{ upcoming: Lesson[]; past: Lesson[] }> {
   // Fetch past lessons
   const { data: pastRaw, error: pastError } = await supabase
     .from("lessons")
-    .select("id, opening_id, start_at, end_at, created_at, client_id, profiles:client_id(full_name, email)")
+    .select("id, opening_id, start_at, end_at, created_at, client_id, location, profiles:client_id(full_name, email)")
     .eq("coach_id", user.id)
     .lt("start_at", now)
     .order("start_at", { ascending: false })
@@ -58,6 +59,7 @@ async function fetchLessons(): Promise<{ upcoming: Lesson[]; past: Lesson[] }> {
       end_at: lesson.end_at,
       created_at: lesson.created_at,
       client_id: lesson.client_id,
+      location: lesson.location || null,
       client: profileData || { full_name: "Unknown Client", email: "" },
     };
   };
@@ -189,9 +191,14 @@ export default function LessonsPage() {
                           <h3 style={{ fontSize: 20, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
                             {formatDate(startDate)}
                           </h3>
-                          <p style={{ fontSize: 14, color: "rgba(255, 255, 255, 0.7)", marginBottom: 4 }}>
+                          <p style={{ fontSize: 14, color: "rgba(255, 255, 255, 0.7)", marginBottom: lesson.location ? 4 : 8 }}>
                             {formatTime(startDate)} – {formatTime(endDate)}
                           </p>
+                          {lesson.location && (
+                            <p style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)", marginBottom: 8, display: "flex", alignItems: "center", gap: 4 }}>
+                              📍 {lesson.location}
+                            </p>
+                          )}
                           <p style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.5)" }}>
                             {lesson.client.full_name} {lesson.client.email && `• ${lesson.client.email}`}
                           </p>
@@ -258,9 +265,14 @@ export default function LessonsPage() {
                           <h3 style={{ fontSize: 20, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
                             {formatDate(startDate)}
                           </h3>
-                          <p style={{ fontSize: 14, color: "rgba(255, 255, 255, 0.7)", marginBottom: 4 }}>
+                          <p style={{ fontSize: 14, color: "rgba(255, 255, 255, 0.7)", marginBottom: lesson.location ? 4 : 8 }}>
                             {formatTime(startDate)} – {formatTime(endDate)}
                           </p>
+                          {lesson.location && (
+                            <p style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)", marginBottom: 8, display: "flex", alignItems: "center", gap: 4 }}>
+                              📍 {lesson.location}
+                            </p>
+                          )}
                           <p style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.5)" }}>
                             {lesson.client.full_name} {lesson.client.email && `• ${lesson.client.email}`}
                           </p>

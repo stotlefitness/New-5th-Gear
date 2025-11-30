@@ -269,10 +269,12 @@ function SignupPageContent() {
     }
 
     // Redirect to Google OAuth with redirect to signup completion
+    // Use window.location.origin to work in both dev and production
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/signup/complete`,
+        redirectTo: `${origin}/signup/complete`,
       },
     });
 

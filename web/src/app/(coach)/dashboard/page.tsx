@@ -282,9 +282,9 @@ export default function CoachDashboardPage() {
       </header>
 
       {/* 2x2 Grid of equal square blocks */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full" style={{ gap: "32px" }}>
         {/* Block 1: Welcome */}
-        <section className="auth-panel" style={{ width: "100%", minHeight: "400px", display: "flex", flexDirection: "column" }}>
+        <section className="auth-panel" style={{ width: "100%", minHeight: "450px", display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 20, flex: 1 }}>
             <div>
               <h1 className="text-3xl sm:text-4xl font-light tracking-tight text-white" style={{ marginBottom: 8 }}>
@@ -304,7 +304,7 @@ export default function CoachDashboardPage() {
         </section>
 
         {/* Block 2: Insights */}
-        <section className="auth-panel" style={{ width: "100%", minHeight: "400px", display: "flex", flexDirection: "column" }}>
+        <section className="auth-panel" style={{ width: "100%", minHeight: "450px", display: "flex", flexDirection: "column" }}>
           <div style={{ marginBottom: 16 }}>
             <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
               Insights
@@ -345,7 +345,7 @@ export default function CoachDashboardPage() {
         </section>
 
         {/* Block 3: This Week Schedule */}
-        <section className="auth-panel" style={{ width: "100%", minHeight: "400px", display: "flex", flexDirection: "column" }}>
+        <section className="auth-panel" style={{ width: "100%", minHeight: "450px", display: "flex", flexDirection: "column" }}>
             <div style={{ marginBottom: 20 }}>
               <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
                 This week
@@ -434,7 +434,7 @@ export default function CoachDashboardPage() {
         </section>
 
         {/* Block 4: Recent Messages */}
-        <section className="auth-panel" style={{ width: "100%", minHeight: "400px", display: "flex", flexDirection: "column" }}>
+        <section className="auth-panel" style={{ width: "100%", minHeight: "450px", display: "flex", flexDirection: "column" }}>
           <div style={{ marginBottom: 16 }}>
             <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
               Recent messages

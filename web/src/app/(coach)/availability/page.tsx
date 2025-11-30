@@ -322,13 +322,13 @@ export default function AvailabilityPage() {
           Existing templates
         </div>
 
-        {!data || data.length === 0 ? (
+        {!templates || templates.length === 0 ? (
           <div className="text-center py-10 text-white/60 text-sm">
             <p>No templates yet. Add your first window above.</p>
           </div>
         ) : (
           <div className="auth-form" style={{ gap: 8, marginTop: 8 }}>
-            {data.map((template) => (
+            {templates.map((template: Template) => (
               <div
                 key={template.id}
                 style={{
@@ -434,7 +434,7 @@ export default function AvailabilityPage() {
             {openingDates.map((dateKey) => {
               const dayOpenings = groupedOpenings.get(dateKey)!;
               const date = new Date(dateKey);
-              const availableCount = dayOpenings.filter(o => o.spots_available > 0).length;
+              const availableCount = dayOpenings.filter((o: Opening) => o.spots_available > 0).length;
               const totalCount = dayOpenings.length;
 
               return (
@@ -474,7 +474,7 @@ export default function AvailabilityPage() {
                       gap: 10,
                     }}
                   >
-                    {dayOpenings.map((opening) => {
+                    {dayOpenings.map((opening: Opening) => {
                       const startDate = new Date(opening.start_at);
                       const endDate = new Date(opening.end_at);
                       const isAvailable = opening.spots_available > 0;

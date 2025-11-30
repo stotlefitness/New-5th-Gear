@@ -275,29 +275,37 @@ export default function CoachDashboardPage() {
 
   return (
     <CoachPageContainer>
-      <div className="grid gap-6 lg:grid-cols-2" style={{ width: "100%" }}>
-        {/* Welcome Section - Full width on all screens */}
-        <section className="auth-panel lg:col-span-2" style={{ width: "100%" }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 20, textAlign: "center" }}>
-            <div>
-              <h1 className="text-4xl sm:text-5xl font-light tracking-tight text-white" style={{ marginBottom: 8 }}>
-                Welcome back, {firstName}
-              </h1>
-              <p className="text-sm sm:text-base text-white/60">
-                Here's your coaching schedule and updates for this week.
-              </p>
-            </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center" }}>
-              <StatPill label="Lessons this week" value={lessonsThisWeek} />
-              <StatPill label="Booked slots" value={`${bookedSlots} / ${totalSlots}`} />
-              <StatPill label="Pending requests" value={pendingRequests} />
-              <StatPill label="Unread messages" value={unreadMessages} />
-            </div>
-          </div>
-        </section>
+      <header className="text-center space-y-8 mb-8">
+        <p className="text-xs uppercase tracking-[0.4em] text-white/40">Coach dashboard</p>
+        <h1 className="text-4xl sm:text-5xl font-light tracking-tight text-white">Dashboard</h1>
+        <p className="text-sm sm:text-base text-white/60">Your coaching schedule and updates</p>
+      </header>
 
-        {/* This Week Schedule */}
-        <section className="auth-panel" style={{ width: "100%" }}>
+      <section className="grid w-full gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] items-start">
+        {/* LEFT COLUMN */}
+        <div className="space-y-6">
+          {/* Welcome Section */}
+          <section className="auth-panel" style={{ width: "100%" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              <div>
+                <h1 className="text-4xl sm:text-5xl font-light tracking-tight text-white" style={{ marginBottom: 8 }}>
+                  Welcome back, {firstName}
+                </h1>
+                <p className="text-sm sm:text-base text-white/60">
+                  Here's your coaching schedule and updates for this week.
+                </p>
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                <StatPill label="Lessons this week" value={lessonsThisWeek} />
+                <StatPill label="Booked slots" value={`${bookedSlots} / ${totalSlots}`} />
+                <StatPill label="Pending requests" value={pendingRequests} />
+                <StatPill label="Unread messages" value={unreadMessages} />
+              </div>
+            </div>
+          </section>
+
+          {/* This Week Schedule */}
+          <section className="auth-panel" style={{ width: "100%" }}>
             <div style={{ marginBottom: 20 }}>
               <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
                 This week
@@ -383,52 +391,11 @@ export default function CoachDashboardPage() {
             <Link href="/lessons" className="field-link" style={{ textAlign: "center", padding: "10px 0" }}>
               View full lesson library →
             </Link>
-        </section>
+          </section>
 
-        {/* Insights */}
-        <section className="auth-panel" style={{ width: "100%" }}>
-          <div style={{ marginBottom: 16 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
-              Insights
-            </h2>
-            <p style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.6)" }}>
-              Your coaching overview.
-            </p>
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <div>
-              <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)", marginBottom: 4 }}>
-                Lessons this week
-              </div>
-              <div style={{ fontSize: 24, fontWeight: 600, color: "rgba(255, 255, 255, 0.9)" }}>
-                {lessonsThisWeek}
-              </div>
-            </div>
-
-            <div>
-              <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)", marginBottom: 4 }}>
-                Booked capacity
-              </div>
-              <div style={{ fontSize: 24, fontWeight: 600, color: "rgba(255, 255, 255, 0.9)" }}>
-                {totalSlots > 0 ? Math.round((bookedSlots / totalSlots) * 100) : 0}%
-              </div>
-            </div>
-
-            <div>
-              <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)", marginBottom: 4 }}>
-                Pending requests
-              </div>
-              <div style={{ fontSize: 24, fontWeight: 600, color: "rgba(255, 255, 255, 0.9)" }}>
-                {pendingRequests}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Pending Requests */}
-        {bookings.length > 0 && (
-          <section className="auth-panel" style={{ width: "100%" }}>
+          {/* Pending Requests */}
+          {bookings.length > 0 && (
+            <section className="auth-panel" style={{ width: "100%" }}>
               <div style={{ marginBottom: 20 }}>
                 <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
                   Recent requests
@@ -479,12 +446,56 @@ export default function CoachDashboardPage() {
               <Link href="/requests" className="field-link" style={{ textAlign: "center", padding: "10px 0" }}>
                 Manage all requests →
               </Link>
-          </section>
-        )}
+            </section>
+          )}
+        </div>
 
-        {/* Recent Messages */}
-        {conversations.length > 0 && (
-          <section className="auth-panel lg:col-span-2" style={{ width: "100%" }}>
+        {/* RIGHT COLUMN */}
+        <div className="space-y-6">
+          {/* Insights */}
+          <section className="auth-panel" style={{ width: "100%" }}>
+          <div style={{ marginBottom: 16 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
+              Insights
+            </h2>
+            <p style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.6)" }}>
+              Your coaching overview.
+            </p>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div>
+              <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)", marginBottom: 4 }}>
+                Lessons this week
+              </div>
+              <div style={{ fontSize: 24, fontWeight: 600, color: "rgba(255, 255, 255, 0.9)" }}>
+                {lessonsThisWeek}
+              </div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)", marginBottom: 4 }}>
+                Booked capacity
+              </div>
+              <div style={{ fontSize: 24, fontWeight: 600, color: "rgba(255, 255, 255, 0.9)" }}>
+                {totalSlots > 0 ? Math.round((bookedSlots / totalSlots) * 100) : 0}%
+              </div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)", marginBottom: 4 }}>
+                Pending requests
+              </div>
+              <div style={{ fontSize: 24, fontWeight: 600, color: "rgba(255, 255, 255, 0.9)" }}>
+                {pendingRequests}
+              </div>
+            </div>
+            </div>
+          </section>
+
+          {/* Recent Messages */}
+          {conversations.length > 0 && (
+            <section className="auth-panel" style={{ width: "100%" }}>
               <div style={{ marginBottom: 16 }}>
                 <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
                   Recent messages
@@ -531,9 +542,10 @@ export default function CoachDashboardPage() {
               <Link href="/messages" className="field-link" style={{ textAlign: "center", padding: "10px 0" }}>
                 Open Messages →
               </Link>
-          </section>
-        )}
-      </div>
+            </section>
+          )}
+        </div>
+      </section>
     </CoachPageContainer>
   );
 }

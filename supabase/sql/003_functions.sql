@@ -38,22 +38,50 @@ end; $$;
 
 create or replace function public.generate_openings(p_weeks int)
 returns int language plpgsql security definer set search_path = public as $$
-declare v_coach uuid := auth.uid(); v_count int := 0; v_end date := (current_date + (p_weeks||' weeks')::interval)::date;
+declare 
+  v_coach uuid := auth.uid(); 
+  v_count int := 0; 
+  v_end date := (current_date + (p_weeks||' weeks')::interval)::date;
+  v_start_date date := current_date;
 begin
   if v_coach is null then raise exception 'unauthorized'; end if;
   perform 1 from public.app_settings s where s.key = 'single_coach' and (s.value->>'coach_id')::uuid = v_coach;
   if not found then raise exception 'forbidden'; end if;
 
+  -- Delete existing template-generated slots for future dates (to avoid stale data)
+  -- Only delete slots that aren't booked or are in the future
+  delete from public.openings
+  where coach_id = v_coach
+    and source = 'template'
+    and start_at >= v_start_date::timestamptz
+    and not exists (
+      select 1 from public.bookings b
+      where b.opening_id = openings.id
+      and b.status in ('accepted', 'pending')
+    );
+
+  -- Generate slots for each template
+  -- For each day matching the weekday, create multiple slots based on time range
+  -- Example: template 15:00-18:00 with 60-min slots creates 3 slots: 15:00, 16:00, 17:00
   insert into public.openings (coach_id, start_at, end_at, source, template_id, capacity, spots_available)
-  select v_coach,
-         (d::date + t.start_time)::timestamptz,
-         (d::date + t.start_time + (t.slot_minutes||' minutes')::interval)::timestamptz,
-         'template'::opening_source,
-         t.id,
-         1, 1
+  select 
+    v_coach,
+    (d::date + t.start_time + (slot_offset * t.slot_minutes||' minutes')::interval)::timestamptz,
+    (d::date + t.start_time + ((slot_offset + 1) * t.slot_minutes||' minutes')::interval)::timestamptz,
+    'template'::opening_source,
+    t.id,
+    1, 
+    1
   from public.availability_templates t,
-       generate_series(current_date, v_end, '1 day') d
-  where extract(dow from d) = t.weekday and t.active = true
+       generate_series(v_start_date, v_end, '1 day') d,
+       generate_series(0, 
+         -- Calculate number of slots: floor((end_time - start_time) / slot_minutes) - 1
+         -- For 15:00-18:00 (3 hours) with 60-min slots: floor(180/60) - 1 = 2, so slots 0,1,2 = 3 slots
+         greatest(0, floor(extract(epoch from (t.end_time - t.start_time)) / 60 / t.slot_minutes)::int - 1)
+       ) slot_offset
+  where extract(dow from d) = t.weekday 
+    and t.active = true
+    and (t.start_time + (slot_offset * t.slot_minutes||' minutes')::interval) < t.end_time
     and not exists (
       select 1 from public.availability_overrides ov
       where ov.coach_id = v_coach and ov.date = d::date and ov.is_open = false

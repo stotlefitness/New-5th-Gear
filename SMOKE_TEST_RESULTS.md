@@ -1,65 +1,95 @@
-# Smoke Test Results - 5th Gear Pitching Platform
+# Smoke Test Results - 5th Gear Pitching
 
-**Date:** $(date +"%Y-%m-%d %H:%M:%S")
-**Status:** ✅ PASSED
+**Date:** $(date)
+**Status:** ✅ PASSED (with minor fixes applied)
 
-## 1. Build Status
-- ✅ Production build compiles successfully
-- ✅ No TypeScript errors
-- ✅ No linter errors
-- ✅ All routes generated correctly
+## Build Status
+✅ **PASSED** - Application builds successfully
+- No TypeScript errors
+- No compilation errors
+- All pages generated successfully
 
-## 2. Database Structure
-- ✅ All critical tables exist: profiles, conversations, messages, bookings, openings, lessons
-- ✅ RLS enabled on all critical tables
-- ✅ Realtime enabled for: messages, conversations, bookings, openings, lessons
-- ✅ Coach account configured: 5thgearpitching@gmail.com (Alaina Valdez)
-- ✅ Single coach setting configured in app_settings
+## Security Status
+✅ **PASSED** - No critical security issues
+- All tables have RLS enabled
+- Legacy/unused tables removed
+- app_settings properly locked down
+- Only minor warnings (function search paths, optional leaked password protection)
 
-## 3. Authentication & Routing
-- ✅ Profile creation safeguards in place (ensure_profile_exists function)
-- ✅ Coach role validation prevents client access to coach portal
-- ✅ Google OAuth callback validates coach role correctly
-- ✅ Role-based routing in middleware works correctly
-- ✅ AuthGate component handles profile completion checks
+## Authentication & Routing
 
-## 4. Messages Functionality
-- ✅ Conversations table exists and is structured correctly
-- ✅ Messages table exists with conversation_id structure
-- ✅ Unread count badges implemented for both portals
-- ✅ Real-time subscriptions enabled for instant updates
-- ✅ Messages automatically marked as read when viewed
+### ✅ Auth Callback Route
+- Simplified and working correctly
+- Routes based on profile.role
+- Validates coach role against app_settings
+- Redirects to /complete-account if no profile exists
 
-## 5. Navigation Components
-- ✅ CoachNavigation component with unread badge
-- ✅ ClientNavigation component with unread badge
-- ✅ Badge shows count up to 99, then "99+"
-- ✅ Real-time updates for badge counts
+### ✅ Login Page
+- Email/password login routes correctly
+- Google OAuth login routes correctly
+- Proper error handling
 
-## 6. Client Portal
-- ✅ All pages exist: Sessions, Requests, Lessons, Messages, Settings
-- ✅ Pages match coach portal design
-- ✅ Real-time subscriptions for openings, bookings, lessons, messages
+### ✅ Layout Guards
+- Coach layout: Only allows verified coaches
+- Client layout: Only allows clients, redirects others appropriately
+- Both layouts check for profile existence
 
-## 7. Coach Portal
-- ✅ All pages exist: Availability, Requests, Lessons, Messages, Settings
-- ✅ Real-time subscriptions for openings, bookings, lessons, messages
+### ✅ Home Page
+- Fixed to use `.maybeSingle()` instead of `.single()`
+- Prevents 406 errors when profile doesn't exist
+- Routes logged-in users to appropriate portal
 
-## 8. Recent Fixes Verified
-- ✅ React hooks error fixed (useEffect before early return)
-- ✅ Coach role validation on Google login
-- ✅ Client messages routed to correct coach account
-- ✅ Unread message badges working
-- ✅ Messages marked as read automatically
+## Database Status
 
-## Known Issues (Non-Critical)
-- ⚠️ Some old tables from different project have RLS disabled (salons, customers, staff, etc.) - not used by current app
-- ⚠️ Auth leaked password protection disabled - consider enabling for production
+### ✅ Tables
+- All 5th Gear tables exist and have RLS enabled
+- Legacy tables removed (salons, staff, customers, services, locations, availability_slots)
+- Proper foreign key relationships
 
-## Recommendations
-1. Enable leaked password protection in Supabase Auth settings
-2. Consider cleaning up unused tables (salons, customers, staff, etc.)
-3. Monitor real-time subscription performance in production
+### ✅ RLS Policies
+- All tables have appropriate RLS policies
+- Players table policies created and enabled
+- app_settings locked down (service role only)
 
-## Test Conclusion
-All critical functionality is working correctly. The application is ready for deployment.
+## Issues Fixed
+
+1. **Home Page Profile Lookup** ✅
+   - Changed from `.single()` to `.maybeSingle()`
+   - Added error handling
+   - Added redirect to /complete-account if no profile
+
+2. **Auth Callback Route** ✅
+   - Simplified logic
+   - Removed complex profile creation (handled by /complete-account)
+   - Proper role validation
+
+3. **Login Routing** ✅
+   - Direct routing after email/password login
+   - Consistent routing logic
+
+## Remaining Warnings (Non-Critical)
+
+1. **Function Search Path Warnings**
+   - `_booking_accept_effects` and `_booking_unaccept_effects` functions
+   - Low priority - doesn't affect functionality
+
+2. **Leaked Password Protection**
+   - Optional Supabase Auth feature
+   - Can be enabled in Supabase Dashboard if desired
+
+## Test Checklist
+
+- [x] Application builds without errors
+- [x] No TypeScript errors
+- [x] No linter errors
+- [x] All security advisors checked
+- [x] RLS policies verified
+- [x] Routing logic verified
+- [x] Profile lookup uses `.maybeSingle()` to prevent 406 errors
+- [x] Layout guards working correctly
+
+## Ready for Deployment
+
+✅ All critical issues resolved
+✅ Application is secure and functional
+✅ Ready for production deployment

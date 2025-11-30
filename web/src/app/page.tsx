@@ -16,11 +16,18 @@ export default function Home() {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from("profiles")
           .select("role")
           .eq("id", session.user.id)
-          .single();
+          .maybeSingle();
+        
+        if (error) {
+          console.error("Profile lookup error:", error);
+          setLoading(false);
+          return;
+        }
+        
         setProfile(data);
         
         // Redirect based on role
@@ -29,6 +36,10 @@ export default function Home() {
           return;
         } else if (data?.role === "client") {
           router.push("/book");
+          return;
+        } else if (!data) {
+          // No profile - redirect to complete account
+          router.push("/complete-account");
           return;
         }
       }

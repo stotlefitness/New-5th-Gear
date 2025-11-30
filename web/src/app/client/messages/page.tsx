@@ -127,6 +127,29 @@ export default function ClientMessagesPage() {
     });
   }, []);
 
+  // Mark messages as read when conversation is viewed
+  useEffect(() => {
+    if (!conversation?.id) return;
+
+    async function markAsRead() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Mark all unread messages (not sent by current user) as read
+      await supabase
+        .from("messages")
+        .update({ read_at: new Date().toISOString() })
+        .eq("conversation_id", conversation.id)
+        .neq("sender_id", user.id)
+        .is("read_at", null);
+    }
+
+    markAsRead();
+    // Also mark as read periodically while viewing
+    const interval = setInterval(markAsRead, 5000);
+    return () => clearInterval(interval);
+  }, [conversation?.id]);
+
   // Real-time subscription for messages (bidirectional chat)
   useEffect(() => {
     if (!conversation?.id) return;
@@ -141,8 +164,19 @@ export default function ClientMessagesPage() {
           table: "messages",
           filter: `conversation_id=eq.${conversation.id}`,
         },
-        () => {
+        async () => {
           mutateMessages(); // Refresh messages when new message is inserted
+          
+          // Mark new message as read if it's not from current user
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            await supabase
+              .from("messages")
+              .update({ read_at: new Date().toISOString() })
+              .eq("conversation_id", conversation.id)
+              .neq("sender_id", user.id)
+              .is("read_at", null);
+          }
         }
       )
       .subscribe();

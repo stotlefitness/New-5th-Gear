@@ -229,6 +229,26 @@ export default function MessagesPage() {
     mutateConversations();
   }
 
+  // Mark messages as read when conversation is viewed
+  useEffect(() => {
+    if (!conversationId || !user) return;
+
+    async function markAsRead() {
+      // Mark all unread messages (not sent by current user) as read
+      await supabase
+        .from("messages")
+        .update({ read_at: new Date().toISOString() })
+        .eq("conversation_id", conversationId)
+        .neq("sender_id", user.id)
+        .is("read_at", null);
+    }
+
+    markAsRead();
+    // Also mark as read periodically while viewing
+    const interval = setInterval(markAsRead, 5000);
+    return () => clearInterval(interval);
+  }, [conversationId, user]);
+
   // Real-time subscription for messages
   useEffect(() => {
     if (!conversationId) return;
@@ -243,9 +263,19 @@ export default function MessagesPage() {
           table: "messages",
           filter: `conversation_id=eq.${conversationId}`,
         },
-        () => {
+        async () => {
           mutateMessages(); // Refresh messages when new message is inserted
           mutateConversations(); // Also refresh conversations list to update updated_at
+          
+          // Mark new message as read if it's not from current user
+          if (user) {
+            await supabase
+              .from("messages")
+              .update({ read_at: new Date().toISOString() })
+              .eq("conversation_id", conversationId)
+              .neq("sender_id", user.id)
+              .is("read_at", null);
+          }
         }
       )
       .subscribe();
@@ -253,7 +283,7 @@ export default function MessagesPage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [conversationId, mutateMessages, mutateConversations]);
+  }, [conversationId, mutateMessages, mutateConversations, user]);
 
   async function sendMessage() {
     if (!conversationId || !messageContent.trim() || !user) return;

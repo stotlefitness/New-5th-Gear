@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import useSWR from "swr";
 import CoachPageContainer from "@/components/CoachPageContainer";
@@ -183,6 +183,7 @@ export default function MessagesPage() {
   );
   const [messageContent, setMessageContent] = useState("");
   const [sending, setSending] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function initialize() {
@@ -249,6 +250,15 @@ export default function MessagesPage() {
     return () => clearInterval(interval);
   }, [conversationId, user]);
 
+  // Auto-scroll to bottom when messages change
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   // Real-time subscription for messages
   useEffect(() => {
     if (!conversationId) return;
@@ -276,6 +286,9 @@ export default function MessagesPage() {
               .neq("sender_id", user.id)
               .is("read_at", null);
           }
+          
+          // Scroll to bottom after messages update
+          setTimeout(scrollToBottom, 100);
         }
       )
       .subscribe();
@@ -307,6 +320,9 @@ export default function MessagesPage() {
         .from("conversations")
         .update({ updated_at: new Date().toISOString() })
         .eq("id", conversationId);
+      
+      // Scroll to bottom after sending
+      setTimeout(scrollToBottom, 100);
     }
     setSending(false);
   }
@@ -498,6 +514,7 @@ export default function MessagesPage() {
                         );
                       })
                     )}
+                    <div ref={messagesEndRef} />
                   </div>
 
                   {/* Message Input */}
@@ -602,8 +619,9 @@ export default function MessagesPage() {
                       </div>
                     );
                   })
-                )}
-              </div>
+                    )}
+                    <div ref={messagesEndRef} />
+                  </div>
 
               {/* Message Input */}
               <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} style={{ display: "flex", gap: 12, width: "100%", alignItems: "flex-end", marginTop: "auto", flexShrink: 0, minWidth: 0 }}>

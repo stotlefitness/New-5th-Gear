@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ClientPageWrapper } from "@/components/ClientPageWrapper";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import useSWR from "swr";
@@ -120,12 +120,22 @@ export default function ClientMessagesPage() {
   );
 
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       setCurrentUserId(user?.id || null);
     });
   }, []);
+
+  // Auto-scroll to bottom when messages change
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   // Mark messages as read when conversation is viewed
   useEffect(() => {
@@ -179,6 +189,9 @@ export default function ClientMessagesPage() {
               .neq("sender_id", user.id)
               .is("read_at", null);
           }
+          
+          // Scroll to bottom after messages update
+          setTimeout(scrollToBottom, 100);
         }
       )
       .subscribe();
@@ -256,6 +269,9 @@ export default function ClientMessagesPage() {
 
       setMessageText("");
       await mutateMessages();
+      
+      // Scroll to bottom after sending
+      setTimeout(scrollToBottom, 100);
     } catch (error: any) {
       alert(error.message || "Failed to send message");
     } finally {
@@ -359,6 +375,7 @@ export default function ClientMessagesPage() {
                 );
               })
             )}
+            <div ref={messagesEndRef} />
           </div>
 
           <form onSubmit={sendMessage} style={{ display: "flex", gap: 12 }}>

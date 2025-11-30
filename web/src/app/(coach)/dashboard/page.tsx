@@ -282,7 +282,7 @@ export default function CoachDashboardPage() {
       </header>
 
       {/* 2x2 Grid of equal square blocks */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 w-full" style={{ gap: "32px" }}>
+      <div className="grid grid-cols-2 w-full" style={{ gap: "32px" }}>
         {/* Block 1: Welcome */}
         <section className="auth-panel" style={{ width: "100%", minHeight: "450px", display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 20, flex: 1 }}>

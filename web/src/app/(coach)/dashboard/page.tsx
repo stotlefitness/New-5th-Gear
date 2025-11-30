@@ -281,31 +281,71 @@ export default function CoachDashboardPage() {
         <p className="text-sm sm:text-base text-white/60">Your coaching schedule and updates</p>
       </header>
 
-      <section className="grid w-full gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] items-start">
-        {/* LEFT COLUMN */}
-        <div className="space-y-6">
-          {/* Welcome Section */}
-          <section className="auth-panel" style={{ width: "100%" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-              <div>
-                <h1 className="text-4xl sm:text-5xl font-light tracking-tight text-white" style={{ marginBottom: 8 }}>
-                  Welcome back, {firstName}
-                </h1>
-                <p className="text-sm sm:text-base text-white/60">
-                  Here's your coaching schedule and updates for this week.
-                </p>
+      {/* 2x2 Grid of equal square blocks */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
+        {/* Block 1: Welcome */}
+        <section className="auth-panel" style={{ width: "100%", minHeight: "400px", display: "flex", flexDirection: "column" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 20, flex: 1 }}>
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-light tracking-tight text-white" style={{ marginBottom: 8 }}>
+                Welcome back, {firstName}
+              </h1>
+              <p className="text-sm sm:text-base text-white/60">
+                Here's your coaching schedule and updates for this week.
+              </p>
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+              <StatPill label="Lessons this week" value={lessonsThisWeek} />
+              <StatPill label="Booked slots" value={`${bookedSlots} / ${totalSlots}`} />
+              <StatPill label="Pending requests" value={pendingRequests} />
+              <StatPill label="Unread messages" value={unreadMessages} />
+            </div>
+          </div>
+        </section>
+
+        {/* Block 2: Insights */}
+        <section className="auth-panel" style={{ width: "100%", minHeight: "400px", display: "flex", flexDirection: "column" }}>
+          <div style={{ marginBottom: 16 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
+              Insights
+            </h2>
+            <p style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.6)" }}>
+              Your coaching overview.
+            </p>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: 1, justifyContent: "center" }}>
+            <div>
+              <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)", marginBottom: 4 }}>
+                Lessons this week
               </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-                <StatPill label="Lessons this week" value={lessonsThisWeek} />
-                <StatPill label="Booked slots" value={`${bookedSlots} / ${totalSlots}`} />
-                <StatPill label="Pending requests" value={pendingRequests} />
-                <StatPill label="Unread messages" value={unreadMessages} />
+              <div style={{ fontSize: 32, fontWeight: 600, color: "rgba(255, 255, 255, 0.9)" }}>
+                {lessonsThisWeek}
               </div>
             </div>
-          </section>
 
-          {/* This Week Schedule */}
-          <section className="auth-panel" style={{ width: "100%" }}>
+            <div>
+              <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)", marginBottom: 4 }}>
+                Booked capacity
+              </div>
+              <div style={{ fontSize: 32, fontWeight: 600, color: "rgba(255, 255, 255, 0.9)" }}>
+                {totalSlots > 0 ? Math.round((bookedSlots / totalSlots) * 100) : 0}%
+              </div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)", marginBottom: 4 }}>
+                Pending requests
+              </div>
+              <div style={{ fontSize: 32, fontWeight: 600, color: "rgba(255, 255, 255, 0.9)" }}>
+                {pendingRequests}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Block 3: This Week Schedule */}
+        <section className="auth-panel" style={{ width: "100%", minHeight: "400px", display: "flex", flexDirection: "column" }}>
             <div style={{ marginBottom: 20 }}>
               <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
                 This week
@@ -388,164 +428,67 @@ export default function CoachDashboardPage() {
               )}
             </div>
 
-            <Link href="/lessons" className="field-link" style={{ textAlign: "center", padding: "10px 0" }}>
+            <Link href="/lessons" className="field-link" style={{ textAlign: "center", padding: "10px 0", marginTop: "auto" }}>
               View full lesson library →
             </Link>
-          </section>
+        </section>
 
-          {/* Pending Requests */}
-          {bookings.length > 0 && (
-            <section className="auth-panel" style={{ width: "100%" }}>
-              <div style={{ marginBottom: 20 }}>
-                <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
-                  Recent requests
-                </h2>
-                <p style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.6)" }}>
-                  Latest booking requests awaiting your decision.
-                </p>
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
-                {bookings.map((booking) => {
-                  const startDate = new Date(booking.openings.start_at);
-                  return (
-                    <div
-                      key={booking.id}
-                      style={{
-                        padding: "12px 16px",
-                        borderRadius: "8px",
-                        background: "rgba(255, 255, 255, 0.03)",
-                        border: "1px solid rgba(255, 255, 255, 0.1)",
-                      }}
-                    >
-                      <div style={{ fontSize: 14, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
-                        {booking.profiles?.full_name || "Client"}
-                      </div>
-                      <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.7)", marginBottom: 8 }}>
-                        {formatDate(startDate)} • {formatTime(startDate)}
-                      </div>
-                      <div
-                        style={{
-                          display: "inline-block",
-                          padding: "4px 8px",
-                          borderRadius: "4px",
-                          background: "rgba(255, 193, 7, 0.15)",
-                          border: "1px solid rgba(255, 193, 7, 0.3)",
-                          fontSize: 11,
-                          color: "rgba(255, 193, 7, 0.9)",
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        Pending
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <Link href="/requests" className="field-link" style={{ textAlign: "center", padding: "10px 0" }}>
-                Manage all requests →
-              </Link>
-            </section>
-          )}
-        </div>
-
-        {/* RIGHT COLUMN */}
-        <div className="space-y-6">
-          {/* Insights */}
-          <section className="auth-panel" style={{ width: "100%" }}>
+        {/* Block 4: Recent Messages */}
+        <section className="auth-panel" style={{ width: "100%", minHeight: "400px", display: "flex", flexDirection: "column" }}>
           <div style={{ marginBottom: 16 }}>
             <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
-              Insights
+              Recent messages
             </h2>
             <p style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.6)" }}>
-              Your coaching overview.
+              Latest conversations with clients.
             </p>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <div>
-              <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)", marginBottom: 4 }}>
-                Lessons this week
-              </div>
-              <div style={{ fontSize: 24, fontWeight: 600, color: "rgba(255, 255, 255, 0.9)" }}>
-                {lessonsThisWeek}
-              </div>
-            </div>
-
-            <div>
-              <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)", marginBottom: 4 }}>
-                Booked capacity
-              </div>
-              <div style={{ fontSize: 24, fontWeight: 600, color: "rgba(255, 255, 255, 0.9)" }}>
-                {totalSlots > 0 ? Math.round((bookedSlots / totalSlots) * 100) : 0}%
-              </div>
-            </div>
-
-            <div>
-              <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)", marginBottom: 4 }}>
-                Pending requests
-              </div>
-              <div style={{ fontSize: 24, fontWeight: 600, color: "rgba(255, 255, 255, 0.9)" }}>
-                {pendingRequests}
-              </div>
-            </div>
-            </div>
-          </section>
-
-          {/* Recent Messages */}
-          {conversations.length > 0 && (
-            <section className="auth-panel" style={{ width: "100%" }}>
-              <div style={{ marginBottom: 16 }}>
-                <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
-                  Recent messages
-                </h2>
-                <p style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.6)" }}>
-                  Latest conversations with clients.
-                </p>
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
-                {conversations.map((conv) => (
-                  <Link
-                    key={conv.id}
-                    href="/messages"
-                    style={{ textDecoration: "none" }}
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16, flex: 1 }}>
+            {conversations.length === 0 ? (
+              <p style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.5)", textAlign: "center", padding: "20px 0" }}>
+                No messages yet.
+              </p>
+            ) : (
+              conversations.map((conv) => (
+                <Link
+                  key={conv.id}
+                  href="/messages"
+                  style={{ textDecoration: "none" }}
+                >
+                  <div
+                    style={{
+                      padding: "12px 16px",
+                      borderRadius: "8px",
+                      background: "rgba(255, 255, 255, 0.03)",
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
+                      cursor: "pointer",
+                      transition: "all 0.2s",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
+                    }}
                   >
-                    <div
-                      style={{
-                        padding: "12px 16px",
-                        borderRadius: "8px",
-                        background: "rgba(255, 255, 255, 0.03)",
-                        border: "1px solid rgba(255, 255, 255, 0.1)",
-                        cursor: "pointer",
-                        transition: "all 0.2s",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
-                      }}
-                    >
-                      <div style={{ fontSize: 14, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
-                        {conv.client.full_name}
-                      </div>
-                      <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)" }}>
-                        {new Date(conv.updated_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                      </div>
+                    <div style={{ fontSize: 14, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
+                      {conv.client.full_name}
                     </div>
-                  </Link>
-                ))}
-              </div>
+                    <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)" }}>
+                      {new Date(conv.updated_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                    </div>
+                  </div>
+                </Link>
+              ))
+            )}
+          </div>
 
-              <Link href="/messages" className="field-link" style={{ textAlign: "center", padding: "10px 0" }}>
-                Open Messages →
-              </Link>
-            </section>
-          )}
-        </div>
-      </section>
+          <Link href="/messages" className="field-link" style={{ textAlign: "center", padding: "10px 0", marginTop: "auto" }}>
+            Open Messages →
+          </Link>
+        </section>
+      </div>
     </CoachPageContainer>
   );
 }

@@ -513,25 +513,28 @@ export default function MessagesPage() {
                       rows={2}
                       style={{
                         flex: 1,
-                        padding: "12px 16px",
+                        padding: "14px 18px",
                         borderRadius: "12px",
-                        background: "rgba(255, 255, 255, 0.12)",
-                        border: "2px solid rgba(255, 255, 255, 0.4)",
+                        background: "rgba(255, 255, 255, 0.2)",
+                        border: "2px solid rgba(255, 255, 255, 0.5)",
                         color: "#ffffff",
-                        fontSize: 14,
+                        fontSize: 15,
                         fontFamily: "inherit",
                         resize: "vertical",
-                        minHeight: "60px",
+                        minHeight: "70px",
                         maxHeight: "120px",
                         outline: "none",
+                        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
                       }}
                       onFocus={(e) => {
-                        e.target.style.background = "rgba(255, 255, 255, 0.18)";
-                        e.target.style.borderColor = "rgba(255, 255, 255, 0.6)";
+                        e.target.style.background = "rgba(255, 255, 255, 0.25)";
+                        e.target.style.borderColor = "rgba(255, 255, 255, 0.7)";
+                        e.target.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.4)";
                       }}
                       onBlur={(e) => {
-                        e.target.style.background = "rgba(255, 255, 255, 0.12)";
-                        e.target.style.borderColor = "rgba(255, 255, 255, 0.4)";
+                        e.target.style.background = "rgba(255, 255, 255, 0.2)";
+                        e.target.style.borderColor = "rgba(255, 255, 255, 0.5)";
+                        e.target.style.boxShadow = "0 2px 8px rgba(0, 0, 0, 0.3)";
                       }}
                     />
                     <button
@@ -638,25 +641,28 @@ export default function MessagesPage() {
                   rows={2}
                   style={{
                     flex: 1,
-                    padding: "12px 16px",
+                    padding: "14px 18px",
                     borderRadius: "12px",
-                    background: "rgba(255, 255, 255, 0.12)",
-                    border: "2px solid rgba(255, 255, 255, 0.4)",
+                    background: "rgba(255, 255, 255, 0.2)",
+                    border: "2px solid rgba(255, 255, 255, 0.5)",
                     color: "#ffffff",
-                    fontSize: 14,
+                    fontSize: 15,
                     fontFamily: "inherit",
                     resize: "vertical",
-                    minHeight: "60px",
+                    minHeight: "70px",
                     maxHeight: "120px",
                     outline: "none",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
                   }}
                   onFocus={(e) => {
-                    e.target.style.background = "rgba(255, 255, 255, 0.18)";
-                    e.target.style.borderColor = "rgba(255, 255, 255, 0.6)";
+                    e.target.style.background = "rgba(255, 255, 255, 0.25)";
+                    e.target.style.borderColor = "rgba(255, 255, 255, 0.7)";
+                    e.target.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.4)";
                   }}
                   onBlur={(e) => {
-                    e.target.style.background = "rgba(255, 255, 255, 0.12)";
-                    e.target.style.borderColor = "rgba(255, 255, 255, 0.4)";
+                    e.target.style.background = "rgba(255, 255, 255, 0.2)";
+                    e.target.style.borderColor = "rgba(255, 255, 255, 0.5)";
+                    e.target.style.boxShadow = "0 2px 8px rgba(0, 0, 0, 0.3)";
                   }}
                 />
                 <button

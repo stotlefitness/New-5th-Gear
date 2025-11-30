@@ -173,6 +173,32 @@ async function fetchClientDashboard() {
 
   const pendingRequests = bookings.filter((b) => b.status === "pending").length;
 
+  // Fetch insights data
+  const { count: totalLessonsCount } = await supabase
+    .from("lessons")
+    .select("*", { count: "exact", head: true })
+    .eq("client_id", user.id)
+    .lt("start_at", now.toISOString());
+
+  // Calculate average lessons per week (last 4 weeks)
+  const fourWeeksAgo = new Date(now);
+  fourWeeksAgo.setDate(now.getDate() - 28);
+  const { data: recentLessons } = await supabase
+    .from("lessons")
+    .select("start_at")
+    .eq("client_id", user.id)
+    .gte("start_at", fourWeeksAgo.toISOString())
+    .lt("start_at", now.toISOString());
+  
+  const averageLessonsPerWeek = recentLessons ? Math.round((recentLessons.length / 4) * 10) / 10 : 0;
+
+  // Get upcoming lessons count
+  const { count: upcomingLessonsCount } = await supabase
+    .from("lessons")
+    .select("*", { count: "exact", head: true })
+    .eq("client_id", user.id)
+    .gte("start_at", now.toISOString());
+
   return {
     playerName,
     lessonsThisWeek: lessonsWeek.length,
@@ -182,6 +208,9 @@ async function fetchClientDashboard() {
     bookings,
     unreadMessages: unreadCount,
     latestMessage,
+    totalLessonsCompleted: totalLessonsCount || 0,
+    averageLessonsPerWeek,
+    upcomingLessonsCount: upcomingLessonsCount || 0,
   };
 }
 
@@ -269,7 +298,7 @@ export default function ClientDashboardPage() {
     );
   }
 
-  const { playerName, lessonsThisWeek, nextLesson, pastLessons, pendingRequests, bookings, unreadMessages, latestMessage } = data;
+  const { playerName, lessonsThisWeek, nextLesson, pastLessons, pendingRequests, bookings, unreadMessages, latestMessage, totalLessonsCompleted, averageLessonsPerWeek, upcomingLessonsCount } = data;
 
   // Generate week days
   const today = new Date();
@@ -281,39 +310,39 @@ export default function ClientDashboardPage() {
 
   return (
     <ClientPageWrapper title="Dashboard" subtitle="Your training schedule and updates">
-      <section className="grid w-full gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] items-start" style={{ marginTop: 32 }}>
-        {/* LEFT COLUMN */}
-        <div className="space-y-6">
-          {/* Welcome Section */}
-          <section className="auth-panel" style={{ width: "100%" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-              <div>
-                <h1 className="text-4xl sm:text-5xl font-light tracking-tight text-white" style={{ marginBottom: 8 }}>
-                  Welcome back, {playerName}
-                </h1>
-                <p className="text-sm sm:text-base text-white/60">
-                  Here's your training schedule and updates for this week.
-                </p>
-              </div>
-
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-                <StatPill label="Lessons this week" value={lessonsThisWeek} />
-                <StatPill label="Pending requests" value={pendingRequests} />
-                <StatPill label="Unread messages" value={unreadMessages} />
-              </div>
+      {/* 2x2 Grid of equal square blocks */}
+      <div className="grid grid-cols-2 w-full" style={{ gap: "32px", marginTop: 32 }}>
+        {/* Block 1: Welcome */}
+        <section className="auth-panel" style={{ width: "100%", minHeight: "450px", display: "flex", flexDirection: "column" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 20, flex: 1 }}>
+            <div>
+              <h1 className="text-4xl sm:text-5xl font-light tracking-tight text-white" style={{ marginBottom: 8 }}>
+                Welcome back, {playerName}
+              </h1>
+              <p className="text-sm sm:text-base text-white/60">
+                Here's your training schedule and updates for this week.
+              </p>
             </div>
-          </section>
 
-          {/* This Week Schedule */}
-          <section className="auth-panel" style={{ width: "100%" }}>
-              <div style={{ marginBottom: 20 }}>
-                <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
-                  This week
-                </h2>
-                <p style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.6)" }}>
-                  Your upcoming sessions at a glance.
-                </p>
-              </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+              <StatPill label="Lessons this week" value={lessonsThisWeek} />
+              <StatPill label="Pending requests" value={pendingRequests} />
+              <StatPill label="Unread messages" value={unreadMessages} />
+            </div>
+          </div>
+        </section>
+
+        {/* Block 2: This Week Schedule */}
+        <section className="auth-panel" style={{ width: "100%", minHeight: "450px", display: "flex", flexDirection: "column" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 20, flex: 1 }}>
+            <div style={{ marginBottom: 20 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
+                This week
+              </h2>
+              <p style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.6)" }}>
+                Your upcoming sessions at a glance.
+              </p>
+            </div>
 
               {/* Week Strip */}
               <div style={{ display: "flex", gap: 8, marginBottom: 24, flexWrap: "wrap" }}>
@@ -391,72 +420,15 @@ export default function ClientDashboardPage() {
                 </div>
               )}
 
-              <Link href="/book" className="field-link" style={{ textAlign: "center", padding: "10px 0" }}>
-                View all sessions →
-              </Link>
-          </section>
+            <Link href="/book" className="field-link" style={{ textAlign: "center", padding: "10px 0", marginTop: "auto" }}>
+              View all sessions →
+            </Link>
+          </div>
+        </section>
 
-          {/* Recent Lessons */}
-          {pastLessons.length > 0 && (
-            <section className="auth-panel" style={{ width: "100%" }}>
-              <div style={{ marginBottom: 20 }}>
-                <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
-                  Recent lessons
-                </h2>
-                <p style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.6)" }}>
-                  Your completed training sessions.
-                </p>
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
-                {pastLessons.map((lesson) => {
-                  const startDate = new Date(lesson.start_at);
-                  return (
-                    <Link
-                      key={lesson.id}
-                      href="/client/lessons"
-                      style={{ textDecoration: "none" }}
-                    >
-                      <div
-                        style={{
-                          padding: "12px 16px",
-                          borderRadius: "8px",
-                          background: "rgba(255, 255, 255, 0.03)",
-                          border: "1px solid rgba(255, 255, 255, 0.1)",
-                          cursor: "pointer",
-                          transition: "all 0.2s",
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
-                        }}
-                      >
-                        <div style={{ fontSize: 14, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
-                          {formatDate(startDate)}
-                        </div>
-                        <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.7)" }}>
-                          {formatTime(startDate)} – {formatTime(new Date(lesson.end_at))}
-                          {lesson.location && ` • ${lesson.location}`}
-                        </div>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-
-              <Link href="/client/lessons" className="field-link" style={{ textAlign: "center", padding: "10px 0" }}>
-                View full lesson history →
-              </Link>
-            </section>
-          )}
-        </div>
-
-        {/* RIGHT COLUMN */}
-        <div className="space-y-6">
-          {/* Messages */}
-          <section className="auth-panel" style={{ width: "100%" }}>
+        {/* Block 3: Messages */}
+        <section className="auth-panel" style={{ width: "100%", minHeight: "450px", display: "flex", flexDirection: "column" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 20, flex: 1 }}>
             <div style={{ marginBottom: 16 }}>
               <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
                 Messages
@@ -502,7 +474,7 @@ export default function ClientDashboardPage() {
                     </span>
                   </div>
                 )}
-                <Link href="/client/messages" className="field-link" style={{ textAlign: "center", padding: "10px 0" }}>
+                <Link href="/client/messages" className="field-link" style={{ textAlign: "center", padding: "10px 0", marginTop: "auto" }}>
                   Open Messages →
                 </Link>
               </>
@@ -511,74 +483,61 @@ export default function ClientDashboardPage() {
                 <div style={{ padding: "20px", textAlign: "center", color: "rgba(255, 255, 255, 0.5)", fontSize: 13, marginBottom: 16 }}>
                   No messages yet. Start a conversation with your coach!
                 </div>
-                <Link href="/client/messages" className="field-link" style={{ textAlign: "center", padding: "10px 0" }}>
+                <Link href="/client/messages" className="field-link" style={{ textAlign: "center", padding: "10px 0", marginTop: "auto" }}>
                   Send a message →
                 </Link>
               </>
             )}
-          </section>
+          </div>
+        </section>
 
-          {/* Requests */}
-          {bookings.length > 0 && (
-            <section className="auth-panel" style={{ width: "100%" }}>
-              <div style={{ marginBottom: 16 }}>
-                <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
-                  Recent requests
-                </h2>
-                <p style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.6)" }}>
-                  Your lesson booking requests.
-                </p>
+        {/* Block 4: Insights */}
+        <section className="auth-panel" style={{ width: "100%", minHeight: "450px", display: "flex", flexDirection: "column" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 20, flex: 1, justifyContent: "center" }}>
+            <div style={{ marginBottom: 20 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
+                Training insights
+              </h2>
+              <p style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.6)" }}>
+                Your progress and statistics.
+              </p>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 48, fontWeight: 600, color: "rgba(255, 255, 255, 0.9)", marginBottom: 8 }}>
+                  {totalLessonsCompleted}
+                </div>
+                <div style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.6)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                  Total lessons completed
+                </div>
               </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
-                {bookings.map((booking) => {
-                  const startDate = new Date(booking.openings.start_at);
-                  const statusColors: Record<string, { bg: string; border: string; text: string }> = {
-                    pending: { bg: "rgba(255, 193, 7, 0.15)", border: "rgba(255, 193, 7, 0.3)", text: "rgba(255, 193, 7, 0.9)" },
-                    accepted: { bg: "rgba(76, 175, 80, 0.15)", border: "rgba(76, 175, 80, 0.3)", text: "rgba(76, 175, 80, 0.9)" },
-                    declined: { bg: "rgba(239, 68, 68, 0.15)", border: "rgba(239, 68, 68, 0.3)", text: "rgba(239, 68, 68, 0.9)" },
-                  };
-                  const colors = statusColors[booking.status] || statusColors.pending;
-
-                  return (
-                    <div
-                      key={booking.id}
-                      style={{
-                        padding: "12px 16px",
-                        borderRadius: "8px",
-                        background: "rgba(255, 255, 255, 0.03)",
-                        border: "1px solid rgba(255, 255, 255, 0.1)",
-                      }}
-                    >
-                      <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.7)", marginBottom: 8 }}>
-                        {formatDate(startDate)} • {formatTime(startDate)}
-                      </div>
-                      <div
-                        style={{
-                          display: "inline-block",
-                          padding: "4px 8px",
-                          borderRadius: "4px",
-                          background: colors.bg,
-                          border: `1px solid ${colors.border}`,
-                          fontSize: 11,
-                          color: colors.text,
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        {booking.status}
-                      </div>
-                    </div>
-                  );
-                })}
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 32, fontWeight: 600, color: "rgba(255, 255, 255, 0.9)", marginBottom: 8 }}>
+                  {averageLessonsPerWeek}
+                </div>
+                <div style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.6)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                  Average lessons per week
+                </div>
               </div>
 
-              <Link href="/client/requests" className="field-link" style={{ textAlign: "center", padding: "10px 0" }}>
-                View all requests →
-              </Link>
-            </section>
-          )}
-        </div>
-      </section>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 32, fontWeight: 600, color: "rgba(255, 255, 255, 0.9)", marginBottom: 8 }}>
+                  {upcomingLessonsCount}
+                </div>
+                <div style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.6)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                  Upcoming lessons
+                </div>
+              </div>
+            </div>
+
+            <Link href="/client/lessons" className="field-link" style={{ textAlign: "center", padding: "10px 0", marginTop: "auto" }}>
+              View full lesson history →
+            </Link>
+          </div>
+        </section>
+      </div>
     </ClientPageWrapper>
   );
 }

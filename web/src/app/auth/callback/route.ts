@@ -50,6 +50,12 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (profile) {
+      // For coaches, profile existence is enough (no player_name needed)
+      if (profile.role === 'coach') {
+        return NextResponse.redirect(new URL('/availability', requestUrl.origin));
+      }
+
+      // For clients, check if profile is complete (account_type and player_name)
       const meta = user.user_metadata || {};
       const isComplete = meta.account_type && meta.player_name;
 
@@ -57,12 +63,8 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(new URL('/complete-account', requestUrl.origin));
       }
 
-      // Redirect based on role
-      if (profile.role === 'coach') {
-        return NextResponse.redirect(new URL('/availability', requestUrl.origin));
-      } else {
-        return NextResponse.redirect(new URL('/book', requestUrl.origin));
-      }
+      // Client profile is complete - redirect to book page
+      return NextResponse.redirect(new URL('/book', requestUrl.origin));
     } else {
       // No profile yet - redirect to complete account
       return NextResponse.redirect(new URL('/complete-account', requestUrl.origin));

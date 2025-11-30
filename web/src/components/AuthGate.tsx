@@ -19,6 +19,28 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
         return;
       }
 
+      // Check profile to determine role
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", data.user.id)
+        .single();
+
+      if (!profile) {
+        // No profile - redirect to complete account
+        if (pathname !== "/complete-account") {
+          router.push("/complete-account");
+        }
+        return;
+      }
+
+      // For coaches, profile existence is enough (no player_name needed)
+      if (profile.role === "coach") {
+        setChecking(false);
+        return;
+      }
+
+      // For clients, check if they have account_type and player_name
       const meta = data.user.user_metadata || {};
       const isComplete = meta.account_type && meta.player_name;
 

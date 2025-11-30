@@ -25,7 +25,26 @@ export default function LoginPage() {
     if (error) {
       setError(error.message);
     } else if (data?.user) {
-      // Check if profile is complete
+      // Get user role first
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", data.user.id)
+        .single();
+
+      if (!profile) {
+        // No profile - redirect to complete account
+        router.push("/complete-account");
+        return;
+      }
+
+      // For coaches, profile existence is enough (no player_name needed)
+      if (profile.role === "coach") {
+        router.push("/availability");
+        return;
+      }
+
+      // For clients, check if profile is complete (account_type and player_name)
       const meta = data.user.user_metadata || {};
       const isComplete = meta.account_type && meta.player_name;
 
@@ -34,18 +53,8 @@ export default function LoginPage() {
         return;
       }
 
-      // Get user role and redirect accordingly
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", data.user.id)
-        .single();
-
-      if (profile?.role === "coach") {
-        router.push("/availability");
-      } else {
-        router.push("/book");
-      }
+      // Client profile is complete - redirect to book page
+      router.push("/book");
     }
   }
 

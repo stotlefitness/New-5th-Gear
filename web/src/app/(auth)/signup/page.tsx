@@ -556,7 +556,7 @@ function SignupPageContent() {
                 <div style={{ flex: 1, height: 1, background: "rgba(255, 255, 255, 0.2)" }}></div>
               </div>
 
-              <form onSubmit={(e) => { e.preventDefault(); handleNext(); }}>
+              <form onSubmit={(e) => { e.preventDefault(); handleNext(); }} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
                 {accountType === "parent" && (
                   <>
                     <label className="field-label" htmlFor="parentName">

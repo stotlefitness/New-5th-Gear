@@ -108,6 +108,10 @@ export default function AvailabilityPage() {
   const [end, setEnd] = useState("18:00");
   const [slotMinutes, setSlotMinutes] = useState(60);
   const [busy, setBusy] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editStartTime, setEditStartTime] = useState("");
+  const [editEndTime, setEditEndTime] = useState("");
 
   // Real-time subscription for openings (refresh when new slots are generated)
   useEffect(() => {
@@ -164,6 +168,111 @@ export default function AvailabilityPage() {
     const { error } = await supabase.from("availability_templates").delete().eq("id", id);
     if (error) return alert(error.message);
     mutateTemplates();
+  }
+
+  async function deleteOpening(id: string) {
+    if (!confirm("Are you sure you want to delete this opening? This cannot be undone.")) return;
+    
+    setDeletingId(id);
+    try {
+      const { error } = await supabase
+        .from("openings")
+        .delete()
+        .eq("id", id);
+      
+      if (error) throw error;
+      await mutateOpenings();
+    } catch (e: any) {
+      alert(e.message || "Failed to delete opening");
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
+  async function startEdit(opening: Opening) {
+    const start = new Date(opening.start_at);
+    const end = new Date(opening.end_at);
+    
+    // Convert to local time for input
+    const startHours = start.getHours().toString().padStart(2, '0');
+    const startMins = start.getMinutes().toString().padStart(2, '0');
+    const endHours = end.getHours().toString().padStart(2, '0');
+    const endMins = end.getMinutes().toString().padStart(2, '0');
+    
+    setEditingId(opening.id);
+    setEditStartTime(`${startHours}:${startMins}`);
+    setEditEndTime(`${endHours}:${endMins}`);
+  }
+
+  async function saveEdit() {
+    if (!editingId || !editStartTime || !editEndTime) return;
+    
+    try {
+      const opening = openings?.find(o => o.id === editingId);
+      if (!opening) return;
+      
+      // Parse times and combine with existing date
+      const existingStart = new Date(opening.start_at);
+      const [startHours, startMins] = editStartTime.split(':').map(Number);
+      const [endHours, endMins] = editEndTime.split(':').map(Number);
+      
+      const newStart = new Date(existingStart);
+      newStart.setHours(startHours, startMins, 0, 0);
+      
+      const newEnd = new Date(existingStart);
+      newEnd.setHours(endHours, endMins, 0, 0);
+      
+      if (newEnd <= newStart) {
+        alert("End time must be after start time");
+        return;
+      }
+      
+      const { error } = await supabase
+        .from("openings")
+        .update({
+          start_at: newStart.toISOString(),
+          end_at: newEnd.toISOString(),
+        })
+        .eq("id", editingId);
+      
+      if (error) throw error;
+      
+      await mutateOpenings();
+      setEditingId(null);
+      setEditStartTime("");
+      setEditEndTime("");
+    } catch (e: any) {
+      alert(e.message || "Failed to update opening");
+    }
+  }
+
+  async function cancelOpening(openingId: string) {
+    if (!confirm("Cancel this lesson? Any pending bookings will be declined and the slot will become available.")) return;
+    
+    try {
+      // Get all bookings for this opening
+      const { data: bookings } = await supabase
+        .from("bookings")
+        .select("id, status")
+        .eq("opening_id", openingId)
+        .in("status", ["pending", "accepted"]);
+      
+      // Cancel all pending/accepted bookings
+      if (bookings && bookings.length > 0) {
+        for (const booking of bookings) {
+          await supabase.rpc("decide_booking", {
+            p_booking: booking.id,
+            p_decision: "cancel"
+          });
+        }
+      }
+      
+      // Refresh openings to show updated status
+      await mutateOpenings();
+      alert("Lesson cancelled. The slot is now available.");
+    } catch (e: any) {
+      alert(e.message || "Failed to cancel lesson");
+    }
   }
 
   const groupedOpenings = openings ? groupOpeningsByDate(openings) : new Map();
@@ -478,6 +587,8 @@ export default function AvailabilityPage() {
                       const startDate = new Date(opening.start_at);
                       const endDate = new Date(opening.end_at);
                       const isAvailable = opening.spots_available > 0;
+                      const isEditing = editingId === opening.id;
+                      const isDeleting = deletingId === opening.id;
 
                       return (
                         <div
@@ -491,25 +602,129 @@ export default function AvailabilityPage() {
                             background: isAvailable 
                               ? "rgba(76, 175, 80, 0.1)" 
                               : "rgba(239, 68, 68, 0.1)",
+                            position: "relative",
                           }}
                         >
-                          <div style={{ fontSize: 15, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
-                            {formatTimeForOpening(startDate)} – {formatTimeForOpening(endDate)}
-                          </div>
-                          <div
-                            style={{
-                              fontSize: 11,
-                              textTransform: "uppercase",
-                              letterSpacing: "0.05em",
-                              color: isAvailable 
-                                ? "rgba(76, 175, 80, 0.9)" 
-                                : "rgba(239, 68, 68, 0.9)",
-                            }}
-                          >
-                            {opening.spots_available > 0 
-                              ? `${opening.spots_available} spot${opening.spots_available === 1 ? "" : "s"} available`
-                              : "Booked"}
-                          </div>
+                          {isEditing ? (
+                            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                              <div style={{ display: "flex", gap: 8 }}>
+                                <input
+                                  type="time"
+                                  value={editStartTime}
+                                  onChange={(e) => setEditStartTime(e.target.value)}
+                                  style={{
+                                    flex: 1,
+                                    padding: "6px 8px",
+                                    borderRadius: "6px",
+                                    background: "rgba(255, 255, 255, 0.1)",
+                                    border: "1px solid rgba(255, 255, 255, 0.2)",
+                                    color: "#fff",
+                                    fontSize: 13,
+                                  }}
+                                />
+                                <input
+                                  type="time"
+                                  value={editEndTime}
+                                  onChange={(e) => setEditEndTime(e.target.value)}
+                                  style={{
+                                    flex: 1,
+                                    padding: "6px 8px",
+                                    borderRadius: "6px",
+                                    background: "rgba(255, 255, 255, 0.1)",
+                                    border: "1px solid rgba(255, 255, 255, 0.2)",
+                                    color: "#fff",
+                                    fontSize: 13,
+                                  }}
+                                />
+                              </div>
+                              <div style={{ display: "flex", gap: 6 }}>
+                                <button
+                                  onClick={saveEdit}
+                                  className="btn-primary"
+                                  style={{ flex: 1, padding: "6px 12px", fontSize: 11 }}
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setEditingId(null);
+                                    setEditStartTime("");
+                                    setEditEndTime("");
+                                  }}
+                                  className="field-link"
+                                  style={{ flex: 1, padding: "6px 12px", fontSize: 11 }}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <div style={{ fontSize: 15, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
+                                {formatTimeForOpening(startDate)} – {formatTimeForOpening(endDate)}
+                              </div>
+                              <div
+                                style={{
+                                  fontSize: 11,
+                                  textTransform: "uppercase",
+                                  letterSpacing: "0.05em",
+                                  color: isAvailable 
+                                    ? "rgba(76, 175, 80, 0.9)" 
+                                    : "rgba(239, 68, 68, 0.9)",
+                                  marginBottom: 8,
+                                }}
+                              >
+                                {opening.spots_available > 0 
+                                  ? `${opening.spots_available} spot${opening.spots_available === 1 ? "" : "s"} available`
+                                  : "Booked"}
+                              </div>
+                              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                                {isAvailable ? (
+                                  <>
+                                    <button
+                                      onClick={() => startEdit(opening)}
+                                      disabled={isDeleting}
+                                      className="field-link"
+                                      style={{ 
+                                        fontSize: 10, 
+                                        padding: "4px 8px",
+                                        opacity: isDeleting ? 0.5 : 1,
+                                      }}
+                                    >
+                                      Edit
+                                    </button>
+                                    <button
+                                      onClick={() => deleteOpening(opening.id)}
+                                      disabled={isDeleting}
+                                      className="field-link"
+                                      style={{ 
+                                        fontSize: 10, 
+                                        padding: "4px 8px",
+                                        color: "rgba(239, 68, 68, 0.9)",
+                                        opacity: isDeleting ? 0.5 : 1,
+                                      }}
+                                    >
+                                      {isDeleting ? "Deleting..." : "Delete"}
+                                    </button>
+                                  </>
+                                ) : (
+                                  <button
+                                    onClick={() => cancelOpening(opening.id)}
+                                    disabled={isDeleting}
+                                    className="field-link"
+                                    style={{ 
+                                      fontSize: 10, 
+                                      padding: "4px 8px",
+                                      color: "rgba(239, 68, 68, 0.9)",
+                                      opacity: isDeleting ? 0.5 : 1,
+                                    }}
+                                  >
+                                    Cancel Lesson
+                                  </button>
+                                )}
+                              </div>
+                            </>
+                          )}
                         </div>
                       );
                     })}

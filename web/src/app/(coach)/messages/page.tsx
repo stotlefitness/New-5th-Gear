@@ -457,6 +457,7 @@ export default function MessagesPage() {
                       gap: 12,
                       marginBottom: 16,
                       paddingRight: 8,
+                      width: "100%",
                     }}
                   >
                     {!messages || messages.length === 0 ? (
@@ -498,7 +499,7 @@ export default function MessagesPage() {
                   </div>
 
                   {/* Message Input */}
-                  <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} style={{ display: "flex", gap: 12 }}>
+                  <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} style={{ display: "flex", gap: 12, width: "100%", alignItems: "flex-end", marginTop: "auto" }}>
                     <textarea
                       value={messageContent}
                       onChange={(e) => setMessageContent(e.target.value)}
@@ -512,7 +513,10 @@ export default function MessagesPage() {
                       disabled={sending}
                       rows={4}
                       style={{
-                        flex: 1,
+                        flex: "1 1 auto",
+                        width: "100%",
+                        minWidth: "400px",
+                        maxWidth: "100%",
                         padding: "16px 20px",
                         borderRadius: "12px",
                         background: "rgba(255, 255, 255, 0.2)",
@@ -543,9 +547,10 @@ export default function MessagesPage() {
                       disabled={!messageContent.trim() || sending}
                       className="btn-primary"
                       style={{
-                        padding: "12px 24px",
+                        padding: "12px 32px",
                         alignSelf: "flex-end",
                         whiteSpace: "nowrap",
+                        flexShrink: 0,
                       }}
                     >
                       {sending ? "Sending…" : "Send"}
@@ -627,7 +632,7 @@ export default function MessagesPage() {
               </div>
 
               {/* Message Input */}
-              <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} style={{ display: "flex", gap: 12 }}>
+              <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} style={{ display: "flex", gap: 12, width: "100%", alignItems: "flex-end", marginTop: "auto" }}>
                 <textarea
                   value={messageContent}
                   onChange={(e) => setMessageContent(e.target.value)}
@@ -641,7 +646,10 @@ export default function MessagesPage() {
                   disabled={sending}
                   rows={4}
                   style={{
-                    flex: 1,
+                    flex: "1 1 auto",
+                    width: "100%",
+                    minWidth: "400px",
+                    maxWidth: "100%",
                     padding: "16px 20px",
                     borderRadius: "12px",
                     background: "rgba(255, 255, 255, 0.2)",

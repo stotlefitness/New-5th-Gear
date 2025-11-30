@@ -311,9 +311,6 @@ export default function MessagesPage() {
     setSending(false);
   }
 
-  const isCoach = profile?.role === "coach";
-  const selectedClient = clients?.find((c) => c.id === selectedClientId);
-
   // Real-time subscription for conversations list (coach only) - show new conversations immediately
   // MUST be before any early returns to follow React hooks rules
   useEffect(() => {
@@ -350,6 +347,15 @@ export default function MessagesPage() {
       </CoachPageContainer>
     );
   }
+
+  const isCoach = profile?.role === "coach";
+  // Get selected client from conversations array (not clients array from coach_clients)
+  const selectedConversation = conversations?.find((c) => c.client_id === selectedClientId);
+  const selectedClient = selectedConversation ? {
+    id: selectedConversation.client_id,
+    full_name: selectedConversation.client.full_name,
+    email: selectedConversation.client.email,
+  } : null;
 
   return (
     <CoachPageContainer>

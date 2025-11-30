@@ -38,7 +38,7 @@ export default function ClientLayout({
       if (profile.role !== "client") {
         // Not a client - redirect to appropriate portal based on role
         if (profile.role === "coach") {
-          router.push("/availability");
+          router.push("/dashboard");
         } else {
           router.push("/complete-account");
         }

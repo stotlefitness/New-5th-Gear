@@ -182,7 +182,7 @@ export default function ClientLessonsPage() {
         .maybeSingle();
 
       if (!profile || profile.role !== "client") {
-        router.push("/availability");
+        router.push("/dashboard");
         return;
       }
 
@@ -280,7 +280,7 @@ export default function ClientLessonsPage() {
 
       // For reschedule, redirect to book page
       if (modalState.action === "reschedule") {
-        router.push("/book");
+        router.push("/client/dashboard");
       }
     } catch (e: any) {
       alert(e.message || "Failed to process request");

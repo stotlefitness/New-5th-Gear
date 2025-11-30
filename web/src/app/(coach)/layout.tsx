@@ -30,7 +30,7 @@ export default function CoachLayout({
         .maybeSingle();
 
       if (!profile || profile.role !== "coach") {
-        router.push("/book");
+        router.push("/client/dashboard");
         return;
       }
 

@@ -42,6 +42,7 @@ async function fetchUnreadCount(): Promise<number> {
 }
 
 const clientLinks = [
+  { href: "/client/dashboard", label: "Dashboard" },
   { href: "/book", label: "Sessions" },
   { href: "/client/requests", label: "Requests" },
   { href: "/client/lessons", label: "Lessons" },
@@ -122,7 +123,7 @@ export default function ClientNavigation() {
 
   return (
     <header className="auth-nav">
-      <Link href="/book" className="auth-logo">
+      <Link href="/client/dashboard" className="auth-logo">
         5TH GEAR
       </Link>
 

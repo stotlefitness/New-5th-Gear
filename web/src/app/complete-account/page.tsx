@@ -44,9 +44,9 @@ export default function CompleteAccountPage() {
           .single();
 
         if (profile?.role === "coach") {
-          router.push("/availability");
+          router.push("/dashboard");
         } else {
-          router.push("/book");
+          router.push("/client/dashboard");
         }
         return;
       }

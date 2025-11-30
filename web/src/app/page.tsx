@@ -32,10 +32,10 @@ export default function Home() {
         
         // Redirect based on role
         if (data?.role === "coach") {
-          router.push("/availability");
+          router.push("/dashboard");
           return;
         } else if (data?.role === "client") {
-          router.push("/book");
+          router.push("/client/dashboard");
           return;
         } else if (!data) {
           // No profile - redirect to complete account

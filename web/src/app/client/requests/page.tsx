@@ -106,7 +106,7 @@ export default function ClientRequestsPage() {
         .maybeSingle();
 
       if (!profile || profile.role !== "client") {
-        router.push("/availability");
+        router.push("/dashboard");
         return;
       }
 

@@ -86,11 +86,11 @@ export async function GET(request: NextRequest) {
 
   // Route based on verified role
   if (profile.role === 'coach' && isRealCoach) {
-    // Coach goes to coach portal
-    return NextResponse.redirect(new URL('/availability', requestUrl.origin));
+    // Coach goes to coach dashboard
+    return NextResponse.redirect(new URL('/dashboard', requestUrl.origin));
   } else {
-    // Client goes to client portal (check if profile needs completion)
-    // For now, just route to book page - profile completeness is checked elsewhere
-    return NextResponse.redirect(new URL('/book', requestUrl.origin));
+    // Client goes to client dashboard (check if profile needs completion)
+    // For now, just route to dashboard - profile completeness is checked elsewhere
+    return NextResponse.redirect(new URL('/client/dashboard', requestUrl.origin));
   }
 }

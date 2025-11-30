@@ -40,9 +40,9 @@ export default function LoginPage() {
 
       // Route based on role
       if (profile.role === "coach") {
-        router.push("/availability");
+        router.push("/dashboard");
       } else {
-        router.push("/book");
+        router.push("/client/dashboard");
       }
     }
   }

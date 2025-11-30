@@ -43,6 +43,7 @@ async function fetchUnreadCount(): Promise<number> {
 }
 
 const coachLinks = [
+  { href: "/dashboard", label: "Dashboard" },
   { href: "/availability", label: "Availability" },
   { href: "/requests", label: "Requests" },
   { href: "/lessons", label: "Lessons" },
@@ -123,7 +124,7 @@ export default function CoachNavigation() {
 
   return (
     <header className="auth-nav">
-      <Link href="/availability" className="auth-logo">
+      <Link href="/dashboard" className="auth-logo">
         5TH GEAR
       </Link>
 

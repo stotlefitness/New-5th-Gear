@@ -501,57 +501,28 @@ export default function MessagesPage() {
                   </div>
 
                   {/* Message Input */}
-                  <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} style={{ display: "flex", gap: 12, width: "100%", alignItems: "flex-end", marginTop: "auto", flexShrink: 0, minWidth: 0 }}>
-                    <textarea
+                  <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} style={{ display: "flex", gap: 12 }}>
+                    <input
+                      type="text"
                       value={messageContent}
                       onChange={(e) => setMessageContent(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          sendMessage();
-                        }
-                      }}
-                      placeholder="Type a message…"
+                      placeholder={`Type a message to ${selectedClient?.full_name || "your player"}…`}
                       disabled={sending}
-                      rows={4}
                       style={{
-                        flex: "1 1 0",
-                        minWidth: 0,
-                        padding: "16px 20px",
+                        flex: 1,
+                        padding: "12px 16px",
                         borderRadius: "12px",
-                        background: "rgba(255, 255, 255, 0.2)",
-                        border: "2px solid rgba(255, 255, 255, 0.5)",
-                        color: "#ffffff",
-                        fontSize: 16,
-                        fontFamily: "inherit",
-                        resize: "vertical",
-                        minHeight: "120px",
-                        maxHeight: "200px",
-                        outline: "none",
-                        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
-                        lineHeight: "1.5",
-                      }}
-                      onFocus={(e) => {
-                        e.target.style.background = "rgba(255, 255, 255, 0.25)";
-                        e.target.style.borderColor = "rgba(255, 255, 255, 0.7)";
-                        e.target.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.4)";
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.background = "rgba(255, 255, 255, 0.2)";
-                        e.target.style.borderColor = "rgba(255, 255, 255, 0.5)";
-                        e.target.style.boxShadow = "0 2px 8px rgba(0, 0, 0, 0.3)";
+                        background: "rgba(255, 255, 255, 0.05)",
+                        border: "1px solid rgba(255, 255, 255, 0.1)",
+                        color: "rgba(255, 255, 255, 0.9)",
+                        fontSize: 14,
                       }}
                     />
                     <button
                       type="submit"
                       disabled={!messageContent.trim() || sending}
                       className="btn-primary"
-                      style={{
-                        padding: "12px 32px",
-                        alignSelf: "flex-end",
-                        whiteSpace: "nowrap",
-                        flexShrink: 0,
-                      }}
+                      style={{ fontSize: 13, padding: "12px 24px", whiteSpace: "nowrap" }}
                     >
                       {sending ? "Sending…" : "Send"}
                     </button>

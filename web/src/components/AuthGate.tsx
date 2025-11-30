@@ -20,13 +20,14 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
       }
 
       // Check profile to determine role
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("role")
         .eq("id", data.user.id)
-        .single();
+        .maybeSingle();
 
-      if (!profile) {
+      // Handle case where profile doesn't exist (404) or other errors
+      if (profileError || !profile) {
         // No profile - redirect to complete account
         if (pathname !== "/complete-account") {
           router.push("/complete-account");

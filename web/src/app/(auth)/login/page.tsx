@@ -26,13 +26,13 @@ export default function LoginPage() {
       setError(error.message);
     } else if (data?.user) {
       // Get user role first
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("role")
         .eq("id", data.user.id)
-        .single();
+        .maybeSingle();
 
-      if (!profile) {
+      if (profileError || !profile) {
         // No profile - redirect to complete account
         router.push("/complete-account");
         return;

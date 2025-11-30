@@ -21,7 +21,7 @@ export default function Navigation() {
           .from("profiles")
           .select("role")
           .eq("id", user.id)
-          .single()
+          .maybeSingle()
           .then(({ data }) => {
             if (data) setUserRole(data.role);
           });
@@ -37,7 +37,7 @@ export default function Navigation() {
           .from("profiles")
           .select("role")
           .eq("id", session.user.id)
-          .single()
+          .maybeSingle()
           .then(({ data }) => {
             if (data) setUserRole(data.role);
           });

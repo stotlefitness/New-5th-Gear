@@ -43,11 +43,47 @@ export async function GET(request: NextRequest) {
 
   if (user) {
     // Check if profile exists
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
+
+    // If profile doesn't exist, create it from user metadata
+    if (profileError || !profile) {
+      const meta = user.user_metadata || {};
+      const fullName = meta.full_name || user.email?.split("@")[0] || "User";
+      const role = (meta.role || "client") as "coach" | "client";
+      const accountType = (meta.account_type || "player") as "parent" | "player";
+
+      const { error: insertError } = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          email: user.email || "",
+          full_name: fullName,
+          role: role,
+          account_type: accountType,
+        });
+
+      if (insertError) {
+        console.error('Failed to create profile:', insertError);
+        return NextResponse.redirect(new URL('/complete-account', requestUrl.origin));
+      }
+
+      // Profile created, redirect based on role
+      if (role === 'coach') {
+        return NextResponse.redirect(new URL('/availability', requestUrl.origin));
+      }
+
+      // For clients, check if profile is complete
+      const isComplete = meta.account_type && meta.player_name;
+      if (!isComplete) {
+        return NextResponse.redirect(new URL('/complete-account', requestUrl.origin));
+      }
+
+      return NextResponse.redirect(new URL('/book', requestUrl.origin));
+    }
 
     if (profile) {
       // For coaches, profile existence is enough (no player_name needed)

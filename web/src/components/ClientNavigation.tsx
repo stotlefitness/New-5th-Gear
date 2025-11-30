@@ -33,7 +33,7 @@ export default function ClientNavigation() {
         .from("profiles")
         .select("role")
         .eq("id", session.user.id)
-        .single();
+        .maybeSingle();
 
       setProfile((data as Profile) ?? null);
       setLoading(false);

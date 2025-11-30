@@ -37,7 +37,7 @@ export default function CoachNavigation() {
         .from("profiles")
         .select("role")
         .eq("id", session.user.id)
-        .single();
+        .maybeSingle();
 
       setProfile((data as Profile) ?? null);
       setLoading(false);

@@ -27,14 +27,22 @@ export async function GET(request: NextRequest) {
   );
 
   if (code) {
-    await supabase.auth.exchangeCodeForSession(code);
+    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+    if (exchangeError) {
+      console.error('Error exchanging code for session:', exchangeError);
+      return NextResponse.redirect(new URL('/login?error=auth_failed', requestUrl.origin));
+    }
   }
 
   // Check if user profile is complete and redirect accordingly
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return NextResponse.redirect(new URL('/login?error=not_authenticated', requestUrl.origin));
+  }
 
   if (user) {
-    // Check if profile is complete
+    // Check if profile exists
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
@@ -55,6 +63,9 @@ export async function GET(request: NextRequest) {
       } else {
         return NextResponse.redirect(new URL('/book', requestUrl.origin));
       }
+    } else {
+      // No profile yet - redirect to complete account
+      return NextResponse.redirect(new URL('/complete-account', requestUrl.origin));
     }
   }
 

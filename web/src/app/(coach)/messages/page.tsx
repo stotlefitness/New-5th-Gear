@@ -498,7 +498,7 @@ export default function MessagesPage() {
                   </div>
 
                   {/* Message Input */}
-                  <div className="message-input-container" style={{ display: "flex", gap: 12 }}>
+                  <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} style={{ display: "flex", gap: 12 }}>
                     <textarea
                       value={messageContent}
                       onChange={(e) => setMessageContent(e.target.value)}
@@ -509,18 +509,24 @@ export default function MessagesPage() {
                         }
                       }}
                       placeholder="Type a message…"
+                      disabled={sending}
                       rows={2}
-                      className="field-input"
                       style={{
                         flex: 1,
-                        minHeight: "60px",
+                        padding: "12px 16px",
+                        borderRadius: "12px",
+                        background: "rgba(255, 255, 255, 0.05)",
+                        border: "1px solid rgba(255, 255, 255, 0.1)",
+                        color: "rgba(255, 255, 255, 0.9)",
+                        fontSize: 14,
+                        fontFamily: "inherit",
                         resize: "vertical",
-                        paddingTop: "8px",
-                        paddingBottom: "8px",
+                        minHeight: "60px",
+                        maxHeight: "120px",
                       }}
                     />
                     <button
-                      onClick={sendMessage}
+                      type="submit"
                       disabled={!messageContent.trim() || sending}
                       className="btn-primary"
                       style={{
@@ -531,7 +537,7 @@ export default function MessagesPage() {
                     >
                       {sending ? "Sending…" : "Send"}
                     </button>
-                  </div>
+                  </form>
                 </>
               )}
             </section>
@@ -608,7 +614,7 @@ export default function MessagesPage() {
               </div>
 
               {/* Message Input */}
-              <div className="message-input-container" style={{ display: "flex", gap: 12 }}>
+              <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} style={{ display: "flex", gap: 12 }}>
                 <textarea
                   value={messageContent}
                   onChange={(e) => setMessageContent(e.target.value)}
@@ -619,18 +625,24 @@ export default function MessagesPage() {
                     }
                   }}
                   placeholder="Type a message…"
+                  disabled={sending}
                   rows={2}
-                  className="field-input"
                   style={{
                     flex: 1,
-                    minHeight: "60px",
+                    padding: "12px 16px",
+                    borderRadius: "12px",
+                    background: "rgba(255, 255, 255, 0.05)",
+                    border: "1px solid rgba(255, 255, 255, 0.1)",
+                    color: "rgba(255, 255, 255, 0.9)",
+                    fontSize: 14,
+                    fontFamily: "inherit",
                     resize: "vertical",
-                    paddingTop: "8px",
-                    paddingBottom: "8px",
+                    minHeight: "60px",
+                    maxHeight: "120px",
                   }}
                 />
                 <button
-                  onClick={sendMessage}
+                  type="submit"
                   disabled={!messageContent.trim() || sending}
                   className="btn-primary"
                   style={{
@@ -641,7 +653,7 @@ export default function MessagesPage() {
                 >
                   {sending ? "Sending…" : "Send"}
                 </button>
-              </div>
+              </form>
             </>
           )}
         </section>

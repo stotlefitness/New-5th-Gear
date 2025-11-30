@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import useSWR from "swr";
 import Link from "next/link";
 import CoachPageContainer from "@/components/CoachPageContainer";
+import { rpcDecideBooking } from "@/lib/rpc";
 
 type Lesson = {
   id: string;
@@ -14,6 +15,7 @@ type Lesson = {
   created_at: string;
   client_id: string;
   location?: string | null;
+  booking_id?: string | null;
   client: {
     full_name: string;
     email: string;
@@ -49,9 +51,19 @@ async function fetchLessons(): Promise<{ upcoming: Lesson[]; past: Lesson[] }> {
 
   if (pastError) throw pastError;
 
-  // Transform data to handle Supabase foreign key relationships
-  const transformLesson = (lesson: any): Lesson => {
+  // Transform data and fetch booking IDs
+  const transformLesson = async (lesson: any): Promise<Lesson> => {
     const profileData = Array.isArray(lesson.profiles) ? lesson.profiles[0] : lesson.profiles;
+    
+    // Find the booking for this lesson's opening
+    const { data: booking } = await supabase
+      .from("bookings")
+      .select("id")
+      .eq("opening_id", lesson.opening_id)
+      .eq("client_id", lesson.client_id)
+      .eq("status", "accepted")
+      .maybeSingle();
+    
     return {
       id: lesson.id,
       opening_id: lesson.opening_id,
@@ -60,13 +72,17 @@ async function fetchLessons(): Promise<{ upcoming: Lesson[]; past: Lesson[] }> {
       created_at: lesson.created_at,
       client_id: lesson.client_id,
       location: lesson.location || null,
+      booking_id: booking?.id || null,
       client: profileData || { full_name: "Unknown Client", email: "" },
     };
   };
 
+  const upcomingWithBookings = await Promise.all((upcomingRaw || []).map(transformLesson));
+  const pastWithBookings = await Promise.all((pastRaw || []).map(transformLesson));
+
   return {
-    upcoming: (upcomingRaw || []).map(transformLesson),
-    past: (pastRaw || []).map(transformLesson),
+    upcoming: upcomingWithBookings,
+    past: pastWithBookings,
   };
 }
 
@@ -80,6 +96,8 @@ function formatTime(date: Date): string {
 
 export default function LessonsPage() {
   const { data, error, isLoading, mutate } = useSWR("coach-lessons", fetchLessons);
+  const [cancelingId, setCancelingId] = useState<string | null>(null);
+  const [reschedulingId, setReschedulingId] = useState<string | null>(null);
 
   // Real-time subscription for lessons
   useEffect(() => {
@@ -102,6 +120,50 @@ export default function LessonsPage() {
       supabase.removeChannel(channel);
     };
   }, [mutate]);
+
+  async function handleCancel(lesson: Lesson) {
+    if (!lesson.booking_id) {
+      alert("Unable to find booking for this lesson.");
+      return;
+    }
+
+    if (!confirm(`Are you sure you want to cancel the lesson on ${formatDate(new Date(lesson.start_at))} with ${lesson.client.full_name}?`)) {
+      return;
+    }
+
+    try {
+      setCancelingId(lesson.id);
+      await rpcDecideBooking(lesson.booking_id, "cancel");
+      await mutate();
+    } catch (e: any) {
+      alert(e.message || "Failed to cancel lesson");
+    } finally {
+      setCancelingId(null);
+    }
+  }
+
+  async function handleReschedule(lesson: Lesson) {
+    if (!lesson.booking_id) {
+      alert("Unable to find booking for this lesson.");
+      return;
+    }
+
+    if (!confirm(`Cancel this lesson so ${lesson.client.full_name} can request a new time?`)) {
+      return;
+    }
+
+    try {
+      setReschedulingId(lesson.id);
+      // Cancel the current booking - this will free up the opening and delete the lesson
+      await rpcDecideBooking(lesson.booking_id, "cancel");
+      await mutate();
+      alert(`Lesson canceled. ${lesson.client.full_name} can now request a new time from the available sessions.`);
+    } catch (e: any) {
+      alert(e.message || "Failed to reschedule lesson");
+    } finally {
+      setReschedulingId(null);
+    }
+  }
 
   if (isLoading) {
     return (

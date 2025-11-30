@@ -153,8 +153,8 @@ export default function LessonsPage() {
 
       <div className="space-y-12">
         {/* Upcoming Lessons */}
-        <div>
-          <h2 style={{ fontSize: 16, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.1em" }}>
+        <div style={{ maxWidth: "720px", margin: "0 auto", padding: "0 1rem" }}>
+          <h2 style={{ fontSize: 16, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.1em", textAlign: "left" }}>
             Upcoming
           </h2>
           {upcoming.length === 0 ? (
@@ -227,8 +227,8 @@ export default function LessonsPage() {
         </div>
 
         {/* Past Lessons */}
-        <div>
-          <h2 style={{ fontSize: 16, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.1em" }}>
+        <div style={{ maxWidth: "720px", margin: "0 auto", padding: "0 1rem" }}>
+          <h2 style={{ fontSize: 16, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.1em", textAlign: "left" }}>
             Completed
           </h2>
           {past.length === 0 ? (

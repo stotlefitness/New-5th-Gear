@@ -510,21 +510,22 @@ export default function MessagesPage() {
                       }}
                       placeholder="Type a message…"
                       disabled={sending}
-                      rows={2}
+                      rows={4}
                       style={{
                         flex: 1,
-                        padding: "14px 18px",
+                        padding: "16px 20px",
                         borderRadius: "12px",
                         background: "rgba(255, 255, 255, 0.2)",
                         border: "2px solid rgba(255, 255, 255, 0.5)",
                         color: "#ffffff",
-                        fontSize: 15,
+                        fontSize: 16,
                         fontFamily: "inherit",
                         resize: "vertical",
-                        minHeight: "70px",
-                        maxHeight: "120px",
+                        minHeight: "120px",
+                        maxHeight: "200px",
                         outline: "none",
                         boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
+                        lineHeight: "1.5",
                       }}
                       onFocus={(e) => {
                         e.target.style.background = "rgba(255, 255, 255, 0.25)";
@@ -638,21 +639,22 @@ export default function MessagesPage() {
                   }}
                   placeholder="Type a message…"
                   disabled={sending}
-                  rows={2}
+                  rows={4}
                   style={{
                     flex: 1,
-                    padding: "14px 18px",
+                    padding: "16px 20px",
                     borderRadius: "12px",
                     background: "rgba(255, 255, 255, 0.2)",
                     border: "2px solid rgba(255, 255, 255, 0.5)",
                     color: "#ffffff",
-                    fontSize: 15,
+                    fontSize: 16,
                     fontFamily: "inherit",
                     resize: "vertical",
-                    minHeight: "70px",
-                    maxHeight: "120px",
+                    minHeight: "120px",
+                    maxHeight: "200px",
                     outline: "none",
                     boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
+                    lineHeight: "1.5",
                   }}
                   onFocus={(e) => {
                     e.target.style.background = "rgba(255, 255, 255, 0.25)";

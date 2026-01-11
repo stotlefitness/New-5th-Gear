@@ -79,6 +79,25 @@ function formatTimeForOpening(date: Date): string {
   return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
 }
 
+// Format opening as: "Mon, Jan 13 • 3:00 PM–4:00 PM"
+function formatOpeningDateTime(startDate: Date, endDate: Date): string {
+  const dateStr = startDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+  const startTime = startDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  const endTime = endDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  // Extract just the time part (remove AM/PM) from end time if it matches start period
+  const startPeriod = startTime.split(" ")[1]; // "AM" or "PM"
+  const endParts = endTime.split(" ");
+  const endTimeOnly = endParts[0]; // Just "4:00"
+  const endPeriod = endParts[1]; // "AM" or "PM"
+  
+  // If same period, show end time without period
+  if (startPeriod === endPeriod) {
+    return `${dateStr} • ${startTime}–${endTimeOnly} ${startPeriod}`;
+  }
+  // If different periods, show both
+  return `${dateStr} • ${startTime}–${endTime}`;
+}
+
 const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 // Convert 24-hour time string (HH:MM or HH:MM:SS) to 12-hour AM/PM format
@@ -728,7 +747,7 @@ export default function AvailabilityPage() {
                           ) : (
                             <>
                               <div style={{ fontSize: 15, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
-                                {formatTimeForOpening(startDate)} – {formatTimeForOpening(endDate)}
+                                {formatOpeningDateTime(startDate, endDate)}
                               </div>
                               {opening.location && (
                                 <div

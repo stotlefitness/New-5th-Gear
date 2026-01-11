@@ -37,6 +37,25 @@ function formatTime(date: Date): string {
   return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
 }
 
+// Format opening as: "Mon, Jan 13 • 3:00 PM–4:00 PM"
+function formatOpeningDateTime(startDate: Date, endDate: Date): string {
+  const dateStr = startDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+  const startTime = startDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  const endTime = endDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  // Extract just the time part (remove AM/PM) from end time if it matches start period
+  const startPeriod = startTime.split(" ")[1]; // "AM" or "PM"
+  const endParts = endTime.split(" ");
+  const endTimeOnly = endParts[0]; // Just "4:00"
+  const endPeriod = endParts[1]; // "AM" or "PM"
+  
+  // If same period, show end time without period
+  if (startPeriod === endPeriod) {
+    return `${dateStr} • ${startTime}–${endTimeOnly} ${startPeriod}`;
+  }
+  // If different periods, show both
+  return `${dateStr} • ${startTime}–${endTime}`;
+}
+
 function groupOpeningsByDate(openings: Opening[]): Map<string, Opening[]> {
   const grouped = new Map<string, Opening[]>();
   openings.forEach((opening) => {
@@ -233,14 +252,11 @@ export default function BookPage() {
                               }}
                             >
                               <div>
-                                <div style={{ fontSize: 16, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: 4 }}>
-                                  {formatTime(startDate)}
-                                </div>
-                                <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.5)", marginBottom: opening.location ? 4 : 0 }}>
-                                  until {formatTime(endDate)}
+                                <div style={{ fontSize: 16, fontWeight: 500, color: "rgba(255, 255, 255, 0.9)", marginBottom: opening.location ? 4 : 8 }}>
+                                  {formatOpeningDateTime(startDate, endDate)}
                                 </div>
                                 {opening.location && (
-                                  <div style={{ fontSize: 11, color: "rgba(255, 255, 255, 0.6)", display: "flex", alignItems: "center", gap: 4, marginTop: 4 }}>
+                                  <div style={{ fontSize: 11, color: "rgba(255, 255, 255, 0.6)", display: "flex", alignItems: "center", gap: 4, marginBottom: 8 }}>
                                     📍 {opening.location}
                                   </div>
                                 )}

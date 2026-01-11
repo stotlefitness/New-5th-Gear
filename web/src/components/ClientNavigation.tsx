@@ -193,117 +193,55 @@ export default function ClientNavigation() {
       {/* Mobile Hamburger Button */}
       <button
         type="button"
-        onClick={() => setMenuOpen(!menuOpen)}
-        className="md:hidden icon-btn"
-        aria-label="Toggle navigation menu"
-        aria-expanded={menuOpen}
-        style={{ position: "relative", width: "32px", height: "32px" }}
+        onClick={() => setMenuOpen(true)}
+        className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/5 backdrop-blur-xl"
+        aria-label="Open menu"
       >
-        <div style={{ display: "flex", flexDirection: "column", gap: "4px", width: "16px", height: "16px", justifyContent: "center", alignItems: "center" }}>
-          <span
-            style={{
-              display: "block",
-              width: "16px",
-              height: "1px",
-              backgroundColor: "#ffffff",
-              transition: "all 0.3s ease",
-              transform: menuOpen ? "translateY(5px) rotate(45deg)" : "none",
-            }}
-          />
-          <span
-            style={{
-              display: "block",
-              width: "16px",
-              height: "1px",
-              backgroundColor: "#ffffff",
-              transition: "opacity 0.3s ease",
-              opacity: menuOpen ? 0 : 1,
-            }}
-          />
-          <span
-            style={{
-              display: "block",
-              width: "16px",
-              height: "1px",
-              backgroundColor: "#ffffff",
-              transition: "all 0.3s ease",
-              transform: menuOpen ? "translateY(-5px) rotate(-45deg)" : "none",
-            }}
-          />
-        </div>
+        <span className="text-white/80 text-lg leading-none">≡</span>
       </button>
 
-      {/* Mobile Full-Screen Overlay Menu */}
+      {/* Mobile Overlay */}
       {menuOpen && (
-        <div
-          style={{
-            position: "fixed",
-            top: "56px",
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(15, 23, 42, 0.98)",
-            backdropFilter: "blur(20px)",
-            zIndex: 50,
-            overflowY: "auto",
-          }}
-          className="md:hidden"
-        >
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              height: "100%",
-              maxWidth: "100%",
-              padding: "16px 18px",
-            }}
-          >
-            <p
-              style={{
-                fontSize: "10px",
-                textTransform: "uppercase",
-                letterSpacing: "0.25em",
-                color: "rgba(148, 163, 184, 0.6)",
-                marginBottom: "12px",
-              }}
-            >
-              CLIENT PORTAL
-            </p>
-            <nav style={{ display: "flex", flexDirection: "column", gap: "8px", flex: 1 }}>
-              {clientLinks.map((link) => {
-                const active = pathname === link.href || pathname?.startsWith(`${link.href}/`);
-                const showBadge = link.href === "/client/messages" && unreadCount > 0;
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setMenuOpen(false)}
-                    style={{
-                      padding: "12px 16px",
-                      borderRadius: "12px",
-                      fontSize: "13px",
-                      letterSpacing: "0.16em",
-                      textTransform: "uppercase",
-                      textDecoration: "none",
-                      transition: "all 0.15s ease",
-                      position: "relative",
-                      backgroundColor: active ? "#ffffff" : "rgba(255, 255, 255, 0.05)",
-                      color: active ? "#020617" : "rgba(248, 250, 252, 0.9)",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!active) {
-                        e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!active) {
-                        e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
-                      }
-                    }}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div className="fixed inset-0 z-[100] md:hidden">
+          {/* Dim backdrop */}
+          <button
+            aria-label="Close menu"
+            onClick={() => setMenuOpen(false)}
+            className="absolute inset-0 bg-black/50"
+          />
+
+          {/* Panel */}
+          <div className="absolute right-0 top-0 h-full w-[86vw] max-w-[380px] border-l border-white/10 bg-[#0b1020]/60 backdrop-blur-2xl">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+              <div className="tracking-[0.35em] text-xs text-white/70">5TH GEAR</div>
+              <button
+                onClick={() => setMenuOpen(false)}
+                className="h-10 w-10 rounded-full border border-white/20 bg-white/5 inline-flex items-center justify-center"
+                aria-label="Close menu"
+              >
+                <span className="text-white/80 text-lg leading-none">×</span>
+              </button>
+            </div>
+
+            <nav className="p-3 flex flex-col gap-2 flex-1">
+              <div className="space-y-2">
+                {clientLinks.map((link) => {
+                  const active = pathname === link.href || pathname?.startsWith(`${link.href}/`);
+                  const showBadge = link.href === "/client/messages" && unreadCount > 0;
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setMenuOpen(false)}
+                      className={[
+                        "flex items-center justify-between w-full rounded-2xl px-4 py-4",
+                        "border border-white/10 bg-white/5",
+                        "text-sm tracking-[0.25em] uppercase",
+                        active ? "text-white bg-white/10" : "text-white/80 hover:bg-white/10",
+                      ].join(" ")}
+                    >
                       <span>{link.label}</span>
-                      {showBadge && (
+                      {showBadge ? (
                         <span
                           style={{
                             backgroundColor: "#ef4444",
@@ -319,11 +257,14 @@ export default function ClientNavigation() {
                         >
                           {unreadCount > 99 ? "99+" : unreadCount}
                         </span>
+                      ) : (
+                        <span className="text-white/30">→</span>
                       )}
-                    </div>
-                  </Link>
-                );
-              })}
+                    </Link>
+                  );
+                })}
+              </div>
+
               <button
                 onClick={(e) => {
                   setMenuOpen(false);
@@ -335,28 +276,10 @@ export default function ClientNavigation() {
                   signOut(e);
                 }}
                 type="button"
-                style={{
-                  padding: "12px 16px",
-                  borderRadius: "12px",
-                  fontSize: "13px",
-                  letterSpacing: "0.16em",
-                  textTransform: "uppercase",
-                  backgroundColor: "rgba(255, 255, 255, 0.05)",
-                  color: "rgba(248, 250, 252, 0.9)",
-                  border: "1px solid rgba(255, 255, 255, 0.1)",
-                  cursor: "pointer",
-                  transition: "all 0.15s ease",
-                  textAlign: "left",
-                  marginTop: "auto",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
-                }}
+                className="mt-auto flex items-center justify-between w-full rounded-2xl px-4 py-4 border border-white/10 bg-white/5 text-sm tracking-[0.25em] uppercase text-white/80 hover:bg-white/10"
               >
-                Logout →
+                <span>Logout</span>
+                <span className="text-white/30">→</span>
               </button>
             </nav>
           </div>

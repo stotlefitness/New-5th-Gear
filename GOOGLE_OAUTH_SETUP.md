@@ -107,3 +107,5 @@ Your app uses these redirect URLs after Google authentication:
 
 Both of these must be in Supabase's **Additional Redirect URLs** list.
 
+
+

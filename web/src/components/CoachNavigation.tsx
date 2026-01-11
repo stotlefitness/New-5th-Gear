@@ -56,7 +56,7 @@ export default function CoachNavigation() {
   const pathname = usePathname();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const { data: unreadCount = 0, mutate: mutateUnreadCount } = useSWR(
     profile?.role === "coach" ? "coach-unread-count" : null,
@@ -110,16 +110,20 @@ export default function CoachNavigation() {
     };
   }, [profile?.role, mutateUnreadCount]);
 
+  // Close menu on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
   // Lock body scroll when mobile menu is open
   useEffect(() => {
-    if (menuOpen) {
-      const originalOverflow = document.body.style.overflow;
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = originalOverflow;
-      };
-    }
-  }, [menuOpen]);
+    if (!mobileOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [mobileOpen]);
 
   async function signOut(e?: React.MouseEvent | React.TouchEvent) {
     if (e) {
@@ -194,38 +198,40 @@ export default function CoachNavigation() {
       {/* Mobile Hamburger Button */}
       <button
         type="button"
-        onClick={() => setMenuOpen(true)}
-        className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/5 backdrop-blur-xl"
+        onClick={() => setMobileOpen(true)}
+        className="md:hidden inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 backdrop-blur-md"
         aria-label="Open menu"
       >
         <span className="text-white/80 text-lg leading-none">≡</span>
       </button>
 
       {/* Mobile Overlay */}
-      {menuOpen && (
-        <div className="fixed inset-0 z-[100] md:hidden">
-          {/* Dim backdrop */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-[999] md:hidden">
+          {/* Backdrop */}
           <button
+            type="button"
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setMobileOpen(false)}
             aria-label="Close menu"
-            onClick={() => setMenuOpen(false)}
-            className="absolute inset-0 bg-black/50"
           />
 
           {/* Panel */}
-          <div className="absolute right-0 top-0 h-full w-[86vw] max-w-[380px] border-l border-white/10 bg-[#0b1020]/60 backdrop-blur-2xl">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
-              <div className="tracking-[0.35em] text-xs text-white/70">5TH GEAR</div>
+          <div className="absolute right-4 top-4 w-[min(92vw,420px)] rounded-2xl border border-white/15 bg-white/5 backdrop-blur-xl shadow-2xl">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+              <div className="text-xs tracking-[0.25em] text-white/70">5TH GEAR</div>
               <button
-                onClick={() => setMenuOpen(false)}
-                className="h-10 w-10 rounded-full border border-white/20 bg-white/5 inline-flex items-center justify-center"
+                type="button"
+                onClick={() => setMobileOpen(false)}
+                className="h-10 w-10 rounded-full border border-white/15 bg-white/5 inline-flex items-center justify-center"
                 aria-label="Close menu"
               >
-                <span className="text-white/80 text-lg leading-none">×</span>
+                <span className="text-white/80 text-lg leading-none">✕</span>
               </button>
             </div>
 
-            <nav className="p-3 flex flex-col gap-2 flex-1">
-              <div className="space-y-2">
+            <nav className="p-3">
+              <div className="flex flex-col gap-2">
                 {coachLinks.map((link) => {
                   const active = pathname === link.href || pathname?.startsWith(`${link.href}/`);
                   const showBadge = link.href === "/messages" && unreadCount > 0;
@@ -233,55 +239,48 @@ export default function CoachNavigation() {
                     <Link
                       key={link.href}
                       href={link.href}
-                      onClick={() => setMenuOpen(false)}
+                      onClick={() => setMobileOpen(false)}
                       className={[
-                        "flex items-center justify-between w-full rounded-2xl px-4 py-4",
-                        "border border-white/10 bg-white/5",
-                        "text-sm tracking-[0.25em] uppercase",
-                        active ? "text-white bg-white/10" : "text-white/80 hover:bg-white/10",
+                        "rounded-xl px-4 py-3 text-sm tracking-widest uppercase",
+                        "border border-white/10 bg-white/0 hover:bg-white/5 transition",
+                        active ? "bg-white/10 border-white/20" : "",
                       ].join(" ")}
                     >
-                      <span>{link.label}</span>
-                      {showBadge ? (
-                        <span
-                          style={{
-                            backgroundColor: "#ef4444",
-                            color: "#ffffff",
-                            borderRadius: "10px",
-                            padding: "2px 6px",
-                            fontSize: "10px",
-                            fontWeight: "600",
-                            minWidth: "18px",
-                            textAlign: "center",
-                            lineHeight: "14px",
-                          }}
-                        >
-                          {unreadCount > 99 ? "99+" : unreadCount}
-                        </span>
-                      ) : (
-                        <span className="text-white/30">→</span>
-                      )}
+                      <div className="flex items-center justify-between">
+                        <span>{link.label}</span>
+                        {showBadge ? (
+                          <span
+                            style={{
+                              backgroundColor: "#ef4444",
+                              color: "#ffffff",
+                              borderRadius: "10px",
+                              padding: "2px 6px",
+                              fontSize: "10px",
+                              fontWeight: "600",
+                              minWidth: "18px",
+                              textAlign: "center",
+                              lineHeight: "14px",
+                            }}
+                          >
+                            {unreadCount > 99 ? "99+" : unreadCount}
+                          </span>
+                        ) : null}
+                      </div>
                     </Link>
                   );
                 })}
-              </div>
 
-              <button
-                onClick={(e) => {
-                  setMenuOpen(false);
-                  signOut(e);
-                }}
-                onTouchEnd={(e) => {
-                  e.preventDefault();
-                  setMenuOpen(false);
-                  signOut(e);
-                }}
-                type="button"
-                className="mt-auto flex items-center justify-between w-full rounded-2xl px-4 py-4 border border-white/10 bg-white/5 text-sm tracking-[0.25em] uppercase text-white/80 hover:bg-white/10"
-              >
-                <span>Logout</span>
-                <span className="text-white/30">→</span>
-              </button>
+                <button
+                  type="button"
+                  onClick={async (e) => {
+                    setMobileOpen(false);
+                    await signOut(e);
+                  }}
+                  className="mt-2 rounded-xl px-4 py-3 text-sm tracking-widest uppercase border border-white/10 bg-white/0 hover:bg-white/5 transition text-left"
+                >
+                  Logout
+                </button>
+              </div>
             </nav>
           </div>
         </div>

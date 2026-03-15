@@ -20,6 +20,7 @@ export async function rpcDecideBooking(bookingId: string, decision: 'accept' | '
   if (error) throw error;
 }
 
+/** @deprecated Use rpcGenerateSlotsForWindow per window instead */
 export async function rpcGenerateOpenings(weeks: number) {
   const supabase = getSupabaseBrowserClient();
   const { data, error } = await supabase.rpc('generate_openings', { p_weeks: weeks });
@@ -27,6 +28,21 @@ export async function rpcGenerateOpenings(weeks: number) {
   return data as number;
 }
 
+export async function rpcGenerateSlotsForWindow(windowId: string, weeks = 6) {
+  const supabase = getSupabaseBrowserClient();
+  const { data, error } = await supabase.rpc('generate_slots_for_window', {
+    p_window_id: windowId,
+    p_weeks: weeks,
+  });
+  if (error) throw error;
+  return data as number;
+}
 
-
-
+export async function rpcSetSlotVisibility(openingId: string, visible: boolean) {
+  const supabase = getSupabaseBrowserClient();
+  const { error } = await supabase.rpc('set_slot_visibility', {
+    p_opening_id: openingId,
+    p_visible: visible,
+  });
+  if (error) throw error;
+}

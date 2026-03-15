@@ -24,6 +24,7 @@ const fetcher = async () => {
     .gte("start_at", from.toISOString())
     .lte("start_at", to.toISOString())
     .gt("spots_available", 0)
+    .eq("is_visible", true)
     .order("start_at");
   if (error) throw error;
   return data as Opening[];

@@ -4,34 +4,69 @@
 create or replace function public._booking_accept_effects()
 returns trigger language plpgsql as $$
 declare
-  v_coach_id uuid;
+  v_coach_id     uuid;
+  v_window_id    uuid;
+  v_slot_date    date;
+  v_max_ro       int;
+  v_exp_step     int;
 begin
   if NEW.status = 'accepted' and OLD.status is distinct from 'accepted' then
-    -- Get coach_id from opening
-    select o.coach_id into v_coach_id from public.openings o where o.id = NEW.opening_id;
-    
+    -- Get coach_id, window_id, and slot date from opening
+    select o.coach_id, o.window_id, o.start_at::date
+    into v_coach_id, v_window_id, v_slot_date
+    from public.openings o
+    where o.id = NEW.opening_id;
+
     -- Add client to coach roster if not already there
     insert into public.coach_clients (coach_id, client_id)
     values (v_coach_id, NEW.client_id)
     on conflict (coach_id, client_id) do nothing;
-    
+
     -- Update opening spots
     update public.openings set spots_available = spots_available - 1
     where id = NEW.opening_id and spots_available > 0;
     if not found then raise exception 'no_spots'; end if;
-    
+
     -- Create lesson with location (use location_requested from booking if provided, otherwise use opening location)
     insert into public.lessons (opening_id, coach_id, client_id, start_at, end_at, location)
-    select 
-      o.id, 
-      o.coach_id, 
-      NEW.client_id, 
-      o.start_at, 
+    select
+      o.id,
+      o.coach_id,
+      NEW.client_id,
+      o.start_at,
       o.end_at,
       coalesce(NEW.location_requested, o.location)
     from public.openings o
-    where o.id = NEW.opening_id 
+    where o.id = NEW.opening_id
     on conflict (opening_id) do nothing;
+
+    -- Center-out expansion: reveal next slot(s) for this window on this date
+    if v_window_id is not null then
+      -- Get the expansion step configured for this window
+      select w.expansion_step into v_exp_step
+      from public.availability_windows w
+      where w.id = v_window_id;
+
+      -- Find the current visibility boundary (highest release_order among visible slots on this date)
+      select max(o.release_order) into v_max_ro
+      from public.openings o
+      where o.window_id = v_window_id
+        and o.start_at::date = v_slot_date
+        and o.is_visible = true;
+
+      -- Reveal the next band of slots up to max_ro + expansion_step
+      -- release_order is unique per slot per day (right-biased rank from center),
+      -- so each expansion_step of 1 reveals 1 additional slot, alternating sides.
+      if v_max_ro is not null then
+        update public.openings
+        set is_visible = true
+        where window_id = v_window_id
+          and start_at::date = v_slot_date
+          and release_order > v_max_ro
+          and release_order <= v_max_ro + v_exp_step
+          and is_visible = false;
+      end if;
+    end if;
   end if;
   return NEW;
 end; $$;

@@ -622,6 +622,13 @@ body {
   }
 }
 
+/* Desktop: anchor hero image lower so the player stays in frame (not cut off) */
+@media (min-width: 769px) {
+  .hero {
+    background-position: center 65%;
+  }
+}
+
 .hero-overlay {
   position: absolute;
   inset: 0;

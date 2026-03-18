@@ -46,3 +46,9 @@ export async function rpcSetSlotVisibility(openingId: string, visible: boolean) 
   });
   if (error) throw error;
 }
+
+export async function rpcDeleteWindow(windowId: string) {
+  const supabase = getSupabaseBrowserClient();
+  const { error } = await supabase.rpc('delete_window', { p_window_id: windowId });
+  if (error) throw error;
+}

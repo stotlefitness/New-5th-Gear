@@ -2,7 +2,7 @@
 
 import useSWR from "swr";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import { rpcGenerateSlotsForWindow, rpcSetSlotVisibility } from "@/lib/rpc";
+import { rpcGenerateSlotsForWindow, rpcSetSlotVisibility, rpcDeleteWindow } from "@/lib/rpc";
 import { useState, useEffect, useMemo } from "react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -243,12 +243,12 @@ export default function AvailabilityPage() {
 
   async function deleteWindow(id: string) {
     if (!confirm("Delete this availability window? All unbooked generated slots will be removed.")) return;
-    // Slots with window_id are cascade-deleted via openings.window_id ON DELETE SET NULL
-    // so we just soft-clean: delete future unbooked slots then the window
-    const { error } = await supabase.from("availability_windows").delete().eq("id", id);
-    if (error) return alert(error.message);
-    mutateWindows();
-    mutateOpenings();
+    try {
+      await rpcDeleteWindow(id);
+      await Promise.all([mutateWindows(), mutateOpenings()]);
+    } catch (e: any) {
+      alert(e.message || "Failed to delete window");
+    }
   }
 
   async function generateSlots(windowId: string) {

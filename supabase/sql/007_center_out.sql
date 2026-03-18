@@ -224,7 +224,40 @@ begin
 end; $$;
 
 -- ============================================================================
--- PART 6: RLS for availability_windows
+-- PART 6: delete_window RPC
+-- ============================================================================
+-- Handles window deletion as security definer to safely cascade through
+-- openings (which has RLS enabled with no direct UPDATE/DELETE policy).
+
+create or replace function public.delete_window(p_window_id uuid)
+returns void language plpgsql security definer set search_path = public as $$
+declare
+  v_coach uuid := auth.uid();
+begin
+  if v_coach is null then raise exception 'unauthorized'; end if;
+
+  -- Verify ownership
+  perform 1 from public.availability_windows
+  where id = p_window_id and coach_id = v_coach;
+  if not found then raise exception 'not_found'; end if;
+
+  -- Remove future unbooked openings for this window
+  delete from public.openings
+  where window_id = p_window_id
+    and start_at >= now()
+    and not exists (
+      select 1 from public.bookings b
+      where b.opening_id = openings.id
+        and b.status in ('accepted', 'pending')
+    );
+
+  -- Delete the window itself
+  delete from public.availability_windows
+  where id = p_window_id and coach_id = v_coach;
+end; $$;
+
+-- ============================================================================
+-- PART 7: RLS for availability_windows
 -- ============================================================================
 
 alter table public.availability_windows enable row level security;

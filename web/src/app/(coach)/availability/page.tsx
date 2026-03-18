@@ -18,6 +18,7 @@ type AvailabilityWindow = {
   buffer_minutes: number;
   initial_visible_count: number;
   expansion_step: number;
+  timezone: string;
   status: "draft" | "published" | "archived";
   created_at: string;
 };
@@ -232,6 +233,7 @@ export default function AvailabilityPage() {
       buffer_minutes: bufferMinutes,
       initial_visible_count: initialVisibleCount,
       expansion_step: 1,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       status: "draft",
     };
 

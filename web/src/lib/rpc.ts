@@ -50,5 +50,22 @@ export async function rpcSetSlotVisibility(openingId: string, visible: boolean) 
 export async function rpcDeleteWindow(windowId: string) {
   const supabase = getSupabaseBrowserClient();
   const { error } = await supabase.rpc('delete_window', { p_window_id: windowId });
-  if (error) throw error;
+  if (!error) return;
+
+  // PostgREST returns 404 when the RPC doesn't exist OR isn't executable by the current role.
+  // Make the failure actionable (usually means the SQL that defines/grants the RPC isn't applied in this Supabase project).
+  const msg = (error as any)?.message ? String((error as any).message) : '';
+  const code = (error as any)?.code ? String((error as any).code) : '';
+  const looksLikeMissingRpc =
+    msg.includes('404') ||
+    msg.toLowerCase().includes('not found') ||
+    code.toUpperCase().includes('404');
+
+  if (looksLikeMissingRpc) {
+    throw new Error(
+      "Delete RPC not found (or not permitted). Apply the `public.delete_window(uuid)` function + `GRANT EXECUTE` in Supabase, then retry."
+    );
+  }
+
+  throw error;
 }

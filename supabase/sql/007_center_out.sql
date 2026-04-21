@@ -256,6 +256,9 @@ begin
   where id = p_window_id and coach_id = v_coach;
 end; $$;
 
+-- Ensure PostgREST can execute this RPC (Supabase may hide it as 404 otherwise)
+grant execute on function public.delete_window(uuid) to authenticated;
+
 -- ============================================================================
 -- PART 7: RLS for availability_windows
 -- ============================================================================

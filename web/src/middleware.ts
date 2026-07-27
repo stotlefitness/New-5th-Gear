@@ -42,15 +42,23 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) {
-    // Not authenticated - let auth pages through, redirect others to login
-    if (!request.nextUrl.pathname.startsWith('/login') && 
-        !request.nextUrl.pathname.startsWith('/signup') &&
-        !request.nextUrl.pathname.startsWith('/forgot-password') &&
-        !request.nextUrl.pathname.startsWith('/reset-password') &&
-        !request.nextUrl.pathname.startsWith('/complete-account') &&
-        !request.nextUrl.pathname.startsWith('/auth/callback') &&
-        !request.nextUrl.pathname.startsWith('/signup/complete') &&
-        request.nextUrl.pathname !== '/') {
+    // Not authenticated - let public + auth pages through, redirect others to login
+    const pathname = request.nextUrl.pathname
+    const isPublic =
+      pathname === '/' ||
+      pathname.startsWith('/login') ||
+      pathname.startsWith('/signup') ||
+      pathname.startsWith('/forgot-password') ||
+      pathname.startsWith('/reset-password') ||
+      pathname.startsWith('/complete-account') ||
+      pathname.startsWith('/auth/callback') ||
+      pathname.startsWith('/signup/complete') ||
+      pathname.startsWith('/resources') ||
+      pathname === '/sitemap.xml' ||
+      pathname === '/robots.txt' ||
+      pathname === '/llms.txt'
+
+    if (!isPublic) {
       return NextResponse.redirect(new URL('/login', request.url))
     }
     return response
@@ -96,7 +104,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|pdf)$).*)',
   ],
 }
 
